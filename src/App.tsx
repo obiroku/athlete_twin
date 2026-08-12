@@ -1,122 +1,84 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from "react";
+import { AthleteWorkspace } from "./components/AthleteWorkspace";
+import { ComparisonView } from "./components/ComparisonView";
+import { VideoLoader } from "./components/VideoLoader";
+import type { AthleteSession } from "./lib/types";
+
+type Slot = "a" | "b";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [sessions, setSessions] = useState<Record<Slot, AthleteSession | null>>({
+    a: null,
+    b: null,
+  });
+  const [tab, setTab] = useState<"analyze" | "compare">("analyze");
+  const [activeSlot, setActiveSlot] = useState<Slot>("a");
+
+  const setSession = (slot: Slot, session: AthleteSession) =>
+    setSessions((prev) => ({ ...prev, [slot]: session }));
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
+    <div style={{ maxWidth: 900, margin: "0 auto", padding: 16 }}>
+      <header style={{ marginBottom: 16 }}>
+        <h1 style={{ fontSize: 18, margin: 0 }}>Athlete Twin — Milestone 0 diagnostic rig</h1>
+        <p style={{ opacity: 0.7, margin: "4px 0" }}>
+          Disposable research code. Question: does side-on phone video contain stable,
+          athlete-specific movement signatures? All processing is on-device — video never leaves
+          this browser.
+        </p>
+      </header>
+
+      <nav style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+        <button onClick={() => setTab("analyze")} disabled={tab === "analyze"}>
+          analyze
         </button>
-      </section>
+        <button onClick={() => setTab("compare")} disabled={tab === "compare"}>
+          compare
+        </button>
+      </nav>
 
-      <div className="ticks"></div>
+      {tab === "analyze" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          <div style={{ display: "flex", gap: 8 }}>
+            {(["a", "b"] as Slot[]).map((slot) => (
+              <button
+                key={slot}
+                onClick={() => setActiveSlot(slot)}
+                disabled={activeSlot === slot}
+              >
+                athlete {slot.toUpperCase()}
+                {sessions[slot] ? ` — ${sessions[slot]!.label}` : ""}
+              </button>
+            ))}
+          </div>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+          {!sessions[activeSlot] && (
+            <VideoLoader
+              label={`athlete ${activeSlot.toUpperCase()}`}
+              onLoaded={(session) => setSession(activeSlot, session)}
+            />
+          )}
+
+          {sessions[activeSlot] && (
+            <AthleteWorkspace
+              session={sessions[activeSlot]!}
+              onChange={(session) => setSession(activeSlot, session)}
+            />
+          )}
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      )}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {tab === "compare" && (
+        <div>
+          {sessions.a && sessions.b ? (
+            <ComparisonView sessionA={sessions.a} sessionB={sessions.b} />
+          ) : (
+            <p>Load both athlete A and athlete B in the "analyze" tab first.</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
-export default App
+export default App;

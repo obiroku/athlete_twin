@@ -1,8 +1,6 @@
 import { PoseLandmarker } from "@mediapipe/tasks-vision";
-// @ts-expect-error -- ?url import gives a resolved asset URL string, not a module
-import wasmLoaderUrl from "@mediapipe/tasks-vision/wasm/vision_wasm_internal.js?url";
-// @ts-expect-error -- ?url import gives a resolved asset URL string, not a module
-import wasmBinaryUrl from "@mediapipe/tasks-vision/wasm/vision_wasm_internal.wasm?url";
+import wasmLoaderUrl from "@mediapipe/tasks-vision/vision_wasm_internal.js?url";
+import wasmBinaryUrl from "@mediapipe/tasks-vision/vision_wasm_internal.wasm?url";
 import type { DecodedFrame, FrameLandmarks, Landmark } from "./types";
 
 // The wasm engine is bundled as a local asset (via Vite's ?url imports)
@@ -24,9 +22,12 @@ let landmarkerPromise: Promise<PoseLandmarker> | null = null;
 function getLandmarker(): Promise<PoseLandmarker> {
   if (!landmarkerPromise) {
     landmarkerPromise = PoseLandmarker.createFromOptions(
-      { wasmLoaderPath: wasmLoaderUrl as string, wasmBinaryPath: wasmBinaryUrl as string },
+      { wasmLoaderPath: wasmLoaderUrl, wasmBinaryPath: wasmBinaryUrl },
       {
-        baseOptions: { modelAssetPath: POSE_MODEL_URL, delegate: "GPU" },
+        // CPU delegate: slower than GPU, but GPU has known compatibility
+        // gaps (Safari/WebGL context setup) and this phase cares more
+        // about "does tracking work at all" than throughput.
+        baseOptions: { modelAssetPath: POSE_MODEL_URL, delegate: "CPU" },
         runningMode: "VIDEO",
         numPoses: 1,
       },
