@@ -1,0 +1,13 @@
+:root {
+  color-scheme: light dark;
+  font: 14px/1.4 ui-monospace, Consolas, monospace;
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  max-width: 100%;
+  min-height: 100vh;
+}
