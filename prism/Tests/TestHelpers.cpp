@@ -176,4 +176,22 @@ bool writeWav (const juce::File& f, const juce::AudioBuffer<float>& b, double sr
     os.release();
     return w->writeFromAudioSampleBuffer (b, 0, b.getNumSamples());
 }
+Loudness measurePreset (const PresetData& d)
+{
+    auto p = makeProcessor();
+    loadPresetNow (*p, d);
+    render (*p, {}, 0.05); // let the preset settle (smoothers) before the chord
+    auto b = render (*p, { { 0.0, 3.0, 60, 0.8f }, { 0.0, 3.0, 64, 0.8f }, { 0.0, 3.0, 67, 0.8f } }, 3.5);
+    Loudness l;
+    // short-term loudness: the loudest 400 ms RMS window (hop 100 ms), fair to plucks and slow pads
+    double best = 0.0;
+    for (int a = 0; a + 19200 <= b.getNumSamples(); a += 4800)
+    {
+        const double l0 = rms (b, 0, a, 19200), l1 = rms (b, 1, a, 19200);
+        best = std::max (best, std::sqrt (0.5 * (l0 * l0 + l1 * l1)));
+    }
+    l.rmsDb = 20.0 * std::log10 (best + 1e-12);
+    l.peak = peak (b);
+    return l;
+}
 } // namespace prism::test

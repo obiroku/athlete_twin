@@ -1,0 +1,208 @@
+{
+  "format_version": 1,
+  "name": "Upright Sub",
+  "author": "Asher",
+  "category": "Bass",
+  "tags": [
+    "bass",
+    "upright",
+    "mono"
+  ],
+  "description": "Round mono bass with a finger thump.",
+  "macros": [
+    {
+      "name": "Thump",
+      "value": 0.0
+    },
+    {
+      "name": "Tone",
+      "value": 0.0
+    },
+    {
+      "name": "Length",
+      "value": 0.0
+    },
+    {
+      "name": "Grit",
+      "value": 0.0
+    }
+  ],
+  "params": {
+    "voice_mode": 2,
+    "glide_time": 0.03,
+    "oscA_wt_pos": 0.1,
+    "sub_shape": 0,
+    "sub_oct": 0,
+    "sub_level": 0.5,
+    "sub_dest": 3,
+    "noise_type": 2,
+    "noise_level": 0.0,
+    "f1_type": 10,
+    "f1_cutoff": 600.0,
+    "f1_reso": 0.15,
+    "f1_keytrack": 0.6,
+    "env1_attack": 0.002,
+    "env1_decay": 0.6,
+    "env1_sustain": 0.5,
+    "env1_release": 0.12,
+    "env2_decay": 0.25,
+    "env2_sustain": 0.0,
+    "env3_attack": 0.0,
+    "env3_decay": 0.04,
+    "env3_sustain": 0.0,
+    "bass_mono": 150.0,
+    "comp_thresh": -20.0,
+    "comp_ratio": 3.0,
+    "comp_attack": 8.0,
+    "comp_release": 120.0,
+    "eq_ls_gain": 2.0,
+    "eq_ls_freq": 90.0,
+    "mod01_depth": 0.0,
+    "mod02_depth": 0.1,
+    "mod03_depth": 0.45,
+    "mod04_depth": 0.2,
+    "mod05_depth": 0.4,
+    "mod06_depth": 0.2,
+    "mod07_depth": 0.3,
+    "mod08_depth": 0.2,
+    "mod09_depth": 0.5,
+    "mod10_depth": 0.3,
+    "dist_on": 0.0,
+    "tape_on": 0.0,
+    "dim_on": 0.0,
+    "chorus_on": 0.0,
+    "phaser_on": 0.0,
+    "flanger_on": 0.0,
+    "rotary_on": 0.0,
+    "delay_on": 0.0,
+    "reverb_on": 0.0,
+    "comp_on": 1.0,
+    "mb_on": 0.0,
+    "eq_on": 1.0,
+    "master_vol": -0.89
+  },
+  "mod_routings": [
+    {
+      "source": "env2",
+      "dest": "f1_cutoff",
+      "depth": 0.0,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 1
+    },
+    {
+      "source": "aftertouch",
+      "dest": "f1_cutoff",
+      "depth": 0.1,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 2
+    },
+    {
+      "source": "env3",
+      "dest": "noise_level",
+      "depth": 0.45,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 3
+    },
+    {
+      "source": "env2",
+      "dest": "f1_cutoff",
+      "depth": 0.2,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 4
+    },
+    {
+      "source": "macro1",
+      "dest": "mod03_depth",
+      "depth": 0.4,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 5
+    },
+    {
+      "source": "macro2",
+      "dest": "f1_cutoff",
+      "depth": 0.2,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 6
+    },
+    {
+      "source": "macro3",
+      "dest": "env1_decay",
+      "depth": 0.3,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 7
+    },
+    {
+      "source": "macro3",
+      "dest": "env1_release",
+      "depth": 0.2,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 8
+    },
+    {
+      "source": "macro4",
+      "dest": "f1_drive",
+      "depth": 0.5,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 9
+    },
+    {
+      "source": "macro4",
+      "dest": "f1_reso",
+      "depth": 0.3,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 10
+    }
+  ],
+  "fx_order": [
+    "compressor",
+    "eq",
+    "distortion",
+    "tape",
+    "dimension",
+    "chorus",
+    "phaser",
+    "flanger",
+    "rotary",
+    "delay",
+    "reverb",
+    "multiband"
+  ],
+  "wavetables": {
+    "oscA": {
+      "factory": "Sub Stack"
+    },
+    "oscB": {
+      "factory": "Basic Shapes"
+    }
+  }
+}

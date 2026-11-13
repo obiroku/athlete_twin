@@ -1,0 +1,208 @@
+{
+  "format_version": 1,
+  "name": "Gospel Pad",
+  "author": "Asher",
+  "category": "Pad",
+  "tags": [
+    "pad",
+    "gospel",
+    "warm"
+  ],
+  "description": "Choir-ish pad with an organ undertone.",
+  "macros": [
+    {
+      "name": "Air",
+      "value": 0.0
+    },
+    {
+      "name": "Movement",
+      "value": 0.0
+    },
+    {
+      "name": "Width",
+      "value": 0.0
+    },
+    {
+      "name": "Warmth",
+      "value": 0.0
+    }
+  ],
+  "params": {
+    "oscA_wt_pos": 0.3,
+    "oscA_unison": 5,
+    "oscA_detune": 0.15,
+    "oscB_oct": -1,
+    "oscB_level": 0.2,
+    "f1_type": 1,
+    "f1_cutoff": 2200.0,
+    "env1_attack": 0.8,
+    "env1_release": 2.5,
+    "env2_attack": 1.5,
+    "env2_decay": 1.0,
+    "env2_sustain": 1.0,
+    "lfo1_rate": 0.2,
+    "lfo1_mode": 0,
+    "chorus_mix": 0.35,
+    "reverb_mix": 0.6,
+    "reverb_size": 0.75,
+    "reverb_decay": 4.5,
+    "mod01_depth": 0.0,
+    "mod02_depth": 0.1,
+    "mod03_depth": 0.25,
+    "mod04_depth": 0.1,
+    "mod05_depth": 0.3,
+    "mod06_depth": 0.12,
+    "mod07_depth": 0.3,
+    "mod08_depth": 0.4,
+    "mod09_depth": 0.25,
+    "mod10_depth": 0.35,
+    "mod11_depth": 0.0,
+    "dist_on": 0.0,
+    "tape_on": 0.0,
+    "dim_on": 0.0,
+    "chorus_on": 1.0,
+    "phaser_on": 0.0,
+    "flanger_on": 0.0,
+    "rotary_on": 0.0,
+    "delay_on": 0.0,
+    "reverb_on": 1.0,
+    "comp_on": 0.0,
+    "mb_on": 0.0,
+    "eq_on": 0.0,
+    "master_vol": -6.39
+  },
+  "mod_routings": [
+    {
+      "source": "env2",
+      "dest": "f1_cutoff",
+      "depth": 0.0,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 1
+    },
+    {
+      "source": "aftertouch",
+      "dest": "f1_cutoff",
+      "depth": 0.1,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 2
+    },
+    {
+      "source": "env2",
+      "dest": "f1_cutoff",
+      "depth": 0.25,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 3
+    },
+    {
+      "source": "lfo1",
+      "dest": "oscA_wt_pos",
+      "depth": 0.1,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 4
+    },
+    {
+      "source": "macro1",
+      "dest": "reverb_mix",
+      "depth": 0.3,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 5
+    },
+    {
+      "source": "macro1",
+      "dest": "f1_cutoff",
+      "depth": 0.12,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 6
+    },
+    {
+      "source": "macro2",
+      "dest": "mod04_depth",
+      "depth": 0.3,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 7
+    },
+    {
+      "source": "macro3",
+      "dest": "oscA_spread",
+      "depth": 0.4,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 8
+    },
+    {
+      "source": "macro3",
+      "dest": "master_width",
+      "depth": 0.25,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 9
+    },
+    {
+      "source": "macro4",
+      "dest": "f1_drive",
+      "depth": 0.35,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 10
+    },
+    {
+      "source": "macro4",
+      "dest": "tape_mix",
+      "depth": 0.0,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 11
+    }
+  ],
+  "fx_order": [
+    "chorus",
+    "reverb",
+    "distortion",
+    "tape",
+    "dimension",
+    "phaser",
+    "flanger",
+    "rotary",
+    "delay",
+    "compressor",
+    "multiband",
+    "eq"
+  ],
+  "wavetables": {
+    "oscA": {
+      "factory": "Choirish"
+    },
+    "oscB": {
+      "factory": "Organ-ish"
+    }
+  }
+}

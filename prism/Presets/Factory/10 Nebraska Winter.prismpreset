@@ -1,0 +1,198 @@
+{
+  "format_version": 1,
+  "name": "Nebraska Winter",
+  "author": "Asher",
+  "category": "Pad",
+  "tags": [
+    "pad",
+    "folk",
+    "lo-fi"
+  ],
+  "description": "Hollow, aged tape pad.",
+  "macros": [
+    {
+      "name": "Cold",
+      "value": 0.0
+    },
+    {
+      "name": "Tape Age",
+      "value": 0.0
+    },
+    {
+      "name": "Wind",
+      "value": 0.0
+    },
+    {
+      "name": "Distance",
+      "value": 0.0
+    }
+  ],
+  "params": {
+    "oscA_wt_pos": 0.3,
+    "oscB_wt_pos": 0.1,
+    "oscB_oct": -1,
+    "oscB_level": 0.5,
+    "env1_attack": 1.5,
+    "env1_release": 5.0,
+    "lfo1_rate": 0.05,
+    "lfo1_mode": 0,
+    "noise_type": 1,
+    "noise_tone": 0.7,
+    "noise_level": 0.0,
+    "f1_cutoff": 5000.0,
+    "f1_type": 0,
+    "tape_age": 0.6,
+    "tape_hiss": 0.3,
+    "reverb_damp": 0.7,
+    "reverb_decay": 7.0,
+    "reverb_mix": 0.45,
+    "reverb_size": 0.8,
+    "mod01_depth": 0.0,
+    "mod02_depth": 0.1,
+    "mod03_depth": 0.000833333333333,
+    "mod04_depth": 0.45,
+    "mod05_depth": -0.12,
+    "mod06_depth": 0.4,
+    "mod07_depth": 0.4,
+    "mod08_depth": 0.15,
+    "mod09_depth": 0.35,
+    "mod10_depth": 0.4,
+    "dist_on": 0.0,
+    "tape_on": 1.0,
+    "dim_on": 0.0,
+    "chorus_on": 0.0,
+    "phaser_on": 0.0,
+    "flanger_on": 0.0,
+    "rotary_on": 0.0,
+    "delay_on": 0.0,
+    "reverb_on": 1.0,
+    "comp_on": 0.0,
+    "mb_on": 0.0,
+    "eq_on": 1.0,
+    "master_vol": -13.23
+  },
+  "mod_routings": [
+    {
+      "source": "env2",
+      "dest": "f1_cutoff",
+      "depth": 0.0,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 1
+    },
+    {
+      "source": "aftertouch",
+      "dest": "f1_cutoff",
+      "depth": 0.1,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 2
+    },
+    {
+      "source": "lfo1",
+      "dest": "voice_pitch",
+      "depth": 0.000833333333333,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 3
+    },
+    {
+      "source": "macro1",
+      "dest": "eq_hp",
+      "depth": 0.45,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 4
+    },
+    {
+      "source": "macro1",
+      "dest": "f1_cutoff",
+      "depth": -0.12,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 5
+    },
+    {
+      "source": "macro2",
+      "dest": "tape_age",
+      "depth": 0.4,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 6
+    },
+    {
+      "source": "macro2",
+      "dest": "tape_wow_depth",
+      "depth": 0.4,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 7
+    },
+    {
+      "source": "macro3",
+      "dest": "noise_level",
+      "depth": 0.15,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 8
+    },
+    {
+      "source": "macro4",
+      "dest": "reverb_mix",
+      "depth": 0.35,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 9
+    },
+    {
+      "source": "macro4",
+      "dest": "reverb_predelay",
+      "depth": 0.4,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 10
+    }
+  ],
+  "fx_order": [
+    "tape",
+    "reverb",
+    "eq",
+    "distortion",
+    "dimension",
+    "chorus",
+    "phaser",
+    "flanger",
+    "rotary",
+    "delay",
+    "compressor",
+    "multiband"
+  ],
+  "wavetables": {
+    "oscA": {
+      "factory": "Hollow"
+    },
+    "oscB": {
+      "factory": "Triangle Stack"
+    }
+  }
+}

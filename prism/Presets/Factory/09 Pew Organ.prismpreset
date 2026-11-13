@@ -1,0 +1,178 @@
+{
+  "format_version": 1,
+  "name": "Pew Organ",
+  "author": "Asher",
+  "category": "Organ",
+  "tags": [
+    "organ",
+    "gospel",
+    "rotary"
+  ],
+  "description": "Drawbar organ with a rotary speaker.",
+  "macros": [
+    {
+      "name": "Drawbars",
+      "value": 0.0
+    },
+    {
+      "name": "Rotor",
+      "value": 0.0
+    },
+    {
+      "name": "Drive",
+      "value": 0.0
+    },
+    {
+      "name": "Room",
+      "value": 0.0
+    }
+  ],
+  "params": {
+    "oscA_wt_pos": 0.3,
+    "oscB_oct": 1,
+    "oscB_level": 0.4,
+    "oscA_rand_phase": 0.0,
+    "oscB_rand_phase": 0.0,
+    "f1_enable": 0.0,
+    "env1_attack": 0.005,
+    "env1_sustain": 1.0,
+    "env1_release": 0.08,
+    "env1_vel_amt": 0.0,
+    "noise_type": 0,
+    "noise_tone": 0.8,
+    "env3_decay": 0.015,
+    "env3_sustain": 0.0,
+    "drift": 0.05,
+    "dist_mode": 3,
+    "dist_mix": 0.1,
+    "dist_drive": 6.0,
+    "rotary_mw": 1.0,
+    "reverb_mix": 0.25,
+    "reverb_size": 0.7,
+    "mod01_depth": 0.0,
+    "mod02_depth": 0.1,
+    "mod03_depth": 0.25,
+    "mod04_depth": 0.7,
+    "mod05_depth": 1.0,
+    "mod06_depth": 0.4,
+    "mod07_depth": 0.5,
+    "mod08_depth": 0.35,
+    "dist_on": 1.0,
+    "tape_on": 0.0,
+    "dim_on": 0.0,
+    "chorus_on": 0.0,
+    "phaser_on": 0.0,
+    "flanger_on": 0.0,
+    "rotary_on": 1.0,
+    "delay_on": 0.0,
+    "reverb_on": 1.0,
+    "comp_on": 0.0,
+    "mb_on": 0.0,
+    "eq_on": 0.0,
+    "master_vol": -6.69
+  },
+  "mod_routings": [
+    {
+      "source": "env2",
+      "dest": "f1_cutoff",
+      "depth": 0.0,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 1
+    },
+    {
+      "source": "aftertouch",
+      "dest": "f1_cutoff",
+      "depth": 0.1,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 2
+    },
+    {
+      "source": "env3",
+      "dest": "noise_level",
+      "depth": 0.25,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 3
+    },
+    {
+      "source": "macro1",
+      "dest": "oscA_wt_pos",
+      "depth": 0.7,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 4
+    },
+    {
+      "source": "macro2",
+      "dest": "rotary_fast",
+      "depth": 1.0,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 5
+    },
+    {
+      "source": "macro3",
+      "dest": "dist_mix",
+      "depth": 0.4,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 6
+    },
+    {
+      "source": "macro3",
+      "dest": "rotary_drive",
+      "depth": 0.5,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 7
+    },
+    {
+      "source": "macro4",
+      "dest": "reverb_mix",
+      "depth": 0.35,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 8
+    }
+  ],
+  "fx_order": [
+    "distortion",
+    "rotary",
+    "reverb",
+    "tape",
+    "dimension",
+    "chorus",
+    "phaser",
+    "flanger",
+    "delay",
+    "compressor",
+    "multiband",
+    "eq"
+  ],
+  "wavetables": {
+    "oscA": {
+      "factory": "Organ-ish"
+    },
+    "oscB": {
+      "factory": "Organ-ish"
+    }
+  }
+}

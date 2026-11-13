@@ -45,7 +45,7 @@ public:
     PresetData currentPreset() const;                 // snapshot of params + model
     void loadPreset (const PresetData& p, bool fade); // fade=true: 10 ms out, apply, 10 ms in
     void servicePresetLoad();                         // called by the timer (tests call it directly)
-    bool presetLoadPending() const { std::lock_guard<std::mutex> g (modelLock); return pendingPreset != nullptr; }
+    bool presetLoadPending() const { std::lock_guard<std::mutex> g (modelLock); return pendingPreset != nullptr || waitingForTables; }
     void setExtras (const PatchExtras& x);            // routings, shapes, fx order -> audio via FIFO
     PatchExtras getExtras() const;
     void setTableSource (int osc, const TableSource& src);
@@ -89,6 +89,8 @@ private:
     mutable std::mutex modelLock;
     PresetData model;                             // meta, extras, tables (params live in APVTS)
     std::unique_ptr<PresetData> pendingPreset;
+    bool waitingForTables = false;
+    juce::int64 waitStartMs = 0;
 
     // GUI -> audio FIFO for PatchExtras (SPSC, producers serialised by fifoLock)
     static constexpr int FifoCap = 8;
@@ -116,6 +118,7 @@ private:
     juce::String lastSnapshot;
     int idleTicks = 0;
     uint64_t lastStateHash = 0;
+    bool lastMpe = false;
     bool snapshotDirty = false;
     int abSlot = 0;
     juce::String abStore[2];

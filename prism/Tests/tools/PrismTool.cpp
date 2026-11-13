@@ -59,6 +59,40 @@ int main (int argc, char** argv)
         std::cout << "wrote " << out.getFullPathName() << "\n";
         return 0;
     }
+    if (cmd == "normalize" && argc >= 3)
+    {
+        // Adjusts master_vol of every preset in a folder towards a common RMS on the test chord.
+        const double target = argc > 3 ? std::atof (argv[3]) : -18.0;
+        for (const auto& entry : juce::RangedDirectoryIterator (juce::File::getCurrentWorkingDirectory().getChildFile (argv[2]), false, "*.prismpreset"))
+        {
+            const auto file = entry.getFile();
+            for (int pass = 0; pass < 4; ++pass)
+            {
+                auto json = juce::JSON::parse (file.loadFileAsString());
+                PresetData d; juce::String err;
+                if (! presetFromJson (json, d, err)) { std::cout << "parse error " << file.getFileName() << ": " << err << "\n"; break; }
+                const auto l = measurePreset (d);
+                const double vol = d.params[(size_t) P::master_vol];
+                const double nv = juce::jlimit (-30.0, 6.0, vol + (target - l.rmsDb) * 0.9);
+                std::printf ("%-34s pass %d  rms %6.2f dB  peak %.3f  vol %6.2f -> %6.2f\n", file.getFileName().toRawUTF8(), pass, l.rmsDb, l.peak, vol, nv);
+                if (std::abs (target - l.rmsDb) < 0.4) break;
+                json.getProperty ("params", {}).getDynamicObject()->setProperty ("master_vol", std::round (nv * 100.0) / 100.0);
+                file.replaceWithText (juce::JSON::toString (json, false));
+            }
+        }
+        return 0;
+    }
+    if (cmd == "loudness")
+    {
+        for (auto& [res, text] : PresetLibrary::factoryPresetSources())
+        {
+            PresetData d; juce::String err;
+            presetFromString (text, d, err);
+            const auto l = measurePreset (d);
+            std::printf ("%-28s rms %6.2f dB  peak %.3f (%.2f dBFS)\n", d.name.c_str(), l.rmsDb, l.peak, 20 * std::log10 (l.peak + 1e-12));
+        }
+        return 0;
+    }
     std::cout << "unknown command\n";
     return 1;
 }

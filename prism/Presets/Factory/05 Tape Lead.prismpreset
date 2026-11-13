@@ -1,0 +1,191 @@
+{
+  "format_version": 1,
+  "name": "Tape Lead",
+  "author": "Asher",
+  "category": "Lead",
+  "tags": [
+    "lead",
+    "tape",
+    "mono"
+  ],
+  "description": "Saw/square lead through tape and a dotted echo.",
+  "macros": [
+    {
+      "name": "Wobble",
+      "value": 0.0
+    },
+    {
+      "name": "Grit",
+      "value": 0.0
+    },
+    {
+      "name": "Echo",
+      "value": 0.0
+    },
+    {
+      "name": "Vibrato",
+      "value": 0.0
+    }
+  ],
+  "params": {
+    "voice_mode": 2,
+    "glide_time": 0.08,
+    "oscA_wt_pos": 0.9,
+    "oscB_wt_pos": 0.3,
+    "oscB_fine": 7,
+    "oscB_level": 0.5,
+    "f1_type": 10,
+    "f1_cutoff": 2500.0,
+    "f1_reso": 0.3,
+    "f1_drive": 6.0,
+    "lfo2_rate": 5.5,
+    "lfo2_delay": 0.4,
+    "lfo2_fade": 0.6,
+    "dist_mode": 3,
+    "dist_mix": 0.2,
+    "dist_drive": 8.0,
+    "tape_wow_depth": 0.4,
+    "tape_flutter": 0.3,
+    "delay_sync": 1.0,
+    "delay_div": 16,
+    "delay_mix": 0.25,
+    "delay_fb": 0.35,
+    "reverb_mix": 0.2,
+    "mod01_depth": 0.0,
+    "mod02_depth": 0.1,
+    "mod03_depth": 0.003125,
+    "mod04_depth": 0.5,
+    "mod05_depth": 0.5,
+    "mod06_depth": 0.4,
+    "mod07_depth": 0.35,
+    "mod08_depth": 0.25,
+    "mod09_depth": 0.004,
+    "dist_on": 1.0,
+    "tape_on": 1.0,
+    "dim_on": 0.0,
+    "chorus_on": 0.0,
+    "phaser_on": 0.0,
+    "flanger_on": 0.0,
+    "rotary_on": 0.0,
+    "delay_on": 1.0,
+    "reverb_on": 1.0,
+    "comp_on": 0.0,
+    "mb_on": 0.0,
+    "eq_on": 0.0,
+    "master_vol": -10.220000000000001
+  },
+  "mod_routings": [
+    {
+      "source": "env2",
+      "dest": "f1_cutoff",
+      "depth": 0.0,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 1
+    },
+    {
+      "source": "aftertouch",
+      "dest": "f1_cutoff",
+      "depth": 0.1,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 2
+    },
+    {
+      "source": "lfo2",
+      "dest": "voice_pitch",
+      "depth": 0.003125,
+      "polarity": "native",
+      "aux": "mod_wheel",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 3
+    },
+    {
+      "source": "macro1",
+      "dest": "tape_wow_depth",
+      "depth": 0.5,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 4
+    },
+    {
+      "source": "macro2",
+      "dest": "dist_mix",
+      "depth": 0.5,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 5
+    },
+    {
+      "source": "macro2",
+      "dest": "f1_drive",
+      "depth": 0.4,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 6
+    },
+    {
+      "source": "macro3",
+      "dest": "delay_mix",
+      "depth": 0.35,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 7
+    },
+    {
+      "source": "macro3",
+      "dest": "delay_fb",
+      "depth": 0.25,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 8
+    },
+    {
+      "source": "macro4",
+      "dest": "mod03_depth",
+      "depth": 0.004,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 9
+    }
+  ],
+  "fx_order": [
+    "distortion",
+    "tape",
+    "delay",
+    "reverb",
+    "dimension",
+    "chorus",
+    "phaser",
+    "flanger",
+    "rotary",
+    "compressor",
+    "multiband",
+    "eq"
+  ],
+  "wavetables": {
+    "oscA": {
+      "factory": "Saw Sweep"
+    },
+    "oscB": {
+      "factory": "Square Stack"
+    }
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "format_version": 1,
+  "name": "Sunday Morning",
+  "author": "Asher",
+  "category": "Organ",
+  "tags": [
+    "organ",
+    "gospel",
+    "choir"
+  ],
+  "description": "Choir and organ on a slow rotor.",
+  "macros": [
+    {
+      "name": "Light",
+      "value": 0.0
+    },
+    {
+      "name": "Rotor",
+      "value": 0.0
+    },
+    {
+      "name": "Choir",
+      "value": 0.0
+    },
+    {
+      "name": "Room",
+      "value": 0.0
+    }
+  ],
+  "params": {
+    "oscB_level": 0.5,
+    "oscB_wt_pos": 0.4,
+    "env1_attack": 0.3,
+    "env1_release": 1.5,
+    "f1_type": 0,
+    "f1_cutoff": 5000.0,
+    "reverb_mix": 0.4,
+    "reverb_size": 0.75,
+    "reverb_decay": 3.5,
+    "mod01_depth": 0.0,
+    "mod02_depth": 0.1,
+    "mod03_depth": 0.15,
+    "mod04_depth": 0.25,
+    "mod05_depth": 1.0,
+    "mod06_depth": 0.25,
+    "mod07_depth": 0.35,
+    "dist_on": 0.0,
+    "tape_on": 0.0,
+    "dim_on": 0.0,
+    "chorus_on": 0.0,
+    "phaser_on": 0.0,
+    "flanger_on": 0.0,
+    "rotary_on": 1.0,
+    "delay_on": 0.0,
+    "reverb_on": 1.0,
+    "comp_on": 0.0,
+    "mb_on": 0.0,
+    "eq_on": 0.0,
+    "master_vol": -7.63
+  },
+  "mod_routings": [
+    {
+      "source": "env2",
+      "dest": "f1_cutoff",
+      "depth": 0.0,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 1
+    },
+    {
+      "source": "aftertouch",
+      "dest": "f1_cutoff",
+      "depth": 0.1,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 2
+    },
+    {
+      "source": "macro1",
+      "dest": "f1_cutoff",
+      "depth": 0.15,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 3
+    },
+    {
+      "source": "macro1",
+      "dest": "oscB_level",
+      "depth": 0.25,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 4
+    },
+    {
+      "source": "macro2",
+      "dest": "rotary_fast",
+      "depth": 1.0,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 5
+    },
+    {
+      "source": "macro3",
+      "dest": "oscA_level",
+      "depth": 0.25,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 6
+    },
+    {
+      "source": "macro4",
+      "dest": "reverb_mix",
+      "depth": 0.35,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 7
+    }
+  ],
+  "fx_order": [
+    "rotary",
+    "reverb",
+    "distortion",
+    "tape",
+    "dimension",
+    "chorus",
+    "phaser",
+    "flanger",
+    "delay",
+    "compressor",
+    "multiband",
+    "eq"
+  ],
+  "wavetables": {
+    "oscA": {
+      "factory": "Choirish"
+    },
+    "oscB": {
+      "factory": "Organ-ish"
+    }
+  }
+}

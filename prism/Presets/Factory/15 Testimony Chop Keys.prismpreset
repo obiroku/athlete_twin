@@ -1,0 +1,187 @@
+{
+  "format_version": 1,
+  "name": "Testimony Chop Keys",
+  "author": "Asher",
+  "category": "Keys",
+  "tags": [
+    "keys",
+    "chords",
+    "gospel"
+  ],
+  "description": "One key plays a strummed maj9.",
+  "macros": [
+    {
+      "name": "Strum",
+      "value": 0.0
+    },
+    {
+      "name": "Length",
+      "value": 0.0
+    },
+    {
+      "name": "Crunch",
+      "value": 0.0
+    },
+    {
+      "name": "Space",
+      "value": 0.0
+    }
+  ],
+  "params": {
+    "oscA_wt_pos": 0.5,
+    "oscB_level": 0.5,
+    "oscB_wt_pos": 0.4,
+    "env1_decay": 0.25,
+    "env1_sustain": 0.2,
+    "env1_release": 0.25,
+    "chord_on": 1.0,
+    "chord_strum": 15.0,
+    "f1_cutoff": 6000.0,
+    "f1_type": 0,
+    "dist_mode": 0,
+    "dist_mix": 0.1,
+    "dist_drive": 6.0,
+    "delay_sync": 1.0,
+    "delay_div": 21,
+    "delay_mix": 0.2,
+    "delay_fb": 0.3,
+    "reverb_size": 0.4,
+    "reverb_damp": 0.2,
+    "reverb_decay": 1.5,
+    "reverb_mix": 0.25,
+    "mod01_depth": 0.0,
+    "mod02_depth": 0.1,
+    "mod03_depth": 0.4,
+    "mod04_depth": 0.3,
+    "mod05_depth": 0.3,
+    "mod06_depth": 0.4,
+    "mod07_depth": 0.3,
+    "mod08_depth": 0.35,
+    "dist_on": 1.0,
+    "tape_on": 0.0,
+    "dim_on": 0.0,
+    "chorus_on": 0.0,
+    "phaser_on": 0.0,
+    "flanger_on": 0.0,
+    "rotary_on": 0.0,
+    "delay_on": 1.0,
+    "reverb_on": 1.0,
+    "comp_on": 0.0,
+    "mb_on": 0.0,
+    "eq_on": 0.0,
+    "master_vol": -5.06
+  },
+  "mod_routings": [
+    {
+      "source": "env2",
+      "dest": "f1_cutoff",
+      "depth": 0.0,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 1
+    },
+    {
+      "source": "aftertouch",
+      "dest": "f1_cutoff",
+      "depth": 0.1,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 2
+    },
+    {
+      "source": "macro1",
+      "dest": "chord_strum",
+      "depth": 0.4,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 3
+    },
+    {
+      "source": "macro2",
+      "dest": "env1_decay",
+      "depth": 0.3,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 4
+    },
+    {
+      "source": "macro2",
+      "dest": "env1_sustain",
+      "depth": 0.3,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 5
+    },
+    {
+      "source": "macro3",
+      "dest": "dist_mix",
+      "depth": 0.4,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 6
+    },
+    {
+      "source": "macro3",
+      "dest": "dist_drive",
+      "depth": 0.3,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 7
+    },
+    {
+      "source": "macro4",
+      "dest": "reverb_mix",
+      "depth": 0.35,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 8
+    }
+  ],
+  "fx_order": [
+    "distortion",
+    "delay",
+    "reverb",
+    "tape",
+    "dimension",
+    "chorus",
+    "phaser",
+    "flanger",
+    "rotary",
+    "compressor",
+    "multiband",
+    "eq"
+  ],
+  "wavetables": {
+    "oscA": {
+      "factory": "Organ-ish"
+    },
+    "oscB": {
+      "factory": "Additive 8"
+    }
+  },
+  "chord": {
+    "notes": [
+      0,
+      4,
+      7,
+      11,
+      14
+    ]
+  }
+}

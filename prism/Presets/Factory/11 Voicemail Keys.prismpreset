@@ -1,0 +1,233 @@
+{
+  "format_version": 1,
+  "name": "Voicemail Keys",
+  "author": "Asher",
+  "category": "Keys",
+  "tags": [
+    "keys",
+    "lo-fi"
+  ],
+  "description": "Neo-soul keys through a bad phone line.",
+  "macros": [
+    {
+      "name": "Signal",
+      "value": 0.0
+    },
+    {
+      "name": "Crush",
+      "value": 0.0
+    },
+    {
+      "name": "Dropout",
+      "value": 0.0
+    },
+    {
+      "name": "Room",
+      "value": 0.0
+    }
+  ],
+  "params": {
+    "oscA_wt_pos": 0.25,
+    "oscB_wt_pos": 0.0,
+    "oscB_level": 0.6,
+    "f1_type": 4,
+    "f1_cutoff": 1200.0,
+    "f1_keytrack": 0.5,
+    "env1_attack": 0.001,
+    "env1_decay": 1.8,
+    "env1_sustain": 0.3,
+    "env1_release": 0.5,
+    "drift": 0.2,
+    "lfo1_rate": 5.0,
+    "lfo1_mode": 0,
+    "lfo1_shape": 0,
+    "tape_wow_depth": 0.15,
+    "tape_flutter": 0.05,
+    "tape_sat": 0.2,
+    "tape_age": 0.8,
+    "chorus_mix": 0.2,
+    "chorus_rate": 0.4,
+    "reverb_mix": 0.15,
+    "reverb_size": 0.5,
+    "reverb_decay": 2.2,
+    "f1_reso": 0.3,
+    "lfo3_rate": 3.0,
+    "lfo3_shape": 5,
+    "lfo3_polarity": 0,
+    "lfo3_smooth": 0.1,
+    "dist_mode": 4,
+    "dist_mix": 1.0,
+    "dist_drive": 0.0,
+    "dist_bits": 10.0,
+    "dist_downsample": 8000.0,
+    "mod01_depth": 0.0,
+    "mod02_depth": 0.1,
+    "mod03_depth": 0.3,
+    "mod04_depth": 0.0,
+    "mod05_depth": 0.0,
+    "mod06_depth": -0.2,
+    "mod07_depth": -0.25,
+    "mod08_depth": 0.1,
+    "mod09_depth": -0.4,
+    "mod10_depth": -0.25,
+    "mod11_depth": -0.15,
+    "mod12_depth": 0.4,
+    "dist_on": 1.0,
+    "tape_on": 1.0,
+    "dim_on": 0.0,
+    "chorus_on": 1.0,
+    "phaser_on": 0.0,
+    "flanger_on": 0.0,
+    "rotary_on": 0.0,
+    "delay_on": 0.0,
+    "reverb_on": 1.0,
+    "comp_on": 0.0,
+    "mb_on": 0.0,
+    "eq_on": 0.0,
+    "master_vol": -7.41
+  },
+  "mod_routings": [
+    {
+      "source": "env2",
+      "dest": "f1_cutoff",
+      "depth": 0.0,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 1
+    },
+    {
+      "source": "aftertouch",
+      "dest": "f1_cutoff",
+      "depth": 0.1,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 2
+    },
+    {
+      "source": "velocity",
+      "dest": "oscA_wt_pos",
+      "depth": 0.3,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 3
+    },
+    {
+      "source": "lfo1",
+      "dest": "oscA_pan",
+      "depth": 0.0,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 4
+    },
+    {
+      "source": "lfo1",
+      "dest": "oscB_pan",
+      "depth": 0.0,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 5
+    },
+    {
+      "source": "lfo3",
+      "dest": "amp_level",
+      "depth": -0.2,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 6
+    },
+    {
+      "source": "macro1",
+      "dest": "f1_reso",
+      "depth": -0.25,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 7
+    },
+    {
+      "source": "macro1",
+      "dest": "f1_cutoff",
+      "depth": 0.1,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 8
+    },
+    {
+      "source": "macro2",
+      "dest": "dist_bits",
+      "depth": -0.4,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 9
+    },
+    {
+      "source": "macro2",
+      "dest": "dist_downsample",
+      "depth": -0.25,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 10
+    },
+    {
+      "source": "macro3",
+      "dest": "mod06_depth",
+      "depth": -0.15,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 11
+    },
+    {
+      "source": "macro4",
+      "dest": "reverb_mix",
+      "depth": 0.4,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 12
+    }
+  ],
+  "fx_order": [
+    "distortion",
+    "tape",
+    "chorus",
+    "reverb",
+    "dimension",
+    "phaser",
+    "flanger",
+    "rotary",
+    "delay",
+    "compressor",
+    "multiband",
+    "eq"
+  ],
+  "wavetables": {
+    "oscA": {
+      "factory": "FM Bell"
+    },
+    "oscB": {
+      "factory": "Basic Shapes"
+    }
+  }
+}

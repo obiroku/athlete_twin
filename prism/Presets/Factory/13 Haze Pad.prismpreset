@@ -1,0 +1,206 @@
+{
+  "format_version": 1,
+  "name": "Haze Pad",
+  "author": "Asher",
+  "category": "Pad",
+  "tags": [
+    "pad",
+    "lo-fi",
+    "warm"
+  ],
+  "description": "Slow PWM pad.",
+  "macros": [
+    {
+      "name": "Motion",
+      "value": 0.0
+    },
+    {
+      "name": "Haze",
+      "value": 0.0
+    },
+    {
+      "name": "Width",
+      "value": 0.0
+    },
+    {
+      "name": "Space",
+      "value": 0.0
+    }
+  ],
+  "params": {
+    "oscA_unison": 4,
+    "oscB_unison": 4,
+    "oscB_level": 0.5,
+    "f1_type": 1,
+    "f1_cutoff": 900.0,
+    "lfo1_rate": 0.3,
+    "lfo1_mode": 0,
+    "env1_attack": 0.6,
+    "env1_release": 2.5,
+    "env2_attack": 2.0,
+    "env2_sustain": 1.0,
+    "tape_wow_depth": 0.2,
+    "tape_age": 0.3,
+    "chorus_mix": 0.4,
+    "reverb_mix": 0.4,
+    "reverb_decay": 4.0,
+    "mod01_depth": 0.0,
+    "mod02_depth": 0.1,
+    "mod03_depth": 0.35,
+    "mod04_depth": 0.15,
+    "mod05_depth": 0.3,
+    "mod06_depth": 0.2,
+    "mod07_depth": 0.5,
+    "mod08_depth": -0.1,
+    "mod09_depth": 0.4,
+    "mod10_depth": 0.4,
+    "mod11_depth": 0.4,
+    "dist_on": 0.0,
+    "tape_on": 1.0,
+    "dim_on": 0.0,
+    "chorus_on": 1.0,
+    "phaser_on": 0.0,
+    "flanger_on": 0.0,
+    "rotary_on": 0.0,
+    "delay_on": 0.0,
+    "reverb_on": 1.0,
+    "comp_on": 0.0,
+    "mb_on": 0.0,
+    "eq_on": 0.0,
+    "master_vol": -9.220000000000001
+  },
+  "mod_routings": [
+    {
+      "source": "env2",
+      "dest": "f1_cutoff",
+      "depth": 0.0,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 1
+    },
+    {
+      "source": "aftertouch",
+      "dest": "f1_cutoff",
+      "depth": 0.1,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 2
+    },
+    {
+      "source": "lfo1",
+      "dest": "oscA_wt_pos",
+      "depth": 0.35,
+      "polarity": "uni",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 3
+    },
+    {
+      "source": "env2",
+      "dest": "f1_cutoff",
+      "depth": 0.15,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 4
+    },
+    {
+      "source": "macro1",
+      "dest": "mod03_depth",
+      "depth": 0.3,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 5
+    },
+    {
+      "source": "macro1",
+      "dest": "lfo1_rate",
+      "depth": 0.2,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 6
+    },
+    {
+      "source": "macro2",
+      "dest": "tape_age",
+      "depth": 0.5,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 7
+    },
+    {
+      "source": "macro2",
+      "dest": "f1_cutoff",
+      "depth": -0.1,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 8
+    },
+    {
+      "source": "macro3",
+      "dest": "oscA_spread",
+      "depth": 0.4,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 9
+    },
+    {
+      "source": "macro3",
+      "dest": "chorus_depth",
+      "depth": 0.4,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 10
+    },
+    {
+      "source": "macro4",
+      "dest": "reverb_mix",
+      "depth": 0.4,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 11
+    }
+  ],
+  "fx_order": [
+    "tape",
+    "chorus",
+    "reverb",
+    "distortion",
+    "dimension",
+    "phaser",
+    "flanger",
+    "rotary",
+    "delay",
+    "compressor",
+    "multiband",
+    "eq"
+  ],
+  "wavetables": {
+    "oscA": {
+      "factory": "PWM Sweep"
+    },
+    "oscB": {
+      "factory": "Hollow"
+    }
+  }
+}

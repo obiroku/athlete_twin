@@ -73,4 +73,9 @@ double estimateFrequency (const float* x, int n, double sr);
 // Magnitude spectrum (Blackman-Harris) in dB, n must be a power of two
 std::vector<double> spectrumDb (const float* x, int n);
 bool writeWav (const juce::File& f, const juce::AudioBuffer<float>& b, double sr);
+
+// SPEC loudness test: C3-E3-G3 (MIDI 60, 64, 67) held 3 s at velocity 0.8;
+// loudest 400 ms RMS window (both channels) in dBFS, and the overall sample peak.
+struct Loudness { double rmsDb = -200, peak = 0; };
+Loudness measurePreset (const PresetData& d);
 } // namespace prism::test

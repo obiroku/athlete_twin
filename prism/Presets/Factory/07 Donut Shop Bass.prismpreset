@@ -1,0 +1,209 @@
+{
+  "format_version": 1,
+  "name": "Donut Shop Bass",
+  "author": "Asher",
+  "category": "Bass",
+  "tags": [
+    "bass",
+    "lo-fi",
+    "hip-hop"
+  ],
+  "description": "Plucky lo-fi bass.",
+  "macros": [
+    {
+      "name": "Thump",
+      "value": 0.0
+    },
+    {
+      "name": "Warmth",
+      "value": 0.0
+    },
+    {
+      "name": "Wobble",
+      "value": 0.0
+    },
+    {
+      "name": "Bite",
+      "value": 0.0
+    }
+  ],
+  "params": {
+    "voice_mode": 1,
+    "glide_time": 0.04,
+    "oscA_wt_pos": 0.4,
+    "sub_shape": 0,
+    "sub_oct": 0,
+    "sub_level": 0.5,
+    "f1_type": 1,
+    "f1_cutoff": 400.0,
+    "env2_decay": 0.18,
+    "env2_sustain": 0.0,
+    "drift": 0.3,
+    "bass_mono": 120.0,
+    "dist_mode": 0,
+    "dist_mix": 0.15,
+    "dist_drive": 9.0,
+    "comp_thresh": -18.0,
+    "comp_ratio": 4.0,
+    "eq_ls_gain": 3.0,
+    "eq_ls_freq": 100.0,
+    "mod01_depth": 0.0,
+    "mod02_depth": 0.1,
+    "mod03_depth": 0.3,
+    "mod04_depth": 0.15,
+    "mod05_depth": 0.0,
+    "mod06_depth": 0.3,
+    "mod07_depth": 0.4,
+    "mod08_depth": 0.08,
+    "mod09_depth": 0.6,
+    "mod10_depth": 0.3,
+    "mod11_depth": 0.3,
+    "dist_on": 1.0,
+    "tape_on": 0.0,
+    "dim_on": 0.0,
+    "chorus_on": 0.0,
+    "phaser_on": 0.0,
+    "flanger_on": 0.0,
+    "rotary_on": 0.0,
+    "delay_on": 0.0,
+    "reverb_on": 0.0,
+    "comp_on": 1.0,
+    "mb_on": 0.0,
+    "eq_on": 1.0,
+    "master_vol": -1.89
+  },
+  "mod_routings": [
+    {
+      "source": "env2",
+      "dest": "f1_cutoff",
+      "depth": 0.0,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 1
+    },
+    {
+      "source": "aftertouch",
+      "dest": "f1_cutoff",
+      "depth": 0.1,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 2
+    },
+    {
+      "source": "env2",
+      "dest": "f1_cutoff",
+      "depth": 0.3,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 3
+    },
+    {
+      "source": "velocity",
+      "dest": "f1_cutoff",
+      "depth": 0.15,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 4
+    },
+    {
+      "source": "macro1",
+      "dest": "env1_decay",
+      "depth": 0.0,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 5
+    },
+    {
+      "source": "macro1",
+      "dest": "sub_level",
+      "depth": 0.3,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 6
+    },
+    {
+      "source": "macro2",
+      "dest": "dist_mix",
+      "depth": 0.4,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 7
+    },
+    {
+      "source": "macro2",
+      "dest": "f1_cutoff",
+      "depth": 0.08,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 8
+    },
+    {
+      "source": "macro3",
+      "dest": "drift",
+      "depth": 0.6,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 9
+    },
+    {
+      "source": "macro4",
+      "dest": "mod03_depth",
+      "depth": 0.3,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 10
+    },
+    {
+      "source": "macro4",
+      "dest": "f1_reso",
+      "depth": 0.3,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 11
+    }
+  ],
+  "fx_order": [
+    "distortion",
+    "compressor",
+    "eq",
+    "tape",
+    "dimension",
+    "chorus",
+    "phaser",
+    "flanger",
+    "rotary",
+    "delay",
+    "reverb",
+    "multiband"
+  ],
+  "wavetables": {
+    "oscA": {
+      "factory": "Basic Shapes"
+    },
+    "oscB": {
+      "factory": "Basic Shapes"
+    }
+  }
+}

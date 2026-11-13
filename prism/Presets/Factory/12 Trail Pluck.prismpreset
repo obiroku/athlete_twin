@@ -1,0 +1,218 @@
+{
+  "format_version": 1,
+  "name": "Trail Pluck",
+  "author": "Asher",
+  "category": "Pluck",
+  "tags": [
+    "pluck",
+    "indie"
+  ],
+  "description": "Additive pluck with glassy overtones.",
+  "macros": [
+    {
+      "name": "Length",
+      "value": 0.0
+    },
+    {
+      "name": "Brightness",
+      "value": 0.0
+    },
+    {
+      "name": "Echo",
+      "value": 0.0
+    },
+    {
+      "name": "Space",
+      "value": 0.0
+    }
+  ],
+  "params": {
+    "oscA_wt_pos": 0.6,
+    "oscB_oct": 1,
+    "oscB_level": 0.3,
+    "f1_type": 0,
+    "f1_cutoff": 900.0,
+    "env1_attack": 0.001,
+    "env1_decay": 0.4,
+    "env1_sustain": 0.0,
+    "env1_release": 0.3,
+    "env2_decay": 0.25,
+    "env2_sustain": 0.0,
+    "delay_sync": 1.0,
+    "delay_div": 19,
+    "delay_pingpong": 1.0,
+    "delay_mix": 0.3,
+    "delay_fb": 0.4,
+    "reverb_mix": 0.3,
+    "reverb_size": 0.6,
+    "mod01_depth": 0.0,
+    "mod02_depth": 0.1,
+    "mod03_depth": -0.5,
+    "mod04_depth": 0.35,
+    "mod05_depth": 0.3,
+    "mod06_depth": 0.25,
+    "mod07_depth": 0.2,
+    "mod08_depth": 0.25,
+    "mod09_depth": 0.3,
+    "mod10_depth": 0.35,
+    "mod11_depth": 0.3,
+    "mod12_depth": 0.4,
+    "dist_on": 0.0,
+    "tape_on": 0.0,
+    "dim_on": 0.0,
+    "chorus_on": 0.0,
+    "phaser_on": 0.0,
+    "flanger_on": 0.0,
+    "rotary_on": 0.0,
+    "delay_on": 1.0,
+    "reverb_on": 1.0,
+    "comp_on": 0.0,
+    "mb_on": 0.0,
+    "eq_on": 0.0,
+    "master_vol": -0.43
+  },
+  "mod_routings": [
+    {
+      "source": "env2",
+      "dest": "f1_cutoff",
+      "depth": 0.0,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 1
+    },
+    {
+      "source": "aftertouch",
+      "dest": "f1_cutoff",
+      "depth": 0.1,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 2
+    },
+    {
+      "source": "env2",
+      "dest": "oscA_wt_pos",
+      "depth": -0.5,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 3
+    },
+    {
+      "source": "env2",
+      "dest": "f1_cutoff",
+      "depth": 0.35,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 4
+    },
+    {
+      "source": "macro1",
+      "dest": "env1_decay",
+      "depth": 0.3,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 5
+    },
+    {
+      "source": "macro1",
+      "dest": "env1_release",
+      "depth": 0.25,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 6
+    },
+    {
+      "source": "macro1",
+      "dest": "env2_decay",
+      "depth": 0.2,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 7
+    },
+    {
+      "source": "macro2",
+      "dest": "mod04_depth",
+      "depth": 0.25,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 8
+    },
+    {
+      "source": "macro2",
+      "dest": "oscB_level",
+      "depth": 0.3,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 9
+    },
+    {
+      "source": "macro3",
+      "dest": "delay_mix",
+      "depth": 0.35,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 10
+    },
+    {
+      "source": "macro3",
+      "dest": "delay_fb",
+      "depth": 0.3,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 11
+    },
+    {
+      "source": "macro4",
+      "dest": "reverb_mix",
+      "depth": 0.4,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 12
+    }
+  ],
+  "fx_order": [
+    "delay",
+    "reverb",
+    "distortion",
+    "tape",
+    "dimension",
+    "chorus",
+    "phaser",
+    "flanger",
+    "rotary",
+    "compressor",
+    "multiband",
+    "eq"
+  ],
+  "wavetables": {
+    "oscA": {
+      "factory": "Additive 16"
+    },
+    "oscB": {
+      "factory": "Glass"
+    }
+  }
+}

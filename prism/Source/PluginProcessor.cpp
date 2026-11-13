@@ -258,6 +258,7 @@ void PrismProcessor::applyPresetNow (const PresetData& p)
     }
     pushExtras (p.extras);
     ++extrasVersion;
+    lastMpe = p.params[(size_t) P::mpe_on] >= 0.5f; // loading a preset never adds routings
     tables.request (0, p.tables[0]);
     tables.request (1, p.tables[1]);
 }
@@ -282,15 +283,32 @@ void PrismProcessor::servicePresetLoad()
     std::unique_ptr<PresetData> p;
     {
         std::lock_guard<std::mutex> g (modelLock);
-        if (pendingPreset == nullptr) return;
-        const bool audioRunning = juce::Time::currentTimeMillis() - lastProcessMs.load() < 250;
-        if (audioRunning && ! audioMuted.load()) return; // still fading out
-        p = std::move (pendingPreset);
+        if (pendingPreset != nullptr)
+        {
+            const bool audioRunning = juce::Time::currentTimeMillis() - lastProcessMs.load() < 250;
+            if (audioRunning && ! audioMuted.load()) return; // still fading out
+            p = std::move (pendingPreset);
+        }
     }
-    applyPresetNow (*p);
-    fadeRequest.store (false);
-    presetApplied.store (audioMuted.load());
-    if (! audioMuted.load()) { /* audio was stopped: nothing to fade */ }
+    if (p != nullptr)
+    {
+        applyPresetNow (*p);
+        fadeRequest.store (false);
+        // stay muted until the preset's wavetables are generated, so the
+        // waveform never jumps under a held note after the fade-in
+        waitingForTables = audioMuted.load();
+        waitStartMs = juce::Time::currentTimeMillis();
+        if (! waitingForTables) return;
+    }
+    if (waitingForTables)
+    {
+        const bool ready = tables.isPublished (0) && tables.isPublished (1);
+        if (ready || juce::Time::currentTimeMillis() - waitStartMs > 5000)
+        {
+            waitingForTables = false;
+            presetApplied.store (true);
+        }
+    }
 }
 
 void PrismProcessor::pushExtras (const PatchExtras& x)
@@ -461,6 +479,21 @@ void PrismProcessor::timerCallback()
             const int p = ccMap[(size_t) cc].load();
             if (p >= 0 && p < P::NumParams) params[(size_t) p]->setValueNotifyingHost (ccValue[(size_t) cc].load());
         }
+    // MPE switched on: add the default MPE routings once (pressure -> cutoff, slide -> WT position)
+    {
+        const bool mpe = raw[(size_t) P::mpe_on]->load() >= 0.5f;
+        if (mpe && ! lastMpe)
+        {
+            const auto x = getExtras();
+            auto has = [&x] (Src s, int dest) {
+                for (auto& r : x.routings) if (r.src == (int16_t) s && r.dest == dest) return true;
+                return false;
+            };
+            if (! has (Src::PolyAT, P::filt (0, P::f_cutoff))) addRouting ((int) Src::PolyAT, P::filt (0, P::f_cutoff), 0.15f);
+            if (! has (Src::Slide, P::osc (0, P::wt_pos))) addRouting ((int) Src::Slide, P::osc (0, P::wt_pos), 0.3f);
+        }
+        lastMpe = mpe;
+    }
     // undo snapshots: only when something changed, once it has been still for ~0.5 s
     if (++idleTicks >= 15)
     {

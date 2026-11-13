@@ -1,0 +1,204 @@
+{
+  "format_version": 1,
+  "name": "Folk-Gaze Wash",
+  "author": "Asher",
+  "category": "Pad",
+  "tags": [
+    "pad",
+    "shoegaze",
+    "folk"
+  ],
+  "description": "Detuned saw wash with shimmer and ping-pong echoes.",
+  "macros": [
+    {
+      "name": "Haze",
+      "value": 0.0
+    },
+    {
+      "name": "Shimmer",
+      "value": 0.0
+    },
+    {
+      "name": "Wobble",
+      "value": 0.0
+    },
+    {
+      "name": "Wash",
+      "value": 0.0
+    }
+  ],
+  "params": {
+    "oscA_wt_pos": 0.6,
+    "oscA_unison": 7,
+    "oscA_detune": 0.25,
+    "oscB_oct": 1,
+    "oscB_level": 0.3,
+    "noise_type": 1,
+    "noise_level": 0.1,
+    "noise_tone": 0.15,
+    "f1_type": 1,
+    "f1_cutoff": 1500.0,
+    "env1_attack": 1.2,
+    "env1_release": 4.0,
+    "lfo1_rate": 0.1,
+    "lfo1_mode": 0,
+    "tape_wow_depth": 0.25,
+    "chorus_mix": 0.35,
+    "delay_sync": 1.0,
+    "delay_div": 16,
+    "delay_pingpong": 1.0,
+    "delay_mix": 0.4,
+    "delay_fb": 0.45,
+    "reverb_size": 0.9,
+    "reverb_shimmer": 0.4,
+    "reverb_mix": 0.55,
+    "reverb_decay": 6.0,
+    "mod01_depth": 0.0,
+    "mod02_depth": 0.1,
+    "mod03_depth": 0.08,
+    "mod04_depth": 0.15,
+    "mod05_depth": 0.1,
+    "mod06_depth": 0.5,
+    "mod07_depth": 0.6,
+    "mod08_depth": 0.3,
+    "mod09_depth": 0.4,
+    "mod10_depth": 0.3,
+    "dist_on": 0.0,
+    "tape_on": 1.0,
+    "dim_on": 0.0,
+    "chorus_on": 1.0,
+    "phaser_on": 0.0,
+    "flanger_on": 0.0,
+    "rotary_on": 0.0,
+    "delay_on": 1.0,
+    "reverb_on": 1.0,
+    "comp_on": 0.0,
+    "mb_on": 0.0,
+    "eq_on": 0.0,
+    "master_vol": -11.84
+  },
+  "mod_routings": [
+    {
+      "source": "env2",
+      "dest": "f1_cutoff",
+      "depth": 0.0,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 1
+    },
+    {
+      "source": "aftertouch",
+      "dest": "f1_cutoff",
+      "depth": 0.1,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 2
+    },
+    {
+      "source": "lfo1",
+      "dest": "f1_cutoff",
+      "depth": 0.08,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 3
+    },
+    {
+      "source": "macro1",
+      "dest": "f1_cutoff",
+      "depth": 0.15,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 4
+    },
+    {
+      "source": "macro1",
+      "dest": "noise_level",
+      "depth": 0.1,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 5
+    },
+    {
+      "source": "macro2",
+      "dest": "reverb_shimmer",
+      "depth": 0.5,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 6
+    },
+    {
+      "source": "macro3",
+      "dest": "tape_wow_depth",
+      "depth": 0.6,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 7
+    },
+    {
+      "source": "macro3",
+      "dest": "tape_flutter",
+      "depth": 0.3,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 8
+    },
+    {
+      "source": "macro4",
+      "dest": "reverb_mix",
+      "depth": 0.4,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 9
+    },
+    {
+      "source": "macro4",
+      "dest": "delay_mix",
+      "depth": 0.3,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 10
+    }
+  ],
+  "fx_order": [
+    "tape",
+    "chorus",
+    "delay",
+    "reverb",
+    "distortion",
+    "dimension",
+    "phaser",
+    "flanger",
+    "rotary",
+    "compressor",
+    "multiband",
+    "eq"
+  ],
+  "wavetables": {
+    "oscA": {
+      "factory": "Saw Sweep"
+    },
+    "oscB": {
+      "factory": "Glass"
+    }
+  }
+}

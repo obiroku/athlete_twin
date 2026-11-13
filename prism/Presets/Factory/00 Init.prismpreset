@@ -1,0 +1,91 @@
+{
+  "format_version": 1,
+  "name": "Init",
+  "author": "Asher",
+  "category": "Init",
+  "tags": [],
+  "description": "Sine, open filter, empty rack.",
+  "macros": [
+    {
+      "name": "Macro 1",
+      "value": 0.0
+    },
+    {
+      "name": "Macro 2",
+      "value": 0.0
+    },
+    {
+      "name": "Macro 3",
+      "value": 0.0
+    },
+    {
+      "name": "Macro 4",
+      "value": 0.0
+    }
+  ],
+  "params": {
+    "env1_attack": 0.001,
+    "env1_decay": 0.0,
+    "env1_sustain": 1.0,
+    "env1_release": 0.05,
+    "mod01_depth": 0.0,
+    "mod02_depth": 0.1,
+    "dist_on": 0.0,
+    "tape_on": 0.0,
+    "dim_on": 0.0,
+    "chorus_on": 0.0,
+    "phaser_on": 0.0,
+    "flanger_on": 0.0,
+    "rotary_on": 0.0,
+    "delay_on": 0.0,
+    "reverb_on": 0.0,
+    "comp_on": 0.0,
+    "mb_on": 0.0,
+    "eq_on": 0.0,
+    "master_vol": -11.92
+  },
+  "mod_routings": [
+    {
+      "source": "env2",
+      "dest": "f1_cutoff",
+      "depth": 0.0,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 1
+    },
+    {
+      "source": "aftertouch",
+      "dest": "f1_cutoff",
+      "depth": 0.1,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 2
+    }
+  ],
+  "fx_order": [
+    "distortion",
+    "tape",
+    "dimension",
+    "chorus",
+    "phaser",
+    "flanger",
+    "rotary",
+    "delay",
+    "reverb",
+    "compressor",
+    "multiband",
+    "eq"
+  ],
+  "wavetables": {
+    "oscA": {
+      "factory": "Basic Shapes"
+    },
+    "oscB": {
+      "factory": "Basic Shapes"
+    }
+  }
+}
