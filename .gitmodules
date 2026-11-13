@@ -1,0 +1,3 @@
+[submodule "prism/JUCE"]
+	path = prism/JUCE
+	url = https://github.com/juce-framework/JUCE.git
