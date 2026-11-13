@@ -90,3 +90,58 @@ noticeably faster. Re-measure on the Mac and record it here.
 Notes: a voice that replaces a stolen voice starts after the 3 ms steal fade
 (otherwise the overlapping sines can add constructively and exceed the 1.5×
 click threshold).
+
+## Phase 3 — Full engine (tag `phase-3`)
+
+Built: Osc B (+ `oscB_pitch`), F2 and all filter types (Notch, Peak, Comb±,
+Diode ladder solved as a trapezoidal state-space system with its
+self-oscillation point computed at start-up, Formant A-E-I-O-U bank), per-source
+destinations with Serial/Parallel routing, 5 ms crossfade on filter-type change,
+all warp modes (Sync, Bend±, PWM, Mirror, Asym±, Quantize, Remap, FM from the
+other oscillator / from the sub, AM, RM) with Eco/High/Ultra oversampling using
+polyphase IIR halfbands (latency reported stays 64 samples = limiter only), and
+the WAV/AIFF importer (Fixed, Pitch-detect by autocorrelation, Single-cycle,
+`clm ` chunk) plus the exporter (32-bit float + `clm ` chunk).
+
+Design notes that came out of the measurements:
+- When oscillating at 2×/4×, the mip level is still chosen against the host
+  Nyquist; the oversampling headroom is reserved for harmonics the warp
+  creates. Otherwise table harmonics land in the halfband transition band and
+  fold back.
+- Sync uses a 6-sample raised-cosine dip around the master reset (removes both
+  the value and the slope discontinuity). Quantize is a phase staircase with a
+  whole number of steps per cycle and polyBLEP-corrected steps.
+
+Warp aliasing (worst non-harmonic component below 20 kHz relative to the
+fundamental; saw, MIDI 84 = C6, warp 50 %, 48 kHz):
+
+| Mode | Eco | High (target ≤ −50) | Ultra (target ≤ −65) |
+|---|---|---|---|
+| Sync | −21.8 | −65.7 | −79.5 |
+| Bend+ / Bend− | −40.6 | −59.5 | −74.0 |
+| Bend± | −42.3 | −75.1 | −92.6 |
+| PWM | −34.7 | −53.1 | −65.6 |
+| Mirror | −42.2 | −60.3 | −74.7 |
+| Asym+ / Asym− | −43.1 | −61.9 | −76.4 |
+| Quantize | −92.6* | −62.0 | −82.7 |
+| Remap | −75.1 | −92.3 | −92.6 |
+| FM (Other) | −92.6 | −92.6 | −92.6 |
+| FM (Sub) | −74.7 | −85.2 | −85.2 |
+| AM / RM | −92.6 | −92.6 | −92.6 |
+
+\* At Eco and C6 the staircase is finer than one sample, so Quantize is inactive
+there.
+
+The 20 kHz limit is deliberate: partials just above 24 kHz fold to just below
+24 kHz inside the halfband's transition band; they are inaudible and would
+otherwise dominate the number.
+
+Other Phase 3 results: halfband passband flat (< 0.05 dB) and stopband
+< −80 dB; latency identical at Eco/High/Ultra (64); routing tests for F1, F2,
+Both and Direct in Serial and Parallel; every filter type stable at
+resonance 0.9; filter-type switch delta ≤ 1.5× steady state; formant peaks
+within 5 % for A, E, I, O, U; frame-morph test: no factory table drops more
+than 3 dB between adjacent positions; import tests (correct frame counts, DC <
+0.001, peak −1 dBFS ± 0.02 dB, nothing above harmonic 512, export → re-import
+identical within 1e-4); a preset with an embedded table round-trips through a
+clean folder and plays.

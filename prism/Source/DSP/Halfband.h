@@ -34,9 +34,10 @@ public:
     // Consumes two input samples, returns one.
     inline float process (float in0, float in1, const HalfbandCoefs<NC>& k) noexcept
     {
-        // path A: even coefs on in1, path B: odd coefs on in0 (delayed by one)
-        float a = in1, b = delayed;
-        delayed = in0;
+        // path A (even coefs) takes the even input sample, path B (odd coefs)
+        // the odd sample of the previous pair (z^-1 at the low rate)
+        float a = in0, b = delayed;
+        delayed = in1;
         for (int i = 0; i < NC / 2; ++i)
         {
             const float ca = k.c[(size_t) (2 * i)];
@@ -70,8 +71,8 @@ public:
             const float ob = cb * (b - yb[(size_t) i]) + xb[(size_t) i];
             xb[(size_t) i] = b; yb[(size_t) i] = ob; b = ob;
         }
-        out0 = b;
-        out1 = a;
+        out0 = a;
+        out1 = b;
     }
 private:
     std::array<float, NC / 2> xa {}, ya {}, xb {}, yb {};

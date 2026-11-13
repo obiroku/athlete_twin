@@ -61,7 +61,7 @@ public:
     //  outL/R   : stereo (pre level/pan), mono: sum pre-pan (for use as modulator)
     void render (const Wavetable* table, int n, const float* inc, const float* pos, const float* warp,
                  WarpMode mode, const float* mod, const RemapCurve& remap,
-                 float* outL, float* outR, float* mono) noexcept;
+                 float* outL, float* outR, float* mono, int osFactor = 1) noexcept;
 
     // Live state for GUI
     float lastPos() const noexcept { return lastPosition; }

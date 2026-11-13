@@ -100,7 +100,7 @@ ImportResult importFromSamples (const std::vector<float>& mono, ImportMode mode,
     {
         if (clm > 0) mode = ImportMode::Fixed;
         else if (len <= 4096) mode = ImportMode::SingleCycle;
-        else if (len % N == 0) mode = ImportMode::Fixed;
+        else if (len % N == 0) { mode = ImportMode::Fixed; fixedFrames = 0; }
         else mode = ImportMode::PitchDetect;
     }
     std::vector<std::vector<float>> frames;

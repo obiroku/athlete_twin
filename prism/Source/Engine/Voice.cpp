@@ -559,7 +559,7 @@ void Voice::renderChunk (const RenderContext& ctx, int pos, int len, float* outL
         }
         else if (wm == WarpMode::FMSub) mod = subFmBuf;
         osc[o].render (ctx.table[o], n, incBuf[o], posBuf[o], warpBuf[o], wm, mod, *ctx.remap[o],
-                       oscBufL[o], oscBufR[o], oscMono[o]);
+                       oscBufL[o], oscBufR[o], oscMono[o], os);
         rendered[o] = true;
     }
     // decimate to host rate (in place)
