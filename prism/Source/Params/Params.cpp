@@ -65,7 +65,7 @@ std::string ParamDef::toText (float v) const
         const int i = std::max (0, std::min ((int) choices.size() - 1, (int) std::lround (v)));
         return choices.empty() ? std::to_string (i) : choices[(size_t) i];
     }
-    if (type == PType::Bool) return v >= 0.5f ? "On" : "Off";
+    if (type == PType::Bool || switchLike) return v >= 0.5f ? "On" : "Off";
     if (type == PType::Int)
     {
         std::snprintf (buf, sizeof (buf), "%d", (int) std::lround (v));
@@ -121,7 +121,7 @@ bool ParamDef::fromText (const std::string& text, float& out) const
     }
     std::string t = text;
     std::transform (t.begin(), t.end(), t.begin(), [] (unsigned char c) { return (char) std::tolower (c); });
-    if (type == PType::Bool)
+    if (type == PType::Bool || switchLike)
     {
         if (t == "on" || t == "1" || t == "true") { out = 1; return true; }
         if (t == "off" || t == "0" || t == "false") { out = 0; return true; }
@@ -393,6 +393,11 @@ std::vector<ParamDef> buildDefs()
     B.b ("arp_latch", "Arp Latch", false);
     B.c ("arp_vel_mode", "Arp Velocity", { "As Played", "Fixed", "Accent" }, 0);
     B.f ("arp_vel_fixed", "Arp Fixed Velocity", 0.0f, 1.0f, 0.8f, Unit::Percent);
+    {
+        // rate multiplier for macros: < 1/3 -> half speed, < 2/3 -> as set, else double speed
+        auto& d = B.f ("arp_speed", "Arp Speed", 0.0f, 1.0f, 0.5f);
+        d.displayScale = 1.0f;
+    }
 
     B.group = "Chord";
     B.b ("chord_on", "Chord Mode", false);
@@ -449,7 +454,7 @@ std::vector<ParamDef> buildDefs()
 
     B.group = "FX Rotary";
     B.b ("rotary_on", "Rotary", false);
-    B.b ("rotary_fast", "Rotary Fast", false);
+    B.f ("rotary_fast", "Rotary Fast", 0.0f, 1.0f, 0.0f).switchLike = true;
     B.f ("rotary_accel", "Rotary Acceleration", 0.0f, 1.0f, 0.5f, Unit::Percent);
     B.f ("rotary_balance", "Horn/Drum Balance", 0.0f, 1.0f, 0.5f, Unit::Percent);
     B.f ("rotary_drive", "Rotary Drive", 0.0f, 1.0f, 0.2f, Unit::Percent);
@@ -480,7 +485,7 @@ std::vector<ParamDef> buildDefs()
     B.f ("reverb_mod", "Reverb Modulation", 0.0f, 1.0f, 0.3f, Unit::Percent);
     B.f ("reverb_width", "Reverb Width", 0.0f, 1.0f, 1.0f, Unit::Percent);
     B.flog ("reverb_lowcut", "Reverb Low Cut", 20.0f, 1000.0f, 100.0f, Unit::Hz);
-    B.b ("reverb_freeze", "Reverb Freeze", false);
+    B.f ("reverb_freeze", "Reverb Freeze", 0.0f, 1.0f, 0.0f).switchLike = true;
     B.f ("reverb_shimmer", "Shimmer", 0.0f, 1.0f, 0.0f, Unit::Percent);
     B.f ("reverb_mix", "Reverb Mix", 0.0f, 1.0f, 0.3f, Unit::Percent);
 
@@ -523,7 +528,7 @@ std::vector<ParamDef> buildDefs()
         char id[32], nm[32];
         std::snprintf (id, sizeof (id), "mod%02d_depth", m + 1);
         std::snprintf (nm, sizeof (nm), "Mod %d Depth", m + 1);
-        B.f (id, nm, -1.0f, 1.0f, 0.0f).displayScale = 100.0f;
+        B.f (id, nm, -1.0f, 1.0f, 0.0f, Unit::Percent).displayScale = 100.0f;
     }
     assert ((int) B.defs.size() == P::NumParams);
     return std::move (B.defs);

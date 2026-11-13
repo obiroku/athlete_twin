@@ -75,6 +75,11 @@ public:
 
     double guiScale = 1.0;
     std::atomic<float> cpuLoad { 0.0f };
+    std::atomic<int> extrasVersion { 0 };   // bumps whenever routings/shapes/order change (GUI refresh)
+    // audio -> GUI scope ring (mono, written once per block)
+    static constexpr int ScopeSize = 4096;
+    std::array<float, ScopeSize> scope {};
+    std::atomic<int> scopeWrite { 0 };
     juce::RangedAudioParameter* param (int idx) const { return params[(size_t) idx]; }
 
 private:
@@ -110,6 +115,7 @@ private:
     int undoPos = -1;
     juce::String lastSnapshot;
     int idleTicks = 0;
+    uint64_t lastStateHash = 0;
     bool snapshotDirty = false;
     int abSlot = 0;
     juce::String abStore[2];

@@ -48,6 +48,7 @@ public:
 
     int latencySamples() const noexcept { return dsp::Master::LimiterLookahead; }
     double globalLfoPhase (int l) const noexcept { return gLfo[l].getPhase(); } // tests
+    bool fxSleeping (int fx) const noexcept { return rack.isSleeping (fx); }  // tests
     bool tablesReady() const noexcept { return true; }
 
 private:

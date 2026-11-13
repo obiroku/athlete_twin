@@ -118,6 +118,7 @@ if(PRISM_BUILD_TESTS)
     ${PRISM_COMMON_DEFS}
     JUCE_STANDALONE_APPLICATION=0
     PRISM_HEADLESS_CORE=1
+    JUCE_MODAL_LOOPS_PERMITTED=1
     JucePlugin_Name="PRISM"
     JucePlugin_IsSynth=1
     JucePlugin_WantsMidiInput=1

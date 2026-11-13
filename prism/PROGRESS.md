@@ -169,3 +169,76 @@ lock to ppq while playing; unsynced Free LFOs restart on transport start.
 | Parameter sweep (all 329 params, held chord) | no NaN/inf, ≤ +6 dBFS pre-limiter | pass, worst 1.000 (0 dBFS) |
 | Block-size test, every LFO + envelope + MSEG routed | ≤ 1e-6 | pass |
 | State round-trip incl. routings and MSEG | identical | pass (Phase 1 test) |
+
+## Phase 5 — GUI (tag `phase-5`)
+
+Built: custom vector LookAndFeel (graphite #1C1D20, panels #26282C, text
+#D8D8D8, amber #F2A33A, Inter via BinaryData); 1000×700 window, resizable
+75–200 % with locked aspect, size remembered; top bar (preset name/browser,
+prev/next, search, category filter, favourite, Save/Save As, A/B, Undo/Redo,
+Randomize with section locks + Mutate, Quality, CPU + voice count, master
+volume, panic); tabs SYNTH, MOD, FX, WAVETABLE, ARP/VOICING, SETTINGS.
+SYNTH: osc panels with large wavetable displays (live playhead of the newest
+voice, warp drawn on the waveform, drag to scrub), sub, noise, both filters,
+amp envelope, macros with drag handles, and the bottom tab strip (LFO 1–4,
+Env 2–3, MSEG) with drag handles and drawable shape editors. Knobs: value on
+hover/drag, double-click reset, Cmd/Ctrl-drag fine, click the value to type,
+modulation ring with a live dot, drop target for sources, Alt-drag edits the
+modulation depth, right-click menu (remove modulation, MIDI learn, reset,
+copy/paste, type value). Tooltips and accessibility names/titles on controls.
+MOD page: all 64 routings (source, destination, depth, polarity, curve, aux,
+bypass, clear). Repaint is driven by `VBlankAttachment`, at most 60 fps, and
+only components whose values changed repaint.
+
+| Test | Target | Result |
+|---|---|---|
+| pluginval strictness 10 incl. editor tests (Linux VST3) | pass | SUCCESS |
+| Editor created/destroyed 200× while audio renders (Debug + ASan) | no glitch, no leak | output bit-identical to a run without the editor; ASan clean |
+| Idle editor | < 5 % of a core | 4.4 % here — see note |
+| Dragging modulation while playing | no dropouts | worst audio-thread CPU per 2.67 ms block 0.29 ms |
+
+Note on idle CPU: measured under Xvfb + openbox with software rendering. With
+our VBlank work disabled and tooltips off it is the same 4.4–4.5 %, and the
+editor repaints 1–2 times in 4 s of idle, so this is JUCE's X11 event loop on
+this VM, not PRISM's GUI code. Check Activity Monitor on the Mac.
+
+## Phase 6 — FX rack and master (tag `phase-6`)
+
+Built: Distortion (tanh, hard clip, fold, tube, bitcrush; 2× IIR oversampled),
+Tape (wow, flutter, saturation, hiss, age), Dimension, Chorus, Phaser (2–12
+stages), Flanger, Rotary (horn/drum, acceleration ramps, drive, mic width, mod
+wheel toggles speed), Delay (sync/ms, ping-pong, HP/LP in the loop, wow,
+ducking), Reverb (8/16-line FDN, size, decay, damping, pre-delay, modulation,
+width, low cut, freeze, granular +12 st shimmer in the loop), Compressor,
+3-band up/down Multiband, EQ. Drag-reorderable rack (crossfaded through dry,
+10 ms total), 10 ms bypass crossfades, auto-sleep (decided on absolute tick
+boundaries, woken on the exact first non-silent sample, so it is
+block-size-independent). Master: bass mono, width, soft clip, volume, 64-sample
+lookahead limiter (ceiling −1.1 dBFS, reported as latency), meters, scope /
+spectrum. Tail length = longest active FX tail, 30 s cap, 30 s when frozen.
+
+| Test | Target | Result |
+|---|---|---|
+| Measured vs reported latency | equal | 64 = 64 |
+| FX tails end and every module sleeps | yes | all 12 asleep, output silent |
+| Reverb freeze holds | indefinitely | −0.11 dB after 32 s |
+| Denormals: loud input then 60 s silence | CPU flat | worst 2.26 % first 10 s, 0.64 % last 10 s |
+| Bypass / enable / reorder while playing | ≤ 1.5× delta | 1.00 / 0.77 / 0.80 |
+| Block-size test with every module on | ≤ 1e-6 | pass |
+| Heavy patch benchmark | < 25 % | 15.3 % (Phase 2 table) |
+
+## Phase 7 — Wavetable editor (tag `phase-7`)
+
+Built: WAVETABLE tab with frame drawing (mouse), keyframes + interpolation,
+formula editor (in-house parser: x, y, pi, e; sin cos tan abs sqrt pow exp log
+min max floor sign tri saw square rand; evaluated on a background thread,
+non-finite → 0, then hygiene and an atomic swap), import with mode selection
+and preview, morph A → B into a new table, export to 32-bit float WAV with a
+`clm ` chunk. Table hygiene is now idempotent (a table that already starts on
+an upward zero crossing is not rotated again).
+
+| Test | Target | Result |
+|---|---|---|
+| Formula fuzz, 10,000 random/malformed expressions | no NaN/inf/crash | 8,119 parsed, 1,881 rejected, all finite |
+| Edits while audio plays (formula + factory swaps) | no dropouts | worst audio-thread CPU per block 0.36 ms of 2.67 ms |
+| Export → re-import | identical | max difference 6e-8 |

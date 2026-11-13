@@ -31,6 +31,7 @@ struct ParamDef
     bool fast = false;          // per-sample modulation destination
     float displayScale = 1.0f;  // e.g. 100 for 0..1 shown as percent
     float offValueBelow = -1e30f; // displays "Off" below this real value
+    bool switchLike = false;      // continuous 0..1 shown as Off/On (>= 0.5 = on), so it can be modulated
 
     bool isModDest() const { return type == PType::Float && scope != Scope::Source; }
     float toNorm (float real) const noexcept;
@@ -95,7 +96,7 @@ namespace P
     constexpr int MacroBase = MsegBase + NumMsegP;
     constexpr int macro (int m) { return MacroBase + m; }
 
-    enum ArpP : int { arp_on, arp_mode, arp_octaves, arp_div, arp_gate, arp_swing, arp_latch, arp_vel_mode, arp_vel_fixed, NumArpP };
+    enum ArpP : int { arp_on, arp_mode, arp_octaves, arp_div, arp_gate, arp_swing, arp_latch, arp_vel_mode, arp_vel_fixed, arp_speed, NumArpP };
     constexpr int ArpBase = MacroBase + 4;
     constexpr int arp (int p) { return ArpBase + p; }
 

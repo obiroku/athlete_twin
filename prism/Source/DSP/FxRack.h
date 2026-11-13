@@ -18,7 +18,8 @@ public:
     void setOrder (const std::array<int8_t, NumFx>& order); // crossfaded (10 ms total)
     // real: parameter values (real units) for this tick; enableParams[i] = param index of module i's on/off
     void update (const float* real, const FxContext& ctx, const int* enableParams);
-    void process (float* L, float* R, int n);
+    // endsOnTick: the block ends on an absolute control tick (sleep decisions happen only there)
+    void process (float* L, float* R, int n, bool endsOnTick);
     double tailSeconds() const;          // longest active tail, capped at 30 s
     bool isSleeping (int fx) const { return sleeping[(size_t) fx]; }
     bool isEnabled (int fx) const { return enabled[(size_t) fx]; }

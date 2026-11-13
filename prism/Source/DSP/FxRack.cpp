@@ -57,7 +57,7 @@ void FxRack::update (const float* real, const FxContext& ctx, const int* enableP
     }
 }
 
-void FxRack::process (float* L, float* R, int n)
+void FxRack::process (float* L, float* R, int n, bool endsOnTick)
 {
     const bool anyActive = [&] { for (int i = 0; i < NumFx; ++i) if (enabled[(size_t) i] || wet[(size_t) i].cur > 0.0f) return true; return false; }();
     if (! anyActive && ! orderPending) return;
@@ -76,32 +76,44 @@ void FxRack::process (float* L, float* R, int n)
         const bool en = enabled[(size_t) id];
         if (! en && w.cur <= 0.0f && w.left == 0) continue;
 
-        // input silence tracking for sleep
-        float pk = 0.0f;
-        for (int i = 0; i < n; ++i) pk = std::max (pk, std::max (std::abs (L[i]), std::abs (R[i])));
+        // input silence tracking for sleep (sample-accurate, so independent of block splits)
+        int firstLoud = -1, lastLoud = -1;
+        for (int i = 0; i < n; ++i)
+            if (std::max (std::abs (L[i]), std::abs (R[i])) >= 1e-6f) { if (firstLoud < 0) firstLoud = i; lastLoud = i; }
         auto& sf = silentFor[(size_t) id];
-        if (pk < 1e-6f) sf += n; else { sf = 0; sleeping[(size_t) id] = false; }
-        if (! mods[(size_t) id]->infiniteTail() && (double) sf > (mods[(size_t) id]->tailSeconds() + 0.1) * sr)
+        sf = lastLoud < 0 ? sf + n : (int64_t) (n - 1 - lastLoud);
+        int start = 0;
+        if (sleeping[(size_t) id])
         {
-            if (! sleeping[(size_t) id]) { mods[(size_t) id]->reset(); sleeping[(size_t) id] = true; }
-            for (int i = 0; i < n; ++i) w.next();
-            continue; // asleep: input is silent and the tail has ended
+            if (firstLoud < 0) { for (int i = 0; i < n; ++i) w.next(); continue; } // still asleep
+            sleeping[(size_t) id] = false;                                         // wake on the first loud sample
+            for (int i = 0; i < firstLoud; ++i) w.next();
+            start = firstLoud;
         }
+        float* l = L + start;
+        float* r = R + start;
+        const int len = n - start;
 
         const bool ramping = w.left > 0 || w.cur < 1.0f;
         if (ramping)
         {
-            std::copy (L, L + n, dryL.begin());
-            std::copy (R, R + n, dryR.begin());
+            std::copy (l, l + len, dryL.begin());
+            std::copy (r, r + len, dryR.begin());
         }
-        mods[(size_t) id]->process (L, R, n);
+        mods[(size_t) id]->process (l, r, len);
         if (ramping)
-            for (int i = 0; i < n; ++i)
+            for (int i = 0; i < len; ++i)
             {
                 const float g = w.next();
-                L[i] = dryL[(size_t) i] + (L[i] - dryL[(size_t) i]) * g;
-                R[i] = dryR[(size_t) i] + (R[i] - dryR[(size_t) i]) * g;
+                l[i] = dryL[(size_t) i] + (l[i] - dryL[(size_t) i]) * g;
+                r[i] = dryR[(size_t) i] + (r[i] - dryR[(size_t) i]) * g;
             }
+        // go to sleep only on absolute tick boundaries, once the input has been silent past the tail
+        if (endsOnTick && ! mods[(size_t) id]->infiniteTail() && (double) sf > (mods[(size_t) id]->tailSeconds() + 0.1) * sr)
+        {
+            mods[(size_t) id]->reset();
+            sleeping[(size_t) id] = true;
+        }
     }
 
     if (crossfading)

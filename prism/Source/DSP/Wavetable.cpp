@@ -37,6 +37,11 @@ double findRotation (const std::vector<cplx>& h)
 {
     std::vector<double> x (Wavetable::N);
     harmonicsToReal (h, Wavetable::MaxHarmonics, x.data(), Wavetable::N);
+    // already starting at an upward zero crossing (e.g. a table that went through hygiene before):
+    // keep it, so hygiene is idempotent and exported tables re-import identically
+    double pk = 0.0;
+    for (double v : x) pk = std::max (pk, std::abs (v));
+    if (std::abs (x[0]) <= 1e-6 * pk && x[1] > x[(size_t) Wavetable::N - 1] && x[1] > 0.0) return 0.0;
     double best = -1.0, bestPos = 0.0;
     for (int i = 0; i < Wavetable::N; ++i)
     {

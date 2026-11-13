@@ -2,6 +2,7 @@
 //   PrismTool peaks <warp> <amt> <quality> [note]   - strongest spectral peaks of a warped saw
 //   PrismTool render <preset name> <out.wav>         - render the C3-E3-G3 test chord
 #include "../TestHelpers.h"
+#include "PluginEditor.h"
 #include <cstdio>
 #include <iostream>
 using namespace prism;
@@ -39,6 +40,23 @@ int main (int argc, char** argv)
             std::printf ("NONHARM %9.1f Hz %7.1f dB  (h = %.3f)\n", nh[(size_t) i].second * 48000.0 / 32768, nh[(size_t) i].first, nh[(size_t) i].second * 48000.0 / 32768 / f0);
         for (int i = 0; i < 20 && i < (int) pk.size(); ++i)
             std::printf ("%9.1f Hz %7.1f dB  (h = %.3f)\n", pk[(size_t) i].second * 48000.0 / 32768, pk[(size_t) i].first, pk[(size_t) i].second * 48000.0 / 32768 / f0);
+        return 0;
+    }
+    if (cmd == "snapshot" && argc >= 4)
+    {
+        auto p = makeProcessor();
+        render (*p, { { 0.0, 2.0, 60, 0.8f }, { 0.0, 2.0, 67, 0.7f } }, 0.5);
+        std::unique_ptr<PrismEditor> ed (dynamic_cast<PrismEditor*> (p->createEditor()));
+        if (argc > 4) ed->setScale (std::atof (argv[4]));
+        ed->showTab (std::atoi (argv[3]));
+        for (int i = 0; i < 3; ++i) ed->tickForTest();
+        auto img = ed->createComponentSnapshot (ed->getLocalBounds(), true, 1.0f);
+        juce::File out (juce::File::getCurrentWorkingDirectory().getChildFile (argv[2]));
+        out.deleteFile();
+        juce::FileOutputStream os (out);
+        juce::PNGImageFormat png;
+        png.writeImageToStream (img, os);
+        std::cout << "wrote " << out.getFullPathName() << "\n";
         return 0;
     }
     std::cout << "unknown command\n";

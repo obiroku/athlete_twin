@@ -229,15 +229,33 @@ void Engine::processChunk (float* L, float* R, int n, const Transport& tr, doubl
     const double bpm = tr.bpm > 0.0 ? tr.bpm : 120.0;
 
     // ---- 2. chord mode + arp
-    chord.process (rawEv, chordEv, n, realOf (row1, P::chord (P::chord_on)) >= 0.5f, realOf (row1, P::chord (P::chord_strum)),
+    // global-scope parameters that the arp/chord read once per chunk, including macro/MIDI modulation
+    auto modded = [&] (int p) {
+        float v = row1[p];
+        for (int i = 0; i < routes.nGlobal; ++i)
+        {
+            const auto& r = routes.global[i];
+            if (r.dest != p) continue;
+            float sv = r.src >= (int) Src::Macro1 && r.src <= (int) Src::Macro4 ? row1[P::macro (r.src - (int) Src::Macro1)]
+                     : (r.src == (int) Src::ModWheel ? midiSm[r.src] : newestSnap[r.src]);
+            if (r.aux >= 0) sv *= r.aux >= (int) Src::Macro1 && r.aux <= (int) Src::Macro4 ? row1[P::macro (r.aux - (int) Src::Macro1)] : newestSnap[r.aux];
+            v += (row1[P::modDepth (r.slot)] * 2.0f - 1.0f) * sv;
+        }
+        return defs[(size_t) p].fromNorm (clampf (v, 0.0f, 1.0f));
+    };
+    chord.process (rawEv, chordEv, n, realOf (row1, P::chord (P::chord_on)) >= 0.5f, modded (P::chord (P::chord_strum)),
                    (int) std::lround (realOf (row1, P::chord (P::chord_dir))), extras.chord);
     ArpSettings as;
     as.on = realOf (row1, P::arp (P::arp_on)) >= 0.5f;
     as.mode = (int) std::lround (realOf (row1, P::arp (P::arp_mode)));
     as.octaves = (int) std::lround (realOf (row1, P::arp (P::arp_octaves)));
     as.div = (int) std::lround (realOf (row1, P::arp (P::arp_div)));
-    as.gate = realOf (row1, P::arp (P::arp_gate));
-    as.swing = realOf (row1, P::arp (P::arp_swing));
+    as.gate = modded (P::arp (P::arp_gate));
+    as.swing = modded (P::arp (P::arp_swing));
+    {
+        const float sp = modded (P::arp (P::arp_speed));
+        as.speed = sp < 1.0f / 3.0f ? 0.5f : (sp < 2.0f / 3.0f ? 1.0f : 2.0f);
+    }
     as.latch = realOf (row1, P::arp (P::arp_latch)) >= 0.5f;
     as.velMode = (int) std::lround (realOf (row1, P::arp (P::arp_vel_mode)));
     as.fixedVel = realOf (row1, P::arp (P::arp_vel_fixed));
@@ -432,7 +450,7 @@ void Engine::processChunk (float* L, float* R, int n, const Transport& tr, doubl
             ms.bassMonoHz = gReal[P::bass_mono] >= 60.0f ? gReal[P::bass_mono] : 0.0f;
             ms.softclip = gReal[P::softclip] >= 0.5f;
             master.set (ms);
-            rack.process (mixL.data() + pos, mixR.data() + pos, end - pos);
+            rack.process (mixL.data() + pos, mixR.data() + pos, end - pos, end - pos == kTick - ph);
             master.process (mixL.data() + pos, mixR.data() + pos, end - pos);
             preLimiterPeak.store (std::max (preLimiterPeak.load (std::memory_order_relaxed), master.lastPreLimiterPeak), std::memory_order_relaxed);
             meterL.store (std::max (meterL.load (std::memory_order_relaxed), master.peakL), std::memory_order_relaxed);

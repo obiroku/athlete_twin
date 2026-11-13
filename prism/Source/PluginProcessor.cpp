@@ -194,6 +194,15 @@ void PrismProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiB
             if (R != nullptr) R[i] *= fadeGain;
         }
     }
+    {
+        int w = scopeWrite.load (std::memory_order_relaxed);
+        for (int i = 0; i < n; ++i)
+        {
+            scope[(size_t) w] = 0.5f * (L[i] + (R != nullptr ? R[i] : L[i]));
+            w = (w + 1) & (ScopeSize - 1);
+        }
+        scopeWrite.store (w, std::memory_order_release);
+    }
     for (int c = 2; c < buffer.getNumChannels(); ++c) buffer.clear (c, 0, n);
     midi.clear();
 
@@ -248,6 +257,7 @@ void PrismProcessor::applyPresetNow (const PresetData& p)
         model.guiScale = keepScale;
     }
     pushExtras (p.extras);
+    ++extrasVersion;
     tables.request (0, p.tables[0]);
     tables.request (1, p.tables[1]);
 }
@@ -306,6 +316,7 @@ void PrismProcessor::setExtras (const PatchExtras& x)
         model.extras = x;
     }
     pushExtras (x);
+    ++extrasVersion;
 }
 
 PatchExtras PrismProcessor::getExtras() const
@@ -450,11 +461,18 @@ void PrismProcessor::timerCallback()
             const int p = ccMap[(size_t) cc].load();
             if (p >= 0 && p < P::NumParams) params[(size_t) p]->setValueNotifyingHost (ccValue[(size_t) cc].load());
         }
-    // undo snapshots: when the patch has been still for ~0.5 s
+    // undo snapshots: only when something changed, once it has been still for ~0.5 s
     if (++idleTicks >= 15)
     {
         idleTicks = 0;
-        if (! presetLoadPending()) captureUndoSnapshot();
+        uint64_t h = (uint64_t) extrasVersion.load() * 0x9E3779B97F4A7C15ull;
+        for (int i = 0; i < P::NumParams; ++i)
+        {
+            float v = raw[(size_t) i]->load();
+            uint32_t bits; std::memcpy (&bits, &v, sizeof (bits));
+            h = (h ^ bits) * 0x100000001B3ull;
+        }
+        if (h != lastStateHash && ! presetLoadPending()) { lastStateHash = h; captureUndoSnapshot(); }
     }
 }
 

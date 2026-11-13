@@ -66,7 +66,7 @@ void Arp::process (const ChunkEvents& in, ChunkEvents& out, int n, const ArpSett
     wasOn = true;
 
     const double spb = sr * 60.0 / std::max (1.0, bpm); // samples per beat
-    const double stepBeats = syncDivBeats (s.div);
+    const double stepBeats = syncDivBeats (s.div) / (double) std::max (0.25f, s.speed);
     const bool hostClock = playing && ppqValid;
     if (! hostClock && ! freeRunning && numHeld == 0)
     {

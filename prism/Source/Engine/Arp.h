@@ -13,7 +13,7 @@ struct ArpSettings
 {
     bool on = false;
     int mode = 0, octaves = 1, div = 21, velMode = 0;
-    float gate = 0.8f, swing = 0.0f, fixedVel = 0.8f;
+    float gate = 0.8f, swing = 0.0f, fixedVel = 0.8f, speed = 1.0f; // speed: 0.5, 1 or 2
     bool latch = false;
 };
 
