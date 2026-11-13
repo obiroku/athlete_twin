@@ -99,7 +99,7 @@ target_compile_definitions(PRISM PUBLIC ${PRISM_COMMON_DEFS})
 target_compile_options(PRISM PRIVATE ${PRISM_WARNINGS})
 target_link_libraries(PRISM
   PRIVATE PrismData ${PRISM_JUCE_MODULES}
-  PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags juce::juce_recommended_warning_flags)
+  PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags)
 
 if(PRISM_BUILD_TESTS)
   include(FetchContent)
@@ -126,7 +126,7 @@ if(PRISM_BUILD_TESTS)
   target_compile_options(PrismCore PRIVATE ${PRISM_WARNINGS})
   target_link_libraries(PrismCore
     PUBLIC PrismData ${PRISM_JUCE_MODULES}
-           juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
+           juce::juce_recommended_config_flags)
 
   file(GLOB PRISM_TEST_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/Tests/*.cpp")
   add_executable(PrismTests ${PRISM_TEST_SOURCES})

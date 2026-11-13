@@ -83,6 +83,15 @@ public:
 
     float value() const noexcept { return current; }
 
+    // Jump ahead n samples (no delay/fade/smooth); used for slow control-rate LFOs
+    inline float advance (int n) noexcept
+    {
+        phase += inc * n;
+        while (phase >= 1.0) { phase -= 1.0; newCycle(); }
+        current = rawValue (phase);
+        return current;
+    }
+
 private:
     double sr = 48000.0;
     Settings st;

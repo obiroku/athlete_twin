@@ -39,6 +39,8 @@ struct RoutingTable
     int nDepth = 0, nSlow = 0, nFast = 0, nUnison = 0, nGlobal = 0;
     RoutingRef depth[P::NumModSlots], slow[P::NumModSlots], fast[P::NumModSlots], unison[P::NumModSlots], global[P::NumModSlots];
     uint32_t usedSrc = 0;
+    int nActive = 0;
+    int activeSlots[P::NumModSlots] {};
     void build (const PatchExtras& x);
 };
 
@@ -80,6 +82,8 @@ public:
     void release (float relVel) noexcept;
     void beginStealFade() noexcept;
     void kill() noexcept { state = State::Free; }
+    // a voice that replaces a stolen one waits until the 3 ms steal fade is over
+    void delayStart() noexcept { startDelay = fadeLen; }
 
     // Adds output for block positions [start, end)
     void render (const RenderContext& ctx, int start, int end, float* outL, float* outR) noexcept;
@@ -119,7 +123,7 @@ private:
     bool gliding = false;
 
     int ticksLeft = 0;
-    int fadeRemain = 0, fadeLen = 144;
+    int fadeRemain = 0, fadeLen = 144, startDelay = 0;
 
     dsp::WavetableOsc osc[2];
     dsp::SubOsc sub;
@@ -158,9 +162,21 @@ private:
     float subFmBuf[dsp::WavetableOsc::MaxBlock] {};
     float pitchBuf[kTick] {};
     float lastFast[NumFast] {};
+    float busBuf[3][2][kTick] {};
+    float tmpA[kTick] {}, tmpB[kTick] {};
+    float wanderNow = 0.0f;
+    dsp::Envelope::Times lastTimes[3];
+    bool timesValid = false;
 
     void controlTick (const RenderContext& ctx, int pos) noexcept;
     void renderChunk (const RenderContext& ctx, int pos, int len, float* outL, float* outR) noexcept;
-    float real (int p) const noexcept { return paramDefs()[(size_t) p].fromNorm (slowNorm[p]); }
+    // normalized -> real conversion, cached per voice (only recomputed when the value moves)
+    mutable float cacheNorm[P::NumParams];
+    mutable float cacheReal[P::NumParams] {};
+    float real (int p) const noexcept
+    {
+        if (slowNorm[p] != cacheNorm[p]) { cacheNorm[p] = slowNorm[p]; cacheReal[p] = paramDefs()[(size_t) p].fromNorm (slowNorm[p]); }
+        return cacheReal[p];
+    }
 };
 } // namespace prism

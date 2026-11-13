@@ -2,6 +2,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include "TestHelpers.h"
+#include <set>
 
 using namespace prism;
 using namespace prism::test;

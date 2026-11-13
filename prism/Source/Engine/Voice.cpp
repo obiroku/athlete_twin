@@ -42,6 +42,7 @@ void RoutingTable::build (const PatchExtras& x)
 {
     nDepth = nSlow = nFast = nUnison = nGlobal = 0;
     usedSrc = 0;
+    nActive = 0;
     const auto& defs = paramDefs();
     for (int s = 0; s < P::NumModSlots; ++s)
     {
@@ -54,6 +55,7 @@ void RoutingTable::build (const PatchExtras& x)
         ref.fast = fastIndexForParam (r.dest);
         usedSrc |= 1u << r.src;
         if (ref.aux >= 0) usedSrc |= 1u << ref.aux;
+        activeSlots[nActive++] = s;
         if (r.src == (int) Src::UnisonIndex)
         {
             const bool ok = r.dest == P::voice_pitch
@@ -86,12 +88,15 @@ void Voice::prepare (double sampleRate)
 void Voice::reset() noexcept
 {
     state = State::Free;
+    for (auto& c : cacheNorm) c = -1.0f;
     for (auto& e : env) e.reset();
     for (auto& f : filter) f.reset();
     for (auto& a : decS) for (auto& d : a) d.reset();
     for (auto& a : decR) for (auto& d : a) d.reset();
     ticksLeft = 0;
 }
+
+static inline int iround (float x) noexcept { return (int) (x + (x >= 0.0f ? 0.5f : -0.5f)); }
 
 static inline float convertSrc (float v, bool nativeBi, int8_t pol, float curve) noexcept
 {
@@ -141,9 +146,11 @@ void Voice::start (const RenderContext& ctx, int pos, int n, float vel, int ch, 
         Lfo::Settings ws; ws.rateHz = 0.3f; ws.shape = LfoShape::SmoothRandom; ws.bipolar = true;
         wander.set (ws);
         wander.trigger();
+        wanderNow = wander.advance (0);
     }
 
     for (auto& e : env) { e.reset(); }
+    timesValid = false;
     for (int f = 0; f < 2; ++f)
         filter[f].forceType ((FilterType) (int) std::lround (defs[(size_t) P::filt (f, P::f_type)].fromNorm (row[P::filt (f, P::f_type)])));
     for (auto& a : decS) for (auto& d : a) d.reset();
@@ -155,6 +162,7 @@ void Voice::start (const RenderContext& ctx, int pos, int n, float vel, int ch, 
 
     ticksLeft = 0;
     fadeRemain = 0;
+    startDelay = 0;
     mseg.trigger();
     for (auto& s : snap) s = 0.0f;
     snap[(int) Src::Velocity] = velocity;
@@ -232,14 +240,14 @@ void Voice::controlTick (const RenderContext& ctx, int pos) noexcept
     };
 
     // depths (mod-on-mod first)
-    for (int s = 0; s < P::NumModSlots; ++s) depthVal[s] = row[P::modDepth (s)];
+    for (int a = 0; a < rt.nActive; ++a) { const int s = rt.activeSlots[a]; depthVal[s] = row[P::modDepth (s)]; }
     for (int i = 0; i < rt.nDepth; ++i)
     {
         const auto& r = rt.depth[i];
         const float base = row[P::modDepth (r.slot)] * 2.0f - 1.0f;
         depthVal[r.dest - P::ModDepthBase] += base * srcVal (r);
     }
-    for (int s = 0; s < P::NumModSlots; ++s) depthVal[s] = clampf (depthVal[s], 0.0f, 1.0f) * 2.0f - 1.0f;
+    for (int a = 0; a < rt.nActive; ++a) { const int s = rt.activeSlots[a]; depthVal[s] = clampf (depthVal[s], 0.0f, 1.0f) * 2.0f - 1.0f; }
 
     for (int i = 0; i < rt.nSlow; ++i)
     {
@@ -255,16 +263,16 @@ void Voice::controlTick (const RenderContext& ctx, int pos) noexcept
     // ---- derived values
     tv.drift = real (P::drift);
     tv.glideTime = real (P::glide_time);
-    tv.glideMode = (int) std::lround (real (P::glide_mode));
-    tv.parallel = std::lround (real (P::filter_routing)) == 1;
+    tv.glideMode = (int) iround (real (P::glide_mode));
+    tv.parallel = iround (real (P::filter_routing)) == 1;
     for (int o = 0; o < 2; ++o)
     {
         tv.oscSemis[o] = 12.0f * std::round (real (P::osc (o, P::oct))) + std::round (real (P::osc (o, P::semi)))
                        + std::round (real (P::osc (o, P::fine))) * 0.01f;
-        tv.warpMode[o] = (int) std::lround (real (P::osc (o, P::warp_mode)));
-        tv.dest[o] = (int) std::lround (real (P::osc (o, P::dest)));
+        tv.warpMode[o] = (int) iround (real (P::osc (o, P::warp_mode)));
+        tv.dest[o] = (int) iround (real (P::osc (o, P::dest)));
         WavetableOsc::Unison u;
-        u.count = (int) std::lround (real (P::osc (o, P::unison)));
+        u.count = (int) iround (real (P::osc (o, P::unison)));
         u.detune = real (P::osc (o, P::detune));
         u.blend = real (P::osc (o, P::blend));
         u.spread = real (P::osc (o, P::spread));
@@ -294,11 +302,11 @@ void Voice::controlTick (const RenderContext& ctx, int pos) noexcept
         for (int o = 0; o < 2; ++o) osc[o].setLaneMod (lp[o], lw[o], lpan[o]);
     }
 
-    tv.subShape = (int) std::lround (real (P::sub (P::sub_shape)));
-    tv.subOct = (int) std::lround (real (P::sub (P::sub_oct))) + 1;
-    tv.subDest = (int) std::lround (real (P::sub (P::sub_dest)));
-    tv.noiseType = (int) std::lround (real (P::noise (P::noise_type)));
-    tv.noiseDest = (int) std::lround (real (P::noise (P::noise_dest)));
+    tv.subShape = (int) iround (real (P::sub (P::sub_shape)));
+    tv.subOct = (int) iround (real (P::sub (P::sub_oct))) + 1;
+    tv.subDest = (int) iround (real (P::sub (P::sub_dest)));
+    tv.noiseType = (int) iround (real (P::noise (P::noise_type)));
+    tv.noiseDest = (int) iround (real (P::noise (P::noise_dest)));
     tv.noiseStereo = real (P::noise (P::noise_stereo)) >= 0.5f;
     tv.noiseTone = real (P::noise (P::noise_tone));
     {
@@ -311,7 +319,7 @@ void Voice::controlTick (const RenderContext& ctx, int pos) noexcept
     for (int f = 0; f < 2; ++f)
     {
         tv.fOn[f] = real (P::filt (f, P::f_enable)) >= 0.5f;
-        filter[f].setType ((FilterType) (int) std::lround (real (P::filt (f, P::f_type))));
+        filter[f].setType ((FilterType) (int) iround (real (P::filt (f, P::f_type))));
         tv.reso[f] = real (P::filt (f, P::f_reso));
         tv.drive[f] = real (P::filt (f, P::f_drive));
         tv.keytrack[f] = real (P::filt (f, P::f_keytrack));
@@ -330,20 +338,27 @@ void Voice::controlTick (const RenderContext& ctx, int pos) noexcept
         t.curveA = real (P::env (e, P::e_curve_a));
         t.curveD = real (P::env (e, P::e_curve_d));
         t.curveR = real (P::env (e, P::e_curve_r));
-        env[e].setTimes (t);
+        const auto& o = lastTimes[e];
+        if (! timesValid || t.delay != o.delay || t.attack != o.attack || t.hold != o.hold || t.decay != o.decay
+            || t.sustain != o.sustain || t.release != o.release || t.curveA != o.curveA || t.curveD != o.curveD || t.curveR != o.curveR)
+        {
+            env[e].setTimes (t);
+            lastTimes[e] = t;
+        }
     }
+    timesValid = true;
     velGain = 1.0f - real (P::env (0, P::e_vel_amt)) * (1.0f - velocity);
 
     for (int l = 0; l < 4; ++l)
     {
-        const int mode = (int) std::lround (real (P::lfo (l, P::l_mode)));
+        const int mode = (int) iround (real (P::lfo (l, P::l_mode)));
         tv.lfoActive[l] = mode != (int) LfoMode::Free && (rt.usedSrc & (1u << ((int) Src::Lfo1 + l))) != 0;
         if (! tv.lfoActive[l]) continue;
         Lfo::Settings s;
         const bool sync = real (P::lfo (l, P::l_sync)) >= 0.5f;
-        s.rateHz = sync ? (float) (ctx.bpm / 60.0 / syncDivBeats ((int) std::lround (real (P::lfo (l, P::l_div)))))
+        s.rateHz = sync ? (float) (ctx.bpm / 60.0 / syncDivBeats ((int) iround (real (P::lfo (l, P::l_div)))))
                         : real (P::lfo (l, P::l_rate));
-        s.shape = (LfoShape) (int) std::lround (real (P::lfo (l, P::l_shape)));
+        s.shape = (LfoShape) (int) iround (real (P::lfo (l, P::l_shape)));
         s.bipolar = tv.lfoBipolar[l];
         s.phaseOffset = real (P::lfo (l, P::l_phase));
         s.delaySec = real (P::lfo (l, P::l_delay));
@@ -356,10 +371,10 @@ void Voice::controlTick (const RenderContext& ctx, int pos) noexcept
     if (tv.msegOn)
     {
         const bool sync = real (P::mseg (P::mseg_sync)) >= 0.5f;
-        int div = (int) std::lround (real (P::mseg (P::mseg_div)));
+        int div = (int) iround (real (P::mseg (P::mseg_div)));
         div = std::max (3, std::min (21, div)); // 16 bars .. 1/16
         tv.msegLen = sync ? syncDivBeats (div) * 60.0 / ctx.bpm * sr : (double) real (P::mseg (P::mseg_rate)) * sr;
-        tv.msegMode = (int) std::lround (real (P::mseg (P::mseg_mode)));
+        tv.msegMode = (int) iround (real (P::mseg (P::mseg_mode)));
     }
 
     if (gliding && glideRate == 0.0f)
@@ -379,6 +394,12 @@ void Voice::controlTick (const RenderContext& ctx, int pos) noexcept
 void Voice::render (const RenderContext& ctx, int start, int end, float* outL, float* outR) noexcept
 {
     int pos = start;
+    if (startDelay > 0)
+    {
+        const int skip = std::min (startDelay, end - pos);
+        startDelay -= skip;
+        pos += skip;
+    }
     while (pos < end && state != State::Free)
     {
         if (ticksLeft <= 0) controlTick (ctx, pos);
@@ -396,7 +417,9 @@ void Voice::renderChunk (const RenderContext& ctx, int pos, int len, float* outL
 
     // ---- 1. per-sample sources
     for (int i = 0; i < len; ++i) src[(int) Src::Env1][i] = env[0].next();
-    for (int e = 1; e < 3; ++e) for (int i = 0; i < len; ++i) src[(int) Src::Env1 + e][i] = env[e].next();
+    for (int e = 1; e < 3; ++e)
+        if (used & (1u << ((int) Src::Env1 + e)))
+            for (int i = 0; i < len; ++i) src[(int) Src::Env1 + e][i] = env[e].next();
     for (int l = 0; l < 4; ++l)
     {
         const int s = (int) Src::Lfo1 + l;
@@ -435,8 +458,17 @@ void Voice::renderChunk (const RenderContext& ctx, int pos, int len, float* outL
             dst[i] += d * v;
         }
     }
-    if (rt.nFast > 0)
-        for (int k = 0; k < NumFast; ++k) for (int i = 0; i < len; ++i) fast[k][i] = clampf (fast[k][i], 0.0f, 1.0f);
+    bool fastVar[NumFast];
+    for (int k = 0; k < NumFast; ++k) fastVar[k] = ctx.baseFast[k][pos] != ctx.baseFast[k][pos + len - 1];
+    for (int r = 0; r < rt.nFast; ++r)
+    {
+        const auto& ref = rt.fast[r];
+        if (depthVal[ref.slot] == 0.0f) continue;
+        float* fd = fast[ref.fast];
+        for (int i = 0; i < len; ++i) fd[i] = clampf (fd[i], 0.0f, 1.0f);
+        if (! fastVar[ref.fast])
+            for (int i = 1; i < len; ++i) if (fd[i] != fd[0]) { fastVar[ref.fast] = true; break; }
+    }
 
     for (int k = 0; k < NumFast; ++k) lastFast[k] = fast[k][len - 1];
 
@@ -444,6 +476,11 @@ void Voice::renderChunk (const RenderContext& ctx, int pos, int len, float* outL
     const float* pbArr = ctx.globalSrc[(int) Src::PitchBend];
     const float wanderAmt = 3.0f * tv.drift;
     const float driftCents = driftPitchU * 8.0f * tv.drift;
+    // 0.3 Hz wander evaluated at control rate and interpolated across the chunk
+    const float wanderFrom = wanderNow;
+    wanderNow = wander.advance (len);
+    const float wanderStep = (wanderNow - wanderFrom) / (float) len;
+    const bool wasGliding = gliding;
     for (int i = 0; i < len; ++i)
     {
         if (gliding)
@@ -451,7 +488,7 @@ void Voice::renderChunk (const RenderContext& ctx, int pos, int len, float* outL
             if (pitchNow < pitchTarget) { pitchNow += glideRate; if (pitchNow >= pitchTarget) { pitchNow = pitchTarget; gliding = false; } }
             else { pitchNow -= glideRate; if (pitchNow <= pitchTarget) { pitchNow = pitchTarget; gliding = false; } }
         }
-        const float w = wanderAmt > 0.0f ? wander.next (nullptr) * wanderAmt : 0.0f;
+        const float w = (wanderFrom + wanderStep * (float) (i + 1)) * wanderAmt;
         const float pb = pbArr != nullptr ? pbArr[pos + i] * ctx.pbRange : 0.0f;
         pitchBuf[i] = pitchNow + noteBend + pb + (fast[FD_VoicePitch][i] * 48.0f - 24.0f) + (driftCents + w) * 0.01f;
     }
@@ -542,83 +579,147 @@ void Voice::renderChunk (const RenderContext& ctx, int pos, int len, float* outL
             }
         }
 
-    // ---- 5. sub / noise, mixing, filters, amp
-    const bool subOn = [&] { for (int i = 0; i < len; ++i) if (fast[FD_SubLevel][i] > 0.0f) return true; return false; }();
-    const bool noiseOn = [&] { for (int i = 0; i < len; ++i) if (fast[FD_NoiseLevel][i] > 0.0f) return true; return false; }();
-    const bool f1On = tv.fOn[0], f2On = tv.fOn[1];
-    const float kt0 = tv.keytrack[0], kt1 = tv.keytrack[1];
-    const float driftCut = driftCutU * 0.15f * tv.drift;
-    static constexpr float kLog2_1000 = 9.965784285f;
-
-    for (int i = 0; i < len; ++i)
-    {
-        float f1L = 0, f1R = 0, f2L = 0, f2R = 0, dL = 0, dR = 0;
-        auto route = [&] (int dest, float l, float r) {
-            switch (dest)
+    // ---- 5. sources -> buses (F1, F2, Direct), filters, amp
+    float (*bus)[2][kTick] = busBuf;
+    bool busUsed[3] = { false, false, false };
+    bool busMono[3] = { true, true, true };
+    auto target = [&] (int dest, int& a, int& b) {
+        a = dest == 0 ? 0 : (dest == 1 ? 1 : (dest == 2 ? 0 : 2));
+        b = (dest == 2 && tv.parallel) ? 1 : -1;
+    };
+    auto useBus = [&] (int k) {
+        if (k < 0 || busUsed[k]) return;
+        busUsed[k] = true;
+        std::fill (bus[k][0], bus[k][0] + len, 0.0f);
+        std::fill (bus[k][1], bus[k][1] + len, 0.0f);
+    };
+    auto addSource = [&] (int dest, const float* l, const float* r, int lvIdx, int panIdx, bool srcMono) {
+        int a, b;
+        target (dest, a, b);
+        const bool centred = srcMono && ! fastVar[panIdx] && fast[panIdx][0] == 0.5f;
+        if (! centred) { if (a >= 0) busMono[a] = false; if (b >= 0) busMono[b] = false; }
+        useBus (a); useBus (b);
+        const float* lv = fast[lvIdx];
+        const float* pn = fast[panIdx];
+        for (int k : { a, b })
+        {
+            if (k < 0) continue;
+            float* L = bus[k][0];
+            float* R = bus[k][1];
+            if (! fastVar[panIdx])
             {
-                case 0: f1L += l; f1R += r; break;
-                case 1: f2L += l; f2R += r; break;
-                case 2:
-                    f1L += l; f1R += r;
-                    if (tv.parallel) { f2L += l; f2R += r; }
-                    break;
-                default: dL += l; dR += r; break;
+                float pl, pr;
+                panGains (pn[0] * 2.0f - 1.0f, pl, pr);
+                pl *= 1.41421356f; pr *= 1.41421356f;
+                for (int i = 0; i < len; ++i) { L[i] += l[i] * lv[i] * pl; R[i] += r[i] * lv[i] * pr; }
             }
-        };
-        for (int o = 0; o < 2; ++o)
-        {
-            if (! rendered[o]) continue;
-            const int b = o == 0 ? FD_APos : FD_BPos;
-            const float lvl = fast[b + 2][i];
-            if (lvl <= 0.0f) continue;
-            float pl, pr;
-            panGains (fast[b + 3][i] * 2.0f - 1.0f, pl, pr);
-            route (tv.dest[o], oscBufL[o][i] * lvl * pl * 1.41421356f, oscBufR[o][i] * lvl * pr * 1.41421356f);
+            else
+                for (int i = 0; i < len; ++i)
+                {
+                    float pl, pr;
+                    panGains (pn[i] * 2.0f - 1.0f, pl, pr);
+                    L[i] += l[i] * lv[i] * pl * 1.41421356f;
+                    R[i] += r[i] * lv[i] * pr * 1.41421356f;
+                }
         }
-        if (subOn)
+    };
+    for (int o = 0; o < 2; ++o)
+    {
+        if (! rendered[o]) continue;
+        const int b = o == 0 ? FD_APos : FD_BPos;
+        bool audible = false;
+        for (int i = 0; i < len && ! audible; ++i) audible = fast[b + 2][i] > 0.0f;
+        if (audible) addSource (tv.dest[o], oscBufL[o], oscBufR[o], b + 2, b + 3, osc[o].isMonoOutput() && os == 1);
+    }
+    bool subOn = false, noiseOn = false;
+    for (int i = 0; i < len; ++i) { subOn |= fast[FD_SubLevel][i] > 0.0f; noiseOn |= fast[FD_NoiseLevel][i] > 0.0f; }
+    if (subOn)
+    {
+        const float ratio = tv.subOct == 2 ? 0.25f : 0.5f;
+        for (int i = 0; i < len; ++i)
         {
-            const float inc = 440.0f * fastExp2 ((pitchBuf[i] - 69.0f) / 12.0f) * invSr * (tv.subOct == 2 ? 0.25f : 0.5f);
-            const float s = sub.next (inc, tv.subShape) * fast[FD_SubLevel][i];
-            float pl, pr;
-            panGains (fast[FD_SubPan][i] * 2.0f - 1.0f, pl, pr);
-            route (tv.subDest, s * pl * 1.41421356f, s * pr * 1.41421356f);
+            const float inc = 440.0f * fastExp2 ((pitchBuf[i] - 69.0f) / 12.0f) * invSr * ratio;
+            tmpA[i] = tmpB[i] = sub.next (inc, tv.subShape);
         }
-        if (noiseOn)
+        addSource (tv.subDest, tmpA, tmpB, FD_SubLevel, FD_SubPan, true);
+    }
+    if (noiseOn)
+    {
+        for (int i = 0; i < len; ++i)
         {
-            const float lv = fast[FD_NoiseLevel][i];
-            float nl = noise[0].tone (noise[0].next (tv.noiseType), tv.noiseTone, tv.ntLow, tv.ntHigh) * lv;
-            float nr = tv.noiseStereo ? noise[1].tone (noise[1].next (tv.noiseType), tv.noiseTone, tv.ntLow, tv.ntHigh) * lv : nl;
-            float pl, pr;
-            panGains (fast[FD_NoisePan][i] * 2.0f - 1.0f, pl, pr);
-            route (tv.noiseDest, nl * pl * 1.41421356f, nr * pr * 1.41421356f);
+            tmpA[i] = noise[0].tone (noise[0].next (tv.noiseType), tv.noiseTone, tv.ntLow, tv.ntHigh);
+            tmpB[i] = tv.noiseStereo ? noise[1].tone (noise[1].next (tv.noiseType), tv.noiseTone, tv.ntLow, tv.ntHigh) : tmpA[i];
         }
+        addSource (tv.noiseDest, tmpA, tmpB, FD_NoiseLevel, FD_NoisePan, ! tv.noiseStereo);
+    }
 
-        const float c1 = 20.0f * fastExp2 (fast[FD_Cut1][i] * kLog2_1000 + (pitchNow - 60.0f) / 12.0f * kt0 + driftCut);
-        if (f1On) filter[0].process (f1L, f1R, c1, tv.reso[0], tv.vowel[0], tv.drive[0], tv.fmix[0]);
-        float oL, oR;
-        if (! tv.parallel)
+    static constexpr float kLog2_1000 = 9.965784285f;
+    const float driftCut = driftCutU * 0.15f * tv.drift;
+    auto runFilter = [&] (int f, int k) {
+        float* L = bus[k][0];
+        float* R = bus[k][1];
+        const int cutIdx = f == 0 ? FD_Cut1 : FD_Cut2;
+        const float kt = tv.keytrack[f];
+        const bool mono = busMono[k];
+        if (! fastVar[cutIdx] && ! wasGliding)
         {
-            f2L += f1L; f2R += f1R;
-            const float c2 = 20.0f * fastExp2 (fast[FD_Cut2][i] * kLog2_1000 + (pitchNow - 60.0f) / 12.0f * kt1 + driftCut);
-            if (f2On) filter[1].process (f2L, f2R, c2, tv.reso[1], tv.vowel[1], tv.drive[1], tv.fmix[1]);
-            oL = f2L + dL; oR = f2R + dR;
+            const float c = 20.0f * fastExp2 (fast[cutIdx][0] * kLog2_1000 + (pitchNow - 60.0f) / 12.0f * kt + driftCut);
+            filter[f].processBlock (L, R, len, nullptr, c, tv.reso[f], tv.vowel[f], tv.drive[f], tv.fmix[f], mono);
         }
         else
         {
-            const float c2 = 20.0f * fastExp2 (fast[FD_Cut2][i] * kLog2_1000 + (pitchNow - 60.0f) / 12.0f * kt1 + driftCut);
-            if (f2On) filter[1].process (f2L, f2R, c2, tv.reso[1], tv.vowel[1], tv.drive[1], tv.fmix[1]);
-            oL = f1L + f2L + dL; oR = f1R + f2R + dR;
+            for (int i = 0; i < len; ++i)
+            {
+                const float kp = pitchBuf[i] - noteBend - (fast[FD_VoicePitch][i] * 48.0f - 24.0f);
+                tmpA[i] = 20.0f * fastExp2 (fast[cutIdx][i] * kLog2_1000 + (kp - 60.0f) / 12.0f * kt + driftCut);
+            }
+            filter[f].processBlock (L, R, len, tmpA, 0.0f, tv.reso[f], tv.vowel[f], tv.drive[f], tv.fmix[f], mono);
         }
-
-        float amp = src[(int) Src::Env1][i] * velGain * fast[FD_Amp][i];
-        if (state == State::Fading)
+    };
+    if (! tv.parallel)
+    {
+        if (busUsed[0])
         {
-            amp *= (float) fadeRemain / (float) fadeLen;
-            if (fadeRemain > 0) --fadeRemain;
+            if (tv.fOn[0]) runFilter (0, 0);
+            const bool wasUsed = busUsed[1];
+            useBus (1);
+            busMono[1] = (wasUsed ? busMono[1] : true) && busMono[0];
+            for (int i = 0; i < len; ++i) { bus[1][0][i] += bus[0][0][i]; bus[1][1][i] += bus[0][1][i]; }
         }
-        outL[pos + i] += oL * amp;
-        outR[pos + i] += oR * amp;
+        if (busUsed[1] && tv.fOn[1]) runFilter (1, 1);
     }
+    else
+    {
+        if (busUsed[0] && tv.fOn[0]) runFilter (0, 0);
+        if (busUsed[1] && tv.fOn[1]) runFilter (1, 1);
+        if (busUsed[0])
+        {
+            useBus (1);
+            for (int i = 0; i < len; ++i) { bus[1][0][i] += bus[0][0][i]; bus[1][1][i] += bus[0][1][i]; }
+        }
+    }
+    if (busUsed[2])
+    {
+        useBus (1);
+        for (int i = 0; i < len; ++i) { bus[1][0][i] += bus[2][0][i]; bus[1][1][i] += bus[2][1][i]; }
+    }
+
+    const float* e1 = src[(int) Src::Env1];
+    const float* ampP = fast[FD_Amp];
+    if (busUsed[1])
+        for (int i = 0; i < len; ++i)
+        {
+            float amp = e1[i] * velGain * ampP[i];
+            if (state == State::Fading)
+            {
+                amp *= (float) fadeRemain / (float) fadeLen;
+                if (fadeRemain > 0) --fadeRemain;
+            }
+            outL[pos + i] += bus[1][0][i] * amp;
+            outR[pos + i] += bus[1][1][i] * amp;
+        }
+    else if (state == State::Fading)
+        fadeRemain = std::max (0, fadeRemain - len);
 
     if (! env[0].isActive() || (state == State::Fading && fadeRemain <= 0))
         state = State::Free;

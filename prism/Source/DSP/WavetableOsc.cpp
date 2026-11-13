@@ -145,6 +145,11 @@ void WavetableOsc::render (const Wavetable* table, int n, const float* inc, cons
 {
     const bool hasTable = table != nullptr && table->numFrames() > 0;
     const int F = hasTable ? table->numFrames() : 1;
+    if (lanes == 1 && hasTable && mode == WarpMode::None)
+    {
+        renderSingle (*table, n, inc, pos, outL, outR, mono);
+        return;
+    }
     const int groups = (lanes + 3) / 4;
     const V one = V::expand (1.0f);
 
@@ -300,5 +305,62 @@ void WavetableOsc::render (const Wavetable* table, int n, const float* inc, cons
         outR[i] = accR.sum();
         if (mono != nullptr) mono[i] = accM.sum();
     }
+}
+void WavetableOsc::renderSingle (const Wavetable& table, int n, const float* inc, const float* pos,
+                                 float* outL, float* outR, float* mono) noexcept
+{
+    const int F = table.numFrames();
+    float ph = phase[0];
+    const float r = ratio[0], gl = gainL[0], gr = gainR[0], gm = gainM[0];
+    const float off = wtOff[0];
+    for (int i = 0; i < n; ++i)
+    {
+        ph += inc[i] * r;
+        if (ph >= 1.0f) ph -= 1.0f;
+        const float mi = inc[i] * maxRatio;
+        if (mi != mipInc) { mipInc = mi; mipCache = chooseMip (mi); }
+        const MipChoice mc = mipCache;
+        float y = 0.0f;
+        if (! mc.silent || mc.wDark < 1.0f)
+        {
+            float idx = ph * (float) Wavetable::N;
+            int i0 = (int) idx;
+            const float f = idx - (float) i0;
+            if (i0 >= Wavetable::N) i0 -= Wavetable::N;
+            const float basePos = clampf ((pos != nullptr ? pos[i] : 0.0f) + off, 0.0f, 1.0f);
+            const float fpos = basePos * (float) (F - 1);
+            int f0 = std::min (F - 1, (int) fpos);
+            const float ff = fpos - (float) f0;
+            const int f1 = std::min (F - 1, f0 + 1);
+            auto readLevel = [&] (int lv) {
+                const float* a = table.levelData (f0, lv) + i0;
+                float x0 = a[0], x1 = a[1], x2 = a[2], x3 = a[3];
+                if (ff > 0.0f)
+                {
+                    const float* b = table.levelData (f1, lv) + i0;
+                    x0 += (b[0] - x0) * ff; x1 += (b[1] - x1) * ff; x2 += (b[2] - x2) * ff; x3 += (b[3] - x3) * ff;
+                }
+                if (lv <= 1)
+                {
+                    const float c1 = 0.5f * (x2 - x0);
+                    const float c2 = x0 - 2.5f * x1 + 2.0f * x2 - 0.5f * x3;
+                    const float c3 = 0.5f * (x3 - x0) + 1.5f * (x1 - x2);
+                    return ((c3 * f + c2) * f + c1) * f + x1;
+                }
+                return x1 + (x2 - x1) * f;
+            };
+            if (! mc.silent) y = readLevel (mc.level);
+            if (mc.wDark > 0.0f)
+            {
+                const float yd = mc.level + 1 < Wavetable::NumLevels ? readLevel (mc.level + 1) : 0.0f;
+                y += (yd - y) * mc.wDark;
+            }
+            lastPosition = basePos - off;
+        }
+        outL[i] = y * gl;
+        outR[i] = y * gr;
+        if (mono != nullptr) mono[i] = y * gm;
+    }
+    phase[0] = ph;
 }
 } // namespace prism::dsp

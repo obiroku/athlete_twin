@@ -23,8 +23,13 @@ public:
     FilterType getType() const noexcept { return type; }
 
     void process (float& l, float& r, float cutoffHz, float reso, float vowel) noexcept;
+    // Block version. cut == nullptr -> cutConst for every sample. mono: L == R on input (output too).
+    void processBlock (float* L, float* R, int n, const float* cut, float cutConst, float reso, float vowel, bool mono) noexcept;
 
 private:
+    template <int NCH> inline void tick (float* io) noexcept;
+    void copyChannel0To1() noexcept;
+    bool lastMono = false;
     struct Svf { float ic1[2] {}, ic2[2] {}; };
 
     double sr = 48000.0;
@@ -61,6 +66,9 @@ public:
     void forceType (FilterType t) noexcept { type = t; active = 0; xfadeRemain = 0; core[0].setType (t); core[0].reset(); drv[0].reset(); drv[1].reset(); }
     // drive in dB (0..24), mix 0..1
     void process (float& l, float& r, float cutoffHz, float reso, float vowel, float driveDb, float mix) noexcept;
+    // n <= 64
+    void processBlock (float* L, float* R, int n, const float* cut, float cutConst, float reso, float vowel,
+                       float driveDb, float mix, bool mono) noexcept;
     FilterType getType() const noexcept { return type; }
 
 private:
@@ -70,5 +78,6 @@ private:
     FilterType type = FilterType::LP24;
     Oversampled2x drv[2];
     float lastDrive = 0.0f;
+    bool lastMonoDrive = false;
 };
 } // namespace prism::dsp

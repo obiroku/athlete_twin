@@ -520,6 +520,7 @@ void Engine::handleNoteOn (int pos, int note, float vel, int ch) noexcept
                 return;
             }
         const int poly = (int) std::lround (realOf (row, P::poly));
+        bool stole = false;
         if (activeCount() >= poly)
         {
             // 2. quietest releasing voice, 3. quietest overall, 4. oldest
@@ -539,11 +540,12 @@ void Engine::handleNoteOn (int pos, int note, float vel, int ch) noexcept
                     if (victim < 0 || v.loudness() < q - 1e-6f || (std::abs (v.loudness() - q) <= 1e-6f && v.getOrder() < voices[(size_t) victim].getOrder()))
                     { q = v.loudness(); victim = i; }
                 }
-            if (victim >= 0) voices[(size_t) victim].beginStealFade();
+            if (victim >= 0) { voices[(size_t) victim].beginStealFade(); stole = true; }
         }
         const int vi = allocVoice();
         const bool glide = glideTime > 0.0f && lastNotePitch >= 0.0f && (! legatoOnly || anyHeld);
         startVoice (vi, pos, note, vel, ch, glide, lastNotePitch);
+        if (stole) voices[(size_t) vi].delayStart();
         lastNotePitch = (float) note;
         return;
     }

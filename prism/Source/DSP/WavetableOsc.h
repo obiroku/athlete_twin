@@ -50,6 +50,8 @@ public:
     void setLaneMod (float pitchSemisPerIndex, float wtPerIndex, float panPerIndex) noexcept;
 
     float maxLaneRatio() const noexcept { return maxRatio; }
+    // true when L and R outputs are bit-identical (single centred lane or no stereo spread)
+    bool isMonoOutput() const noexcept { return gainL[0] == gainR[0] && (lanes == 1 || (uni.spread == 0.0f && lanePan == 0.0f)); }
 
     // Render `n` samples at the oscillator rate (host rate x os).
     //  inc[i]   : fundamental increment in cycles/sample at oscillator rate
@@ -77,6 +79,9 @@ private:
     Unison uni;
     float lanePitch = 0, laneWt = 0, lanePan = 0;
     float lastPosition = 0;
+    float mipInc = -1.0f;
+    MipChoice mipCache;
     void rebuild() noexcept;
+    void renderSingle (const Wavetable& t, int n, const float* inc, const float* pos, float* outL, float* outR, float* mono) noexcept;
 };
 } // namespace prism::dsp

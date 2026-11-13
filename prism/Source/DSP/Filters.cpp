@@ -169,13 +169,56 @@ inline float FilterCore::svfTick (Svf& s, int ch, float v0, float A1, float A2, 
     return v2;
 }
 
+void FilterCore::copyChannel0To1() noexcept
+{
+    s1.ic1[1] = s1.ic1[0]; s1.ic2[1] = s1.ic2[0];
+    s2.ic1[1] = s2.ic1[0]; s2.ic2[1] = s2.ic2[0];
+    for (auto& f : fs) { f.ic1[1] = f.ic1[0]; f.ic2[1] = f.ic2[0]; }
+    for (auto& a : lad) a[1] = a[0];
+    for (int i = 0; i < 4; ++i) dio[1][i] = dio[0][i];
+    if (type == FilterType::CombPlus || type == FilterType::CombMinus) comb[1] = comb[0]; // same size: no allocation
+}
+
 void FilterCore::process (float& l, float& r, float fc, float reso, float vowel) noexcept
 {
     if (fc != lastCut || reso != lastReso || (type == FilterType::Formant && vowel != lastVowel))
         updateCoefs (fc, reso, vowel);
-
+    if (lastMono) { copyChannel0To1(); lastMono = false; }
     float io[2] = { l, r };
-    for (int ch = 0; ch < 2; ++ch)
+    tick<2> (io);
+    l = io[0];
+    r = io[1];
+}
+
+void FilterCore::processBlock (float* L, float* R, int n, const float* cut, float cutConst, float reso, float vowel, bool mono) noexcept
+{
+    if (! mono && lastMono) { copyChannel0To1(); }
+    lastMono = mono;
+    for (int i = 0; i < n; ++i)
+    {
+        const float fc = cut != nullptr ? cut[i] : cutConst;
+        if (fc != lastCut || reso != lastReso || (type == FilterType::Formant && vowel != lastVowel))
+            updateCoefs (fc, reso, vowel);
+        if (mono)
+        {
+            float io[1] = { L[i] };
+            tick<1> (io);
+            L[i] = R[i] = io[0];
+        }
+        else
+        {
+            float io[2] = { L[i], R[i] };
+            tick<2> (io);
+            L[i] = io[0];
+            R[i] = io[1];
+        }
+    }
+}
+
+template <int NCH>
+inline void FilterCore::tick (float* io) noexcept
+{
+    for (int ch = 0; ch < NCH; ++ch)
     {
         const float x = io[ch];
         float y = x;
@@ -297,8 +340,6 @@ void FilterCore::process (float& l, float& r, float fc, float reso, float vowel)
     }
     if (type == FilterType::CombPlus || type == FilterType::CombMinus)
         if (++combW >= combLen) combW = 0;
-    l = io[0];
-    r = io[1];
 }
 
 // ------------------------------------------------------------- wrapper with type crossfade + drive
@@ -329,6 +370,49 @@ void Filter::setType (FilterType t) noexcept
     core[other].setType (t);
     active = other;
     xfadeRemain = xfadeLen;
+}
+
+void Filter::processBlock (float* L, float* R, int n, const float* cut, float cutConst, float reso, float vowel,
+                           float driveDb, float mix, bool mono) noexcept
+{
+    float dryL[64], dryR[64];
+    const bool needDry = mix < 1.0f;
+    if (needDry) { std::copy (L, L + n, dryL); std::copy (R, R + n, dryR); }
+    if (driveDb > 0.01f)
+    {
+        if (lastDrive <= 0.01f) { drv[0].reset(); drv[1].reset(); }
+        const float gd = dbToGain (driveDb);
+        const float comp = 1.0f / std::sqrt (gd);
+        auto sat = [gd, comp] (float x) { return tanhFast (x * gd) * comp; };
+        for (int i = 0; i < n; ++i)
+        {
+            L[i] = drv[0].process (L[i], sat);
+            if (mono) R[i] = L[i];
+            else R[i] = drv[1].process (R[i], sat);
+        }
+        if (mono) drv[1] = drv[0];
+    }
+    lastDrive = driveDb;
+    lastMonoDrive = mono;
+
+    if (xfadeRemain <= 0)
+        core[active].processBlock (L, R, n, cut, cutConst, reso, vowel, mono);
+    else
+    {
+        float bL[64], bR[64];
+        std::copy (L, L + n, bL); std::copy (R, R + n, bR);
+        core[active].processBlock (L, R, n, cut, cutConst, reso, vowel, mono);
+        core[1 - active].processBlock (bL, bR, n, cut, cutConst, reso, vowel, mono);
+        for (int i = 0; i < n; ++i)
+        {
+            const float t = xfadeRemain > 0 ? 1.0f - (float) xfadeRemain / (float) xfadeLen : 1.0f;
+            L[i] = bL[i] + (L[i] - bL[i]) * t;
+            R[i] = bR[i] + (R[i] - bR[i]) * t;
+            if (xfadeRemain > 0) --xfadeRemain;
+        }
+    }
+    if (needDry)
+        for (int i = 0; i < n; ++i) { L[i] = dryL[i] + (L[i] - dryL[i]) * mix; R[i] = dryR[i] + (R[i] - dryR[i]) * mix; }
 }
 
 void Filter::process (float& l, float& r, float cutoffHz, float reso, float vowel, float driveDb, float mix) noexcept
