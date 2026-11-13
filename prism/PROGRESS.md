@@ -145,3 +145,27 @@ than 3 dB between adjacent positions; import tests (correct frame counts, DC <
 0.001, peak −1 dBFS ± 0.02 dB, nothing above harmonic 512, export → re-import
 identical within 1e-4); a preset with an embedded table round-trips through a
 clean folder and plays.
+
+## Phase 4 — Modulation engine (tag `phase-4`)
+
+Built (in the engine since Phase 2, tested now): sources Env 1–3, LFO 1–4
+(9 shapes incl. Custom, Free/Retrig/Env, delay, fade, smooth, phase,
+one-shot), MSEG (32 points, per-segment curves, loop region, one-shot / loop /
+sustain-loop, time or BPM length), macros, velocity, release velocity, note,
+mod wheel, pitch bend, aftertouch, poly AT / MPE pressure, MPE slide,
+random-per-note, alternate, unison voice index, CC A/B. 64-slot matrix in
+normalized space with polarity, power curve, aux and mod-on-mod. Per-sample
+path for pitch, WT position, warp, cutoff, amp and pan; 32-sample control rate
+on a counter that carries across blocks for everything else. Free + sync LFOs
+lock to ppq while playing; unsynced Free LFOs restart on transport start.
+
+| Test | Target | Measured |
+|---|---|---|
+| Envelope stage timing | ±1 % | pass (delay, attack, hold, decay, release) |
+| LFO phase lock to ppqPosition | — | max error < 1e-4 cycle |
+| LFO → voice_pitch ±15 ct | ±1 ct | −15.23 / +15.02 ct |
+| Cutoff depth 0.1 | 1 octave ±5 % | ×1.9953 |
+| Matrix sum / clamp / curve / aux / macro→many / mod-on-mod | exact | pass |
+| Parameter sweep (all 329 params, held chord) | no NaN/inf, ≤ +6 dBFS pre-limiter | pass, worst 1.000 (0 dBFS) |
+| Block-size test, every LFO + envelope + MSEG routed | ≤ 1e-6 | pass |
+| State round-trip incl. routings and MSEG | identical | pass (Phase 1 test) |

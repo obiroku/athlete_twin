@@ -47,6 +47,7 @@ public:
     std::atomic<float> modWheelValue { 0.0f };
 
     int latencySamples() const noexcept { return dsp::Master::LimiterLookahead; }
+    double globalLfoPhase (int l) const noexcept { return gLfo[l].getPhase(); } // tests
     bool tablesReady() const noexcept { return true; }
 
 private:
