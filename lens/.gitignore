@@ -1,0 +1,5 @@
+build/
+build-*/
+tools/pluginval.app/
+tools/pluginval*.zip
+.DS_Store
