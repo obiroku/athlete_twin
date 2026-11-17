@@ -10,8 +10,9 @@ GCC 13, JUCE 8.0.15). **Nothing has run on a Mac yet**: the AU build,
 
 | | |
 |---|---|
-| Catch2 | 67 test cases, 22,097 assertions, all pass (Release) |
-| AddressSanitizer (Debug) | see "Sanitizer run" below |
+| Catch2 | 67 test cases, 22,097 assertions, all pass (Release, GCC 13) |
+| Clang 18 build | compiles cleanly; all tests pass (closest to Apple Clang here) |
+| AddressSanitizer (Debug) | no address errors or leaks (see "Sanitizer run") |
 | Benchmark, 48 kHz, 128-sample blocks, one core | see table below |
 | auval / pluginval / Logic | not run (needs the Mac) |
 
@@ -209,7 +210,11 @@ kernel paths with delayed gain, mode switch with fade, latency shown in ms.
    0 dB, Q 1; "a +10 dB narrow Bell" uses 1 kHz, Q 8.
 
 ## Sanitizer run
-(Filled in below after the Debug + AddressSanitizer run of the full suite.)
+Debug build with AddressSanitizer and LeakSanitizer, whole suite (minus the
+idle-CPU test): **no address errors, no leaks**; 65 of 66 test cases pass.
+The one failure is the FIFO-flood timing check (blocks under 2 ms), which
+only means something in Release: Debug + ASan runs about 10× slower. In
+Release it passes at 0.45 ms.
 
 ## Building on the Mac
 
