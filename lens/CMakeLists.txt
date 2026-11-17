@@ -33,11 +33,10 @@ juce_add_plugin(LENS
     EDITOR_WANTS_KEYBOARD_FOCUS TRUE
     COPY_PLUGIN_AFTER_BUILD TRUE)
 
-target_sources(LENS PRIVATE
-    Source/PluginProcessor.cpp
-    Source/Params/Parameters.cpp
-    Source/State/StateIO.cpp
-    Source/State/SessionState.cpp)
+file(GLOB_RECURSE LENS_SOURCES CONFIGURE_DEPENDS
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source/*.h)
+target_sources(LENS PRIVATE ${LENS_SOURCES})
 
 target_include_directories(LENS PRIVATE Source)
 
@@ -75,14 +74,11 @@ if(LENS_BUILD_TESTS)
             ${CMAKE_CURRENT_SOURCE_DIR}/Tests)
     endfunction()
 
-    add_library(lens_test_helpers STATIC Tests/helpers/OfflineRender.cpp)
+    add_library(lens_test_helpers STATIC Tests/helpers/OfflineRender.cpp Tests/helpers/Signals.cpp)
     lens_use_plugin_code(lens_test_helpers)
 
-    add_executable(lens_tests
-        Tests/main.cpp
-        Tests/test_parameters.cpp
-        Tests/test_state.cpp
-        Tests/test_passthrough.cpp)
+    file(GLOB LENS_TEST_SOURCES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Tests/*.cpp)
+    add_executable(lens_tests ${LENS_TEST_SOURCES})
     lens_use_plugin_code(lens_tests)
     target_link_libraries(lens_tests PRIVATE lens_test_helpers Catch2::Catch2)
 

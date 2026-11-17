@@ -1,21 +1,45 @@
-// Headless benchmark. Prints the CPU model and the real-time factor of
-// the processor at 48 kHz, 128-sample blocks, on one core (SPEC §13).
+// Headless benchmark (SPEC §13). Prints the CPU model and, for each
+// scenario, the real-time factor at 48 kHz with 128-sample blocks on one
+// core. The analyzer runs on its own thread and is reported separately.
 //
-// Usage: lens_bench [seconds=30] [sampleRate=48000] [blockSize=128]
+// Usage: lens_bench [seconds=20] [sampleRate=48000] [blockSize=128]
 
 #include <chrono>
 #include <cstdio>
+#include <functional>
 
 #include <juce_events/juce_events.h>
 
 #include "PluginProcessor.h"
 #include "helpers/OfflineRender.h"
+#include "helpers/ProcHelpers.h"
+#include "helpers/Signals.h"
+
+#if __has_include("GUI/Analyzer.h")
+ #include "GUI/Analyzer.h"
+ #define LENS_BENCH_ANALYZER 1
+#endif
+
+using namespace lens::test;
+
+namespace
+{
+void fourDynamic (lens::LensProcessor& p)
+{
+    setEightMixedBands (p, false);
+    // Bands 2, 3, 4 and 6 become dynamic (a shelf and three bells).
+    setDyn (p, 2, { 0, -4.0f, -30.0f, 3.0f, 20.0f, 200.0f });
+    setDyn (p, 3, { 0, -6.0f, -35.0f, 3.0f, 10.0f, 120.0f });
+    setDyn (p, 4, { 0, 4.0f, -40.0f, 2.0f, 3.0f, 80.0f });
+    setDyn (p, 6, { 1, -3.0f, -45.0f, 4.0f, 1.0f, 50.0f, false, true, 3000.0f, 9000.0f });
+}
+} // namespace
 
 int main (int argc, char* argv[])
 {
     juce::ScopedJuceInitialiser_GUI juceInit;
 
-    const double seconds = argc > 1 ? juce::String (argv[1]).getDoubleValue() : 30.0;
+    const double seconds = argc > 1 ? juce::String (argv[1]).getDoubleValue() : 20.0;
     const double sampleRate = argc > 2 ? juce::String (argv[2]).getDoubleValue() : 48000.0;
     const int blockSize = argc > 3 ? juce::String (argv[3]).getIntValue() : 128;
 
@@ -35,32 +59,82 @@ int main (int argc, char* argv[])
     struct Scenario
     {
         const char* name;
-        // Later phases configure bands here.
+        std::function<void (lens::LensProcessor&)> setup;
+        double budgetPercent;
     };
-    const Scenario scenarios[] = { { "Phase 1 pass-through" } };
+    const Scenario scenarios[] = {
+        { "All bands off", [] (lens::LensProcessor&) {}, 0.0 },
+        { "Zero Latency, 8 static bands", [] (lens::LensProcessor& p) { setEightMixedBands (p); }, 1.5 },
+        { "Zero Latency, 8 bands incl. 4 dynamic", fourDynamic, 3.0 },
+        { "Linear Phase Medium, 8 bands incl. 4 dynamic",
+          [] (lens::LensProcessor& p)
+          {
+              fourDynamic (p);
+              setParam (p, "phase_mode", 1.0f);
+              setParam (p, "lp_resolution", 1.0f);
+          },
+          15.0 },
+    };
 
     const int numSamples = (int) (seconds * sampleRate);
-    const auto input = lens::test::makeNoise (2, numSamples, 7, 0.25f);
+    const auto input = makePink (2, numSamples, 7, -16.0);
+    bool allPass = true;
 
     for (const auto& sc : scenarios)
     {
         lens::LensProcessor proc;
-        lens::test::RenderOptions opts;
+        sc.setup (proc);
+        RenderOptions opts;
         opts.sampleRate = sampleRate;
         opts.blockPattern = { blockSize };
+        // Let any background kernel build finish before timing.
+        opts.beforeBlock = [&proc] (juce::int64 pos)
+        {
+            if (pos == 0)
+                juce::Thread::sleep (300);
+        };
 
-        (void) lens::test::render (proc, input, opts); // warm-up
+        (void) render (proc, input, opts); // warm-up
+        opts.beforeBlock = {};
 
         const auto t0 = std::chrono::steady_clock::now();
-        const auto out = lens::test::render (proc, input, opts);
+        const auto out = render (proc, input, opts);
         const auto t1 = std::chrono::steady_clock::now();
 
         const double elapsed = std::chrono::duration<double> (t1 - t0).count();
         const double audio = (double) out.getNumSamples() / sampleRate;
-        std::printf ("%-40s %8.1fx real time   %6.3f%% of one core\n",
-                     sc.name, audio / elapsed, 100.0 * elapsed / audio);
+        const double pct = 100.0 * elapsed / audio;
+        const bool ok = sc.budgetPercent <= 0.0 || pct < sc.budgetPercent;
+        allPass = allPass && ok;
+        std::printf ("%-46s %8.1fx real time  %7.3f%% of one core", sc.name, audio / elapsed, pct);
+        if (sc.budgetPercent > 0.0)
+            std::printf ("   budget < %.1f%%  %s", sc.budgetPercent, ok ? "PASS" : "OVER");
+        std::printf ("\n");
     }
 
-    std::printf ("\nNote: timings include the test harness's buffer copies.\n");
+#ifdef LENS_BENCH_ANALYZER
+    {
+        lens::gui::SpectrumAnalyzer analyzer;
+        analyzer.prepare (sampleRate);
+        std::vector<float> chunk (4096);
+        const auto t0 = std::chrono::steady_clock::now();
+        int pos = 0;
+        while (pos + 4096 <= numSamples)
+        {
+            for (int i = 0; i < 4096; ++i)
+                chunk[(size_t) i] = input.getSample (0, pos + i);
+            analyzer.feed (lens::gui::SpectrumAnalyzer::Pre, chunk.data(), 4096);
+            analyzer.feed (lens::gui::SpectrumAnalyzer::Post, chunk.data(), 4096);
+            analyzer.feed (lens::gui::SpectrumAnalyzer::Sidechain, chunk.data(), 4096);
+            pos += 4096;
+        }
+        const auto t1 = std::chrono::steady_clock::now();
+        const double elapsed = std::chrono::duration<double> (t1 - t0).count();
+        std::printf ("%-46s %8.1fx real time  %7.3f%% of one core (analyzer thread)\n", "Analyzer, 3 traces", seconds / elapsed,
+                     100.0 * elapsed / seconds);
+    }
+#endif
+
+    std::printf ("\nTimings include the test harness's buffer copies. %s\n", allPass ? "All budgets met." : "Some budgets missed.");
     return 0;
 }

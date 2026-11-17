@@ -5,7 +5,7 @@
 
 using namespace lens::test;
 
-TEST_CASE ("Pass-through is bit-identical at every block size", "[passthrough]")
+TEST_CASE ("With every band off, output is bit-identical to input at every block size", "[passthrough]")
 {
     const std::vector<std::vector<int>> patterns { { 1 }, { 64 }, { 517 }, { 4096 }, variableBlockPattern() };
 
@@ -33,19 +33,6 @@ TEST_CASE ("Pass-through is bit-identical at every block size", "[passthrough]")
                 REQUIRE (bitIdentical (render (proc, input, opts), input));
             }
         }
-}
-
-TEST_CASE ("Pass-through ignores parameter values in Phase 1", "[passthrough]")
-{
-    lens::LensProcessor proc;
-    juce::Random rng (5);
-    for (auto* p : proc.getParameters())
-        p->setValueNotifyingHost (rng.nextFloat());
-
-    const auto input = makeSine (2, 20000, 48000.0, 1000.0);
-    RenderOptions opts;
-    opts.blockPattern = variableBlockPattern();
-    REQUIRE (bitIdentical (render (proc, input, opts), input));
 }
 
 TEST_CASE ("Test helper: WAV write and read round-trip", "[helpers]")
