@@ -344,8 +344,9 @@ std::vector<ParamDef> buildDefs()
         B.f (p + "sustain", n + "Sustain", 0.0f, 1.0f, e == 0 ? 1.0f : 0.0f, Unit::Percent);
         B.fs (p + "release", n + "Release", 0.0f, 20.0f, 0.05f, 0.5f, Unit::Seconds);
         B.f (p + "curve_a", n + "Attack Curve", -1.0f, 1.0f, 0.0f);
-        B.f (p + "curve_d", n + "Decay Curve", -1.0f, 1.0f, 0.0f);
-        B.f (p + "curve_r", n + "Release Curve", -1.0f, 1.0f, 0.0f);
+        // decay/release default to an exponential-like curve (natural, analog-style fades)
+        B.f (p + "curve_d", n + "Decay Curve", -1.0f, 1.0f, 0.5f);
+        B.f (p + "curve_r", n + "Release Curve", -1.0f, 1.0f, 0.5f);
         B.f (p + "vel_amt", n + "Velocity", 0.0f, 1.0f, e == 0 ? 0.5f : 0.0f, Unit::Percent);
     }
     assert ((int) B.defs.size() == P::LfoBase);

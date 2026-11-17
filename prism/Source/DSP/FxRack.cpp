@@ -173,7 +173,7 @@ void Master::process (float* L, float* R, int n)
     constexpr int W = LimiterLookahead + 1; // 65-sample window, 64-sample delay
     constexpr int M = 128;
     float pre = 0.0f, pl = 0.0f, pr = 0.0f;
-    const float T = 0.7f;
+    const float T = 0.85f; // transparent below about -1.4 dBFS
     for (int i = 0; i < n; ++i)
     {
         const float g = vol.next();

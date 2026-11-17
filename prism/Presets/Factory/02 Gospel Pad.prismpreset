@@ -12,19 +12,19 @@
   "macros": [
     {
       "name": "Air",
-      "value": 0.0
+      "value": 0.25
     },
     {
       "name": "Movement",
-      "value": 0.0
+      "value": 0.4
     },
     {
       "name": "Width",
-      "value": 0.0
+      "value": 0.3
     },
     {
       "name": "Warmth",
-      "value": 0.0
+      "value": 0.2
     }
   ],
   "params": {
@@ -34,7 +34,7 @@
     "oscB_oct": -1,
     "oscB_level": 0.2,
     "f1_type": 1,
-    "f1_cutoff": 2200.0,
+    "f1_cutoff": 4200.0,
     "env1_attack": 0.8,
     "env1_release": 2.5,
     "env2_attack": 1.5,
@@ -42,13 +42,23 @@
     "env2_sustain": 1.0,
     "lfo1_rate": 0.2,
     "lfo1_mode": 0,
+    "oscA_spread": 0.9,
+    "oscB_spread": 0.9,
+    "oscB_unison": 3,
+    "oscB_detune": 0.1,
+    "sub_level": 0.15,
+    "sub_dest": 1,
     "chorus_mix": 0.35,
     "reverb_mix": 0.6,
     "reverb_size": 0.75,
     "reverb_decay": 4.5,
+    "macro1": 0.25,
+    "macro2": 0.4,
+    "macro3": 0.3,
+    "macro4": 0.2,
     "mod01_depth": 0.0,
     "mod02_depth": 0.1,
-    "mod03_depth": 0.25,
+    "mod03_depth": 0.15,
     "mod04_depth": 0.1,
     "mod05_depth": 0.3,
     "mod06_depth": 0.12,
@@ -56,7 +66,6 @@
     "mod08_depth": 0.4,
     "mod09_depth": 0.25,
     "mod10_depth": 0.35,
-    "mod11_depth": 0.0,
     "dist_on": 0.0,
     "tape_on": 0.0,
     "dim_on": 0.0,
@@ -69,7 +78,7 @@
     "comp_on": 0.0,
     "mb_on": 0.0,
     "eq_on": 0.0,
-    "master_vol": -6.39
+    "master_vol": -10.130000000000001
   },
   "mod_routings": [
     {
@@ -95,7 +104,7 @@
     {
       "source": "env2",
       "dest": "f1_cutoff",
-      "depth": 0.25,
+      "depth": 0.15,
       "polarity": "native",
       "aux": "none",
       "curve": 0.0,
@@ -171,16 +180,6 @@
       "curve": 0.0,
       "bypass": false,
       "slot": 10
-    },
-    {
-      "source": "macro4",
-      "dest": "tape_mix",
-      "depth": 0.0,
-      "polarity": "native",
-      "aux": "none",
-      "curve": 0.0,
-      "bypass": false,
-      "slot": 11
     }
   ],
   "fx_order": [

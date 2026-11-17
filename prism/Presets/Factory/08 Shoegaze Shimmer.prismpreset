@@ -12,15 +12,15 @@
   "macros": [
     {
       "name": "Bloom",
-      "value": 0.0
+      "value": 0.3
     },
     {
       "name": "Shimmer",
-      "value": 0.0
+      "value": 0.5
     },
     {
       "name": "Drift",
-      "value": 0.0
+      "value": 0.3
     },
     {
       "name": "Freeze",
@@ -46,6 +46,12 @@
     "reverb_mix": 0.7,
     "reverb_size": 0.9,
     "reverb_decay": 8.0,
+    "oscA_spread": 0.9,
+    "oscB_spread": 0.9,
+    "macro1": 0.3,
+    "macro2": 0.5,
+    "macro3": 0.3,
+    "macro4": 0.0,
     "mod01_depth": 0.0,
     "mod02_depth": 0.1,
     "mod03_depth": -0.25,
@@ -66,7 +72,7 @@
     "comp_on": 0.0,
     "mb_on": 0.0,
     "eq_on": 0.0,
-    "master_vol": -3.43
+    "master_vol": -6.72
   },
   "mod_routings": [
     {

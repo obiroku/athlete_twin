@@ -447,7 +447,7 @@ private:
     float timeTarget = 1000, fb = 0.35f, wow = 0, duck = 0, mix = 0.3f, env = 0, wowPh = 0;
 };
 
-// ============================================================== Reverb (FDN + shimmer)
+// ============================================================== Reverb (diffused FDN + shimmer)
 class Reverb final : public FxModule
 {
 public:
@@ -455,25 +455,28 @@ public:
     void prepare (double s, int) override
     {
         sr = s;
-        for (auto& d : lines) d.prepare ((int) (0.2 * sr) + 64);
-        pre.prepare ((int) (0.26 * sr));
-        for (auto& p : shim) p.prepare ((int) (0.2 * sr));
-        grain = (int) (0.06 * sr);
+        for (auto& d : lines) d.prepare ((int) (0.27 * sr) + 64);
+        for (auto& d : pre) d.prepare ((int) (0.26 * sr) + 8);
+        for (auto& c : diff) for (auto& d : c) d.prepare ((int) (0.02 * sr) + 8);
+        shim.prepare ((int) (0.2 * sr));
+        grain = (int) (0.07 * sr);
         reset();
     }
     void reset() override
     {
         for (auto& d : lines) d.reset();
-        pre.reset();
-        for (auto& p : shim) p.reset();
+        for (auto& d : pre) d.reset();
+        for (auto& c : diff) for (auto& d : c) d.reset();
+        shim.reset();
         for (auto& f : damp) f.reset();
         lc[0].reset(); lc[1].reset();
-        modPh = 0; shPh = 0;
+        shPh = 0;
+        for (int k = 0; k < MaxLines; ++k) modPh[k] = (float) k / MaxLines;
     }
     void update (const float* r, const FxContext&) override
     {
         n = std::lround (r[P::ReverbBase + P::reverb_lines]) >= 1 ? 16 : 8;
-        const float size = 0.35f + 1.25f * r[P::ReverbBase + P::reverb_size];
+        size = 0.4f + 1.2f * r[P::ReverbBase + P::reverb_size];
         decay = r[P::ReverbBase + P::reverb_decay];
         const float dmp = r[P::ReverbBase + P::reverb_damp];
         preDelay = std::max (1.0f, r[P::ReverbBase + P::reverb_predelay] * (float) sr);
@@ -483,63 +486,84 @@ public:
         freeze = r[P::ReverbBase + P::reverb_freeze] >= 0.5f;
         shimmer = r[P::ReverbBase + P::reverb_shimmer];
         mix = r[P::ReverbBase + P::reverb_mix];
-        static const float ms[MaxLines] = { 29.7f, 37.1f, 41.1f, 43.7f, 53.3f, 59.9f, 67.1f, 73.3f,
-                                            79.7f, 83.9f, 89.3f, 97.1f, 101.3f, 107.9f, 113.3f, 119.9f };
-        const float dampFc = 18000.0f * std::pow (1500.0f / 18000.0f, dmp);
+        static const float ms[MaxLines] = { 43.1f, 97.3f, 53.3f, 119.3f, 64.9f, 83.7f, 47.9f, 137.1f,
+                                            71.3f, 103.7f, 59.7f, 127.9f, 77.9f, 90.1f, 111.1f, 149.3f };
+        const float dampFc = 16000.0f * std::pow (1200.0f / 16000.0f, dmp);
         for (int i = 0; i < MaxLines; ++i)
         {
-            len[i] = ms[(i * 7) % MaxLines] * 0.001f * size * (float) sr;
+            len[i] = ms[i] * 0.001f * size * (float) sr;
             const double rt = std::max (0.05, (double) decay);
             gain[i] = freeze ? 1.0f : (float) std::pow (10.0, -3.0 * (double) len[i] / (rt * sr));
-            damp[i].setLP (freeze ? 20000.0f : dampFc, sr);
+            damp[i].setLP (freeze ? 22000.0f : dampFc, sr);
+            modRate[i] = (0.17f + 0.09f * (float) i) / (float) sr;
         }
+        static const float dms[2][4] = { { 4.77f, 3.59f, 12.73f, 9.30f }, { 4.92f, 3.71f, 12.51f, 9.68f } };
+        const float ds = 0.6f + 0.4f * std::min (1.0f, size);
+        for (int c = 0; c < 2; ++c) for (int k = 0; k < 4; ++k) diffLen[c][k] = dms[c][k] * 0.001f * ds * (float) sr;
     }
     void process (float* L, float* R, int nn) override
     {
         const float norm = 1.0f / std::sqrt ((float) n);
-        const float modDepth = freeze ? 0.0f : modAmt * (float) (0.0008 * sr);
+        const float modDepth = freeze ? 0.0f : modAmt * (float) (0.0012 * sr);
         const float shimAmt = freeze ? 0.0f : shimmer;
+        static const float dg[4] = { 0.75f, 0.75f, 0.625f, 0.625f };
         for (int i = 0; i < nn; ++i)
         {
             const float inL = L[i], inR = R[i];
-            pre.push (0.5f * (inL + inR));
-            float x = pre.read (preDelay);
-            x = x - lc[0].lp (x);
-            if (freeze) x = 0.0f;
+            float x[2] = { inL, inR };
+            for (int c = 0; c < 2; ++c)
+            {
+                pre[c].push (x[c]);
+                float v = pre[c].read (preDelay);
+                v = v - lc[c].lp (v);
+                // input diffusion: four series allpasses per channel
+                for (int k = 0; k < 4; ++k)
+                {
+                    const float d = diff[c][k].read (diffLen[c][k]);
+                    const float w = v + dg[k] * d;
+                    diff[c][k].push (w);
+                    v = d - dg[k] * w;
+                }
+                x[c] = freeze ? 0.0f : v;
+            }
 
-            // read lines
-            modPh += 0.37f / (float) sr; if (modPh >= 1.0f) modPh -= 1.0f;
             float y[MaxLines];
             for (int k = 0; k < n; ++k)
             {
                 float d = len[k];
-                if (modDepth > 0.0f) d += modDepth * sinCycle (modPh + (float) k * 0.137f);
-                float v = lines[k].read (d) * gain[k];
+                if (modDepth > 0.0f)
+                {
+                    modPh[k] += modRate[k]; if (modPh[k] >= 1.0f) modPh[k] -= 1.0f;
+                    d += modDepth * sinCycle (modPh[k]);
+                }
+                // frozen: whole-sample reads keep the tank lossless
+                float v = (freeze ? lines[k].readInt ((int) std::lround (d)) : lines[k].readCubic (d)) * gain[k];
                 if (! freeze) v = damp[k].lp (v);
                 y[k] = v;
             }
-            // outputs
+            // decorrelated stereo taps
             float oL = 0, oR = 0;
-            for (int k = 0; k < n; k += 2) { oL += y[k]; oR += y[k + 1]; }
-            oL *= norm * 1.4f; oR *= norm * 1.4f;
+            for (int k = 0; k < n; ++k)
+            {
+                oL += ((k & 1) ? -y[k] : y[k]);
+                oR += ((k & 2) ? -y[k] : y[k]);
+            }
+            oL *= norm * 1.2f; oR *= norm * 1.2f;
 
-            // shimmer: +12 st pitch shift of the tank output, fed back inside the loop
             float sh = 0.0f;
             if (shimAmt > 0.0f)
             {
-                shim[0].push (0.5f * (oL + oR));
+                shim.push (0.5f * (oL + oR));
                 shPh += 1.0f; if (shPh >= (float) grain) shPh -= (float) grain;
                 const float g = (float) grain;
                 const float p1 = shPh, p2 = std::fmod (shPh + g * 0.5f, g);
-                // reading at 2x speed: delay shrinks by 1 sample per sample over a grain
                 const float d1 = 2.0f + g - p1, d2 = 2.0f + g - p2;
                 const float w1 = 0.5f - 0.5f * sinCycle (p1 / g + 0.25f);
                 const float w2 = 0.5f - 0.5f * sinCycle (p2 / g + 0.25f);
-                sh = (shim[0].read (d1) * w1 + shim[0].read (d2) * w2);
-                sh = tanhFast (sh) * shimAmt * 0.55f;
+                sh = tanhFast (shim.read (d1) * w1 + shim.read (d2) * w2) * shimAmt * 0.5f;
             }
 
-            // Hadamard mix (fast Walsh-Hadamard transform)
+            // Hadamard feedback matrix (fast Walsh-Hadamard transform)
             for (int h = 1; h < n; h <<= 1)
                 for (int a = 0; a < n; a += 2 * h)
                     for (int b = a; b < a + h; ++b)
@@ -549,25 +573,23 @@ public:
                     }
             for (int k = 0; k < n; ++k)
             {
-                float in = y[k] * norm + (x + sh) * ((k & 1) ? -0.5f : 0.5f);
-                lines[k].push (in);
+                const float in = ((k & 1) ? x[1] : x[0]) * ((k & 2) ? -0.5f : 0.5f) + sh * ((k & 4) ? -0.35f : 0.35f);
+                lines[k].push (y[k] * norm + in);
             }
-            // width: blend L/R towards mono
-            const float m = 0.5f * (oL + oR), s = 0.5f * (oL - oR) * width;
-            const float wl = m + s, wr = m - s;
-            L[i] = inL * (1.0f - 0.3f * mix) + wl * mix;
-            R[i] = inR * (1.0f - 0.3f * mix) + wr * mix;
+            const float m = 0.5f * (oL + oR), sd = 0.5f * (oL - oR) * width;
+            L[i] = inL * (1.0f - 0.3f * mix) + (m + sd) * mix;
+            R[i] = inR * (1.0f - 0.3f * mix) + (m - sd) * mix;
         }
     }
-    double tailSeconds() const override { return freeze ? 30.0 : std::min (30.0, (double) decay * 1.3 + preDelay / sr + 0.1); }
+    double tailSeconds() const override { return freeze ? 30.0 : std::min (30.0, (double) decay * 1.3 + preDelay / sr + 0.15); }
     bool infiniteTail() const override { return freeze; }
 private:
     double sr = 48000;
-    int n = 16, grain = 2880;
-    DelayLine lines[MaxLines], pre, shim[1];
+    int n = 16, grain = 3360;
+    DelayLine lines[MaxLines], pre[2], diff[2][4], shim;
     OnePole damp[MaxLines], lc[2];
-    float len[MaxLines] {}, gain[MaxLines] {};
-    float decay = 3, preDelay = 1, modAmt = 0.3f, width = 1, shimmer = 0, mix = 0.3f, modPh = 0, shPh = 0;
+    float len[MaxLines] {}, gain[MaxLines] {}, modPh[MaxLines] {}, modRate[MaxLines] {}, diffLen[2][4] {};
+    float size = 1, decay = 3, preDelay = 1, modAmt = 0.3f, width = 1, shimmer = 0, mix = 0.3f, shPh = 0;
     bool freeze = false;
 };
 

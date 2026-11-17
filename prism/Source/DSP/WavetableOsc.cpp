@@ -16,8 +16,9 @@ MipChoice chooseMip (float inc) noexcept
 {
     MipChoice m;
     if (inc <= 0.0f) return m;
-    // highest harmonic allowed = 0.5 / inc ; L = log2(512 / maxHarm) = log2(1024 * inc)
-    const float L = fastLog2 (1024.0f * inc);
+    // highest harmonic allowed = 0.5 / inc ; L (in half-octave steps) = 2 * log2(512 / maxHarm)
+    // fastLog2 is within 5e-3 of log2; the +0.012 margin keeps the choice on the safe (darker) side
+    const float L = 2.0f * fastLog2 (1024.0f * inc) + 0.012f;
     if (L <= -1.0f + 1e-6f) return m;
     int k = (int) std::ceil (L);
     if (k < 0) k = 0;
@@ -77,7 +78,8 @@ void WavetableOsc::rebuild() noexcept
 {
     lanes = std::max (1, std::min (MaxUnison, uni.count));
     const int N = lanes;
-    const float outerCents = 120.0f * (std::pow (2.0f, 4.5f * uni.detune) - 1.0f) / (std::pow (2.0f, 4.5f) - 1.0f);
+    // outer voices at +-100 * d^1.25 cents: 0.08 -> 4 ct (slow beating), 0.15 -> 9 ct, 0.25 -> 18 ct, 1.0 -> 100 ct
+    const float outerCents = 100.0f * std::pow (uni.detune, 1.25f);
     const float gC = std::min (1.0f, 2.0f * (1.0f - uni.blend));
     const float gS = std::min (1.0f, 2.0f * uni.blend);
     const float norm = 1.0f / std::sqrt ((float) N);
@@ -181,7 +183,7 @@ void WavetableOsc::render (const Wavetable* table, int n, const float* inc, cons
             case WarpMode::Mirror: ws.slope = 1.0f + a; break;
             case WarpMode::AsymPlus: ws.c = 0.5f - 0.49f * a; ws.slope = 0.5f / ws.c; break;
             case WarpMode::AsymMinus: ws.c = 0.5f + 0.49f * a; ws.slope = 0.5f / (1.0f - ws.c); break;
-            case WarpMode::Quantize: ws.q = std::round (std::pow (2.0f, 1.0f + 7.0f * (1.0f - a))); break; // whole steps per cycle
+            case WarpMode::Quantize: ws.q = std::round (std::pow (2.0f, 1.0f + 7.0f * (1.0f - a))); ws.slope = a > 0.0f ? 1.6f : 1.0f; break; // whole steps per cycle
             case WarpMode::Remap: ws.slope = 1.0f + a * (remap.maxSlope - 1.0f); break;
             case WarpMode::FMOther: case WarpMode::FMSub: ws.fmIdx = 2.0f * a; ws.slope = 1.0f + 6.0f * a; break;
             default: break;
@@ -193,7 +195,7 @@ void WavetableOsc::render (const Wavetable* table, int n, const float* inc, cons
         const bool darkSilent = mc.level + 1 >= Wavetable::NumLevels;
         const float wD = mc.wDark;
         const bool needDark = wD > 0.0f;
-        const bool hermB = lvB <= 1, hermD = lvD <= 1;
+        const bool hermB = Wavetable::useHermite (lvB), hermD = Wavetable::useHermite (lvD);
         const float basePos = clampf (pos != nullptr ? pos[i] : 0.0f, 0.0f, 1.0f);
         lastPosition = basePos;
         const V vinc = V::expand (inc[i]);
@@ -388,7 +390,7 @@ void WavetableOsc::renderSingle (const Wavetable& table, int n, const float* inc
                     const float* b = table.levelData (f1, lv) + i0;
                     x0 += (b[0] - x0) * ff; x1 += (b[1] - x1) * ff; x2 += (b[2] - x2) * ff; x3 += (b[3] - x3) * ff;
                 }
-                if (lv <= 1)
+                if (Wavetable::useHermite (lv))
                 {
                     const float c1 = 0.5f * (x2 - x0);
                     const float c2 = x0 - 2.5f * x1 + 2.0f * x2 - 0.5f * x3;

@@ -12,19 +12,19 @@
   "macros": [
     {
       "name": "Growl",
-      "value": 0.0
+      "value": 0.3
     },
     {
       "name": "Drive",
-      "value": 0.0
+      "value": 0.3
     },
     {
       "name": "Punch",
-      "value": 0.0
+      "value": 0.4
     },
     {
       "name": "Tone",
-      "value": 0.0
+      "value": 0.3
     }
   ],
   "params": {
@@ -40,6 +40,12 @@
     "bass_mono": 120.0,
     "oscA_warp_mode": 11,
     "oscA_warp_amt": 0.0,
+    "oscA_rand_phase": 0.0,
+    "oscB_rand_phase": 0.0,
+    "macro1": 0.3,
+    "macro2": 0.3,
+    "macro3": 0.4,
+    "macro4": 0.3,
     "dist_mode": 2,
     "dist_mix": 0.2,
     "dist_drive": 6.0,
@@ -66,7 +72,7 @@
     "comp_on": 1.0,
     "mb_on": 0.0,
     "eq_on": 0.0,
-    "master_vol": 0.73
+    "master_vol": -1.6
   },
   "mod_routings": [
     {
@@ -94,7 +100,7 @@
       "dest": "f1_cutoff",
       "depth": 0.3,
       "polarity": "native",
-      "aux": "none",
+      "aux": "velocity",
       "curve": 0.0,
       "bypass": false,
       "slot": 3

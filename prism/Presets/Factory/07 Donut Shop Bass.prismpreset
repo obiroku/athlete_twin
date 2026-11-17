@@ -12,19 +12,19 @@
   "macros": [
     {
       "name": "Thump",
-      "value": 0.0
+      "value": 0.3
     },
     {
       "name": "Warmth",
-      "value": 0.0
+      "value": 0.35
     },
     {
       "name": "Wobble",
-      "value": 0.0
+      "value": 0.2
     },
     {
       "name": "Bite",
-      "value": 0.0
+      "value": 0.3
     }
   ],
   "params": {
@@ -40,6 +40,12 @@
     "env2_sustain": 0.0,
     "drift": 0.3,
     "bass_mono": 120.0,
+    "oscA_rand_phase": 0.0,
+    "oscB_rand_phase": 0.0,
+    "macro1": 0.3,
+    "macro2": 0.35,
+    "macro3": 0.2,
+    "macro4": 0.3,
     "dist_mode": 0,
     "dist_mix": 0.15,
     "dist_drive": 9.0,
@@ -70,7 +76,7 @@
     "comp_on": 1.0,
     "mb_on": 0.0,
     "eq_on": 1.0,
-    "master_vol": -1.89
+    "master_vol": -4.27
   },
   "mod_routings": [
     {

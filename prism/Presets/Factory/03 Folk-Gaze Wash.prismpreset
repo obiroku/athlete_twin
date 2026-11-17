@@ -12,36 +12,42 @@
   "macros": [
     {
       "name": "Haze",
-      "value": 0.0
+      "value": 0.3
     },
     {
       "name": "Shimmer",
-      "value": 0.0
+      "value": 0.3
     },
     {
       "name": "Wobble",
-      "value": 0.0
+      "value": 0.25
     },
     {
       "name": "Wash",
-      "value": 0.0
+      "value": 0.3
     }
   ],
   "params": {
     "oscA_wt_pos": 0.6,
     "oscA_unison": 7,
-    "oscA_detune": 0.25,
+    "oscA_detune": 0.22,
     "oscB_oct": 1,
     "oscB_level": 0.3,
     "noise_type": 1,
     "noise_level": 0.1,
     "noise_tone": 0.15,
     "f1_type": 1,
-    "f1_cutoff": 1500.0,
+    "f1_cutoff": 3600.0,
     "env1_attack": 1.2,
     "env1_release": 4.0,
     "lfo1_rate": 0.1,
     "lfo1_mode": 0,
+    "oscA_spread": 0.9,
+    "oscB_spread": 0.9,
+    "macro1": 0.3,
+    "macro2": 0.3,
+    "macro3": 0.25,
+    "macro4": 0.3,
     "tape_wow_depth": 0.25,
     "chorus_mix": 0.35,
     "delay_sync": 1.0,
@@ -75,7 +81,7 @@
     "comp_on": 0.0,
     "mb_on": 0.0,
     "eq_on": 0.0,
-    "master_vol": -11.84
+    "master_vol": -12.630000000000001
   },
   "mod_routings": [
     {

@@ -12,7 +12,7 @@
   "macros": [
     {
       "name": "Drawbars",
-      "value": 0.0
+      "value": 0.4
     },
     {
       "name": "Rotor",
@@ -20,11 +20,11 @@
     },
     {
       "name": "Drive",
-      "value": 0.0
+      "value": 0.25
     },
     {
       "name": "Room",
-      "value": 0.0
+      "value": 0.3
     }
   ],
   "params": {
@@ -49,6 +49,10 @@
     "rotary_mw": 1.0,
     "reverb_mix": 0.25,
     "reverb_size": 0.7,
+    "macro1": 0.4,
+    "macro2": 0.0,
+    "macro3": 0.25,
+    "macro4": 0.3,
     "mod01_depth": 0.0,
     "mod02_depth": 0.1,
     "mod03_depth": 0.25,
@@ -69,7 +73,7 @@
     "comp_on": 0.0,
     "mb_on": 0.0,
     "eq_on": 0.0,
-    "master_vol": -6.69
+    "master_vol": -10.699999999999999
   },
   "mod_routings": [
     {

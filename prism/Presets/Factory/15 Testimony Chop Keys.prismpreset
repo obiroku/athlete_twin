@@ -12,23 +12,23 @@
   "macros": [
     {
       "name": "Strum",
-      "value": 0.0
+      "value": 0.25
     },
     {
       "name": "Length",
-      "value": 0.0
+      "value": 0.3
     },
     {
       "name": "Crunch",
-      "value": 0.0
+      "value": 0.25
     },
     {
       "name": "Space",
-      "value": 0.0
+      "value": 0.35
     }
   ],
   "params": {
-    "oscA_wt_pos": 0.5,
+    "oscA_wt_pos": 0.75,
     "oscB_level": 0.5,
     "oscB_wt_pos": 0.4,
     "env1_decay": 0.25,
@@ -36,8 +36,14 @@
     "env1_release": 0.25,
     "chord_on": 1.0,
     "chord_strum": 15.0,
-    "f1_cutoff": 6000.0,
+    "f1_cutoff": 9000.0,
     "f1_type": 0,
+    "oscA_rand_phase": 0.0,
+    "oscB_rand_phase": 0.0,
+    "macro1": 0.25,
+    "macro2": 0.3,
+    "macro3": 0.25,
+    "macro4": 0.35,
     "dist_mode": 0,
     "dist_mix": 0.1,
     "dist_drive": 6.0,
@@ -69,7 +75,7 @@
     "comp_on": 0.0,
     "mb_on": 0.0,
     "eq_on": 0.0,
-    "master_vol": -5.06
+    "master_vol": -7.03
   },
   "mod_routings": [
     {
@@ -172,7 +178,7 @@
       "factory": "Organ-ish"
     },
     "oscB": {
-      "factory": "Additive 8"
+      "factory": "Additive 16"
     }
   },
   "chord": {

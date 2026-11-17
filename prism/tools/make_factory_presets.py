@@ -65,6 +65,23 @@ class Preset:
             self.mod("macro%d" % m, dest, depth)
         return self
 
+    def start(self, *vals):
+        # macro values on load (so the preset sounds finished before you touch anything)
+        for i, v in enumerate(vals):
+            self.params["macro%d" % (i + 1)] = v
+        return self
+
+    def punchy(self):
+        # same start phase every note: consistent attacks for basses, keys and plucks
+        self.params.update(oscA_rand_phase=0.0, oscB_rand_phase=0.0)
+        return self
+
+    def wide(self, detune=None):
+        self.params.update(oscA_spread=0.9, oscB_spread=0.9)
+        if detune is not None:
+            self.params.update(oscA_detune=detune)
+        return self
+
     def fxchain(self, *mods, **params):
         self.fx = list(mods)
         self.params.update(params)
@@ -105,7 +122,10 @@ nsk.table("A", "FM Bell").table("B", "Basic Shapes")
 nsk.p(oscA_wt_pos=0.25, oscB_wt_pos=0.0, oscB_level=0.6, f1_type=FT["LP12"], f1_cutoff=4000.0, f1_keytrack=0.5,
       env1_attack=0.001, env1_decay=1.8, env1_sustain=0.3, env1_release=0.5, drift=0.2,
       lfo1_rate=5.0, lfo1_mode=0, lfo1_shape=LFO["Sine"])
+nsk.p(env2_attack=0.0, env2_decay=0.7, env2_sustain=0.15, f1_cutoff=2600.0)
+nsk.punchy()
 nsk.mod("velocity", "oscA_wt_pos", 0.3, label="bark")
+nsk.mod("env2", "f1_cutoff", 0.18, aux="velocity")
 nsk.mod("lfo1", "oscA_pan", 0.0, label="tremA").mod("lfo1", "oscB_pan", 0.0, label="tremB")
 nsk.fxchain("tape", "chorus", "reverb", tape_wow_depth=0.12, tape_flutter=0.05, tape_sat=0.2, tape_age=0.15,
             chorus_mix=0.25, chorus_rate=0.4, reverb_mix=0.2, reverb_size=0.5, reverb_decay=2.2)
@@ -113,29 +133,35 @@ nsk.macro(1, (("depth", "bark"), 0.25), ("f1_drive", 0.35))
 nsk.macro(2, (("depth", "tremA"), 0.35), (("depth", "tremB"), -0.35))
 nsk.macro(3, ("tape_wow_depth", 0.6), ("tape_age", 0.5))
 nsk.macro(4, ("reverb_mix", 0.45), ("reverb_size", 0.3))
+nsk.start(0.3, 0.35, 0.3, 0.35)
 bank.append(nsk)
 
 # ---------------------------------------------------------------- Gospel Pad
 gp = Preset("Gospel Pad", "Pad", ["Air", "Movement", "Width", "Warmth"], "Choir-ish pad with an organ undertone.", ["pad", "gospel", "warm"])
 gp.table("A", "Choirish").table("B", "Organ-ish")
-gp.p(oscA_wt_pos=0.3, oscA_unison=5, oscA_detune=0.15, oscB_oct=-1, oscB_level=0.2, f1_type=FT["LP24"], f1_cutoff=2200.0,
+gp.p(oscA_wt_pos=0.3, oscA_unison=5, oscA_detune=0.15, oscB_oct=-1, oscB_level=0.2, f1_type=FT["LP24"], f1_cutoff=4200.0,
      env1_attack=0.8, env1_release=2.5, env2_attack=1.5, env2_decay=1.0, env2_sustain=1.0,
      lfo1_rate=0.2, lfo1_mode=0)
-gp.mod("env2", "f1_cutoff", 0.25)
+gp.mod("env2", "f1_cutoff", 0.15)
+gp.wide()
+gp.p(oscB_unison=3, oscB_detune=0.1, sub_level=0.15, sub_dest=1)
 gp.mod("lfo1", "oscA_wt_pos", 0.1, label="move")
 gp.fxchain("chorus", "reverb", chorus_mix=0.35, reverb_mix=0.6, reverb_size=0.75, reverb_decay=4.5)
 gp.macro(1, ("reverb_mix", 0.3), ("f1_cutoff", 0.12))
 gp.macro(2, (("depth", "move"), 0.3))
 gp.macro(3, ("oscA_spread", 0.4), ("master_width", 0.25))
-gp.macro(4, ("f1_drive", 0.35), ("tape_mix", 0.0))
+gp.macro(4, ("f1_drive", 0.35))
+gp.start(0.25, 0.4, 0.3, 0.2)
 bank.append(gp)
 
 # ---------------------------------------------------------------- Folk-Gaze Wash
 fg = Preset("Folk-Gaze Wash", "Pad", ["Haze", "Shimmer", "Wobble", "Wash"], "Detuned saw wash with shimmer and ping-pong echoes.", ["pad", "shoegaze", "folk"])
 fg.table("A", "Saw Sweep").table("B", "Glass")
 fg.p(oscA_wt_pos=0.6, oscA_unison=7, oscA_detune=0.25, oscB_oct=1, oscB_level=0.3, noise_type=1, noise_level=0.1, noise_tone=0.15,
-     f1_type=FT["LP24"], f1_cutoff=1500.0, env1_attack=1.2, env1_release=4.0, lfo1_rate=0.1, lfo1_mode=0)
+     f1_type=FT["LP24"], f1_cutoff=3600.0, env1_attack=1.2, env1_release=4.0, lfo1_rate=0.1, lfo1_mode=0)
 fg.mod("lfo1", "f1_cutoff", 0.08)
+fg.wide(0.22)
+fg.start(0.3, 0.3, 0.25, 0.3)
 fg.fxchain("tape", "chorus", "delay", "reverb", tape_wow_depth=0.25, chorus_mix=0.35, delay_sync=1.0, delay_div=DIV["1/4D"],
            delay_pingpong=1.0, delay_mix=0.4, delay_fb=0.45, reverb_size=0.9, reverb_shimmer=0.4, reverb_mix=0.55, reverb_decay=6.0)
 fg.macro(1, ("f1_cutoff", 0.15), ("noise_level", 0.1))
@@ -152,7 +178,9 @@ us.p(voice_mode=2, glide_time=0.03, oscA_wt_pos=0.1, sub_shape=0, sub_oct=0, sub
      env1_attack=0.002, env1_decay=0.6, env1_sustain=0.5, env1_release=0.12,
      env2_decay=0.25, env2_sustain=0.0, env3_attack=0.0, env3_decay=0.04, env3_sustain=0.0, bass_mono=150.0)
 us.mod("env3", "noise_level", 0.45, label="thump")
-us.mod("env2", "f1_cutoff", 0.2)
+us.mod("env2", "f1_cutoff", 0.2, aux="velocity")
+us.punchy()
+us.start(0.4, 0.3, 0.2, 0.15)
 us.fxchain("compressor", "eq", comp_thresh=-20.0, comp_ratio=3.0, comp_attack=8.0, comp_release=120.0, eq_ls_gain=2.0, eq_ls_freq=90.0)
 us.macro(1, (("depth", "thump"), 0.4))
 us.macro(2, ("f1_cutoff", 0.2))
@@ -164,9 +192,11 @@ bank.append(us)
 tl = Preset("Tape Lead", "Lead", ["Wobble", "Grit", "Echo", "Vibrato"], "Saw/square lead through tape and a dotted echo.", ["lead", "tape", "mono"])
 tl.table("A", "Saw Sweep").table("B", "Square Stack")
 tl.p(voice_mode=2, glide_time=0.08, oscA_wt_pos=0.9, oscB_wt_pos=0.3, oscB_fine=7, oscB_level=0.5,
-     f1_type=FT["Ladder"], f1_cutoff=2500.0, f1_reso=0.3, f1_drive=6.0,
+     f1_type=FT["Ladder"], f1_cutoff=4800.0, f1_reso=0.25, f1_drive=6.0,
      lfo2_rate=5.5, lfo2_delay=0.4, lfo2_fade=0.6)
 tl.mod("lfo2", "voice_pitch", 0.15 * ST, label="vib", aux="mod_wheel")
+tl.p(oscA_unison=2, oscA_detune=0.08, oscA_spread=0.5)
+tl.start(0.3, 0.25, 0.4, 0.0)
 tl.fxchain("distortion", "tape", "delay", "reverb", dist_mode=3, dist_mix=0.2, dist_drive=8.0, tape_wow_depth=0.4, tape_flutter=0.3,
            delay_sync=1.0, delay_div=DIV["1/4D"], delay_mix=0.25, delay_fb=0.35, reverb_mix=0.2)
 tl.macro(1, ("tape_wow_depth", 0.5))
@@ -181,6 +211,8 @@ cs.table("A", "Vocal Ah").table("B", "Vocal Ee")
 cs.p(oscA_unison=6, oscB_unison=6, oscB_level=0.6, oscA_detune=0.18, oscB_detune=0.18, f1_type=FT["Formant"], f1_reso=0.3,
      env1_attack=0.4, env1_release=1.5, lfo1_rate=0.08, lfo1_mode=0, noise_type=1, noise_level=0.0)
 cs.mod("lfo1", "oscA_wt_pos", 0.3).mod("lfo1", "oscB_wt_pos", 0.3)
+cs.wide()
+cs.start(0.0, 0.3, 0.3, 0.2)
 cs.fxchain("dimension", "reverb", dim_mix=0.5, reverb_size=0.85, reverb_mix=0.5, reverb_decay=5.0)
 cs.macro(1, ("f1_vowel", 1.0))
 cs.macro(2, ("noise_level", 0.12))
@@ -194,6 +226,8 @@ dsb.table("A", "Basic Shapes")
 dsb.p(voice_mode=1, glide_time=0.04, oscA_wt_pos=0.4, sub_shape=0, sub_oct=0, sub_level=0.5, f1_type=FT["LP24"], f1_cutoff=400.0,
       env2_decay=0.18, env2_sustain=0.0, drift=0.3, bass_mono=120.0)
 dsb.mod("env2", "f1_cutoff", 0.3, label="pluck").mod("velocity", "f1_cutoff", 0.15)
+dsb.punchy()
+dsb.start(0.3, 0.35, 0.2, 0.3)
 dsb.fxchain("distortion", "compressor", "eq", dist_mode=0, dist_mix=0.15, dist_drive=9.0, comp_thresh=-18.0, comp_ratio=4.0,
             eq_ls_gain=3.0, eq_ls_freq=100.0)
 dsb.macro(1, ("env1_decay", 0.0), ("sub_level", 0.3))
@@ -209,10 +243,12 @@ ss.p(oscA_unison=5, oscA_detune=0.2, oscB_wt_pos=0.4, oscB_level=0.4, f1_type=FT
      env1_attack=2.0, env1_release=6.0)
 ss.fxchain("chorus", "delay", "reverb", chorus_mix=0.4, delay_sync=1.0, delay_div=DIV["1/4"], delay_pingpong=1.0, delay_mix=0.35,
            delay_fb=0.45, reverb_shimmer=0.7, reverb_mix=0.7, reverb_size=0.9, reverb_decay=8.0)
+ss.wide(0.2)
 ss.macro(1, ("env1_attack", -0.25), ("oscB_level", 0.3))
 ss.macro(2, ("reverb_shimmer", 0.3))
 ss.macro(3, ("drift", 0.8), ("chorus_depth", 0.4))
 ss.macro(4, ("reverb_freeze", 1.0))
+ss.start(0.3, 0.5, 0.3, 0.0)
 bank.append(ss)
 
 # ---------------------------------------------------------------- Pew Organ
@@ -227,6 +263,7 @@ po.macro(1, ("oscA_wt_pos", 0.7))
 po.macro(2, ("rotary_fast", 1.0))
 po.macro(3, ("dist_mix", 0.4), ("rotary_drive", 0.5))
 po.macro(4, ("reverb_mix", 0.35))
+po.start(0.4, 0.0, 0.25, 0.3)
 bank.append(po)
 
 # ---------------------------------------------------------------- Nebraska Winter
@@ -235,6 +272,9 @@ nw.table("A", "Hollow").table("B", "Triangle Stack")
 nw.p(oscA_wt_pos=0.3, oscB_wt_pos=0.1, oscB_oct=-1, oscB_level=0.5, env1_attack=1.5, env1_release=5.0, lfo1_rate=0.05, lfo1_mode=0,
      noise_type=1, noise_tone=0.7, noise_level=0.0, f1_cutoff=5000.0, f1_type=FT["LP12"])
 nw.mod("lfo1", "voice_pitch", 0.04 * ST)
+nw.p(oscA_unison=3, oscA_detune=0.12)
+nw.wide()
+nw.start(0.2, 0.4, 0.3, 0.35)
 nw.fxchain("tape", "reverb", "eq", tape_age=0.6, tape_hiss=0.3, reverb_damp=0.7, reverb_decay=7.0, reverb_mix=0.45, reverb_size=0.8)
 nw.macro(1, ("eq_hp", 0.45), ("f1_cutoff", -0.12))
 nw.macro(2, ("tape_age", 0.4), ("tape_wow_depth", 0.4))
@@ -255,6 +295,7 @@ vk.macro(1, ("f1_reso", -0.25), ("f1_cutoff", 0.1))
 vk.macro(2, ("dist_bits", -0.4), ("dist_downsample", -0.25))
 vk.macro(3, (("depth", "drop"), -0.15))
 vk.macro(4, ("reverb_mix", 0.4))
+vk.start(0.3, 0.3, 0.4, 0.3)
 bank.append(vk)
 
 # ---------------------------------------------------------------- Trail Pluck
@@ -263,6 +304,8 @@ tp.table("A", "Additive 16").table("B", "Glass")
 tp.p(oscA_wt_pos=0.6, oscB_oct=1, oscB_level=0.3, f1_type=FT["LP12"], f1_cutoff=900.0,
      env1_attack=0.001, env1_decay=0.4, env1_sustain=0.0, env1_release=0.3, env2_decay=0.25, env2_sustain=0.0)
 tp.mod("env2", "oscA_wt_pos", -0.5)
+tp.punchy()
+tp.p(oscB_rand_phase=0.0)
 tp.mod("env2", "f1_cutoff", 0.35, label="bright")
 tp.fxchain("delay", "reverb", delay_sync=1.0, delay_div=DIV["1/8D"], delay_pingpong=1.0, delay_mix=0.3, delay_fb=0.4,
            reverb_mix=0.3, reverb_size=0.6)
@@ -270,15 +313,18 @@ tp.macro(1, ("env1_decay", 0.3), ("env1_release", 0.25), ("env2_decay", 0.2))
 tp.macro(2, (("depth", "bright"), 0.25), ("oscB_level", 0.3))
 tp.macro(3, ("delay_mix", 0.35), ("delay_fb", 0.3))
 tp.macro(4, ("reverb_mix", 0.4))
+tp.start(0.3, 0.4, 0.35, 0.35)
 bank.append(tp)
 
 # ---------------------------------------------------------------- Haze Pad
 hp = Preset("Haze Pad", "Pad", ["Motion", "Haze", "Width", "Space"], "Slow PWM pad.", ["pad", "lo-fi", "warm"])
 hp.table("A", "PWM Sweep").table("B", "Hollow")
-hp.p(oscA_unison=4, oscB_unison=4, oscB_level=0.5, f1_type=FT["LP24"], f1_cutoff=900.0, lfo1_rate=0.3, lfo1_mode=0,
+hp.p(oscA_unison=4, oscB_unison=4, oscB_level=0.5, f1_type=FT["LP24"], f1_cutoff=2600.0, lfo1_rate=0.3, lfo1_mode=0,
      env1_attack=0.6, env1_release=2.5, env2_attack=2.0, env2_sustain=1.0)
 hp.mod("lfo1", "oscA_wt_pos", 0.35, label="motion", polarity="uni")
 hp.mod("env2", "f1_cutoff", 0.15)
+hp.wide(0.18)
+hp.start(0.4, 0.3, 0.4, 0.35)
 hp.fxchain("tape", "chorus", "reverb", tape_wow_depth=0.2, tape_age=0.3, chorus_mix=0.4, reverb_mix=0.4, reverb_decay=4.0)
 hp.macro(1, (("depth", "motion"), 0.3), ("lfo1_rate", 0.2))
 hp.macro(2, ("tape_age", 0.5), ("f1_cutoff", -0.1))
@@ -291,7 +337,9 @@ bsb = Preset("Basement Sermon Bass", "Bass", ["Growl", "Drive", "Punch", "Tone"]
 bsb.table("A", "Square Stack").table("B", "FM Growl")
 bsb.p(voice_mode=1, oscB_level=0.25, oscB_wt_pos=0.3, f1_type=FT["Ladder"], f1_cutoff=300.0, f1_reso=0.4, f1_drive=12.0,
       env2_decay=0.2, env2_sustain=0.0, bass_mono=120.0, oscA_warp_mode=11, oscA_warp_amt=0.0)
-bsb.mod("env2", "f1_cutoff", 0.3, label="punch")
+bsb.mod("env2", "f1_cutoff", 0.3, label="punch", aux="velocity")
+bsb.punchy()
+bsb.start(0.3, 0.3, 0.4, 0.3)
 bsb.fxchain("distortion", "compressor", dist_mode=2, dist_mix=0.2, dist_drive=6.0, comp_thresh=-18.0, comp_ratio=4.0)
 bsb.macro(1, ("oscB_level", 0.4), ("oscA_warp_amt", 0.35))
 bsb.macro(2, ("f1_drive", 0.3), ("dist_mix", 0.4))
@@ -301,10 +349,12 @@ bank.append(bsb)
 
 # ---------------------------------------------------------------- Testimony Chop Keys (chord mode)
 tck = Preset("Testimony Chop Keys", "Keys", ["Strum", "Length", "Crunch", "Space"], "One key plays a strummed maj9.", ["keys", "chords", "gospel"])
-tck.table("A", "Organ-ish").table("B", "Additive 8")
-tck.p(oscA_wt_pos=0.5, oscB_level=0.5, oscB_wt_pos=0.4, env1_decay=0.25, env1_sustain=0.2, env1_release=0.25,
-      chord_on=1.0, chord_strum=15.0, f1_cutoff=6000.0, f1_type=FT["LP12"])
+tck.table("A", "Organ-ish").table("B", "Additive 16")
+tck.p(oscA_wt_pos=0.75, oscB_level=0.5, oscB_wt_pos=0.4, env1_decay=0.25, env1_sustain=0.2, env1_release=0.25,
+      chord_on=1.0, chord_strum=15.0, f1_cutoff=9000.0, f1_type=FT["LP12"])
 tck.chord = [0, 4, 7, 11, 14]
+tck.punchy()
+tck.start(0.25, 0.3, 0.25, 0.35)
 tck.fxchain("distortion", "delay", "reverb", dist_mode=0, dist_mix=0.1, dist_drive=6.0, delay_sync=1.0, delay_div=DIV["1/16"],
             delay_mix=0.2, delay_fb=0.3, reverb_size=0.4, reverb_damp=0.2, reverb_decay=1.5, reverb_mix=0.25)
 tck.macro(1, ("chord_strum", 0.4))
@@ -318,6 +368,8 @@ sm = Preset("Sunday Morning", "Organ", ["Light", "Rotor", "Choir", "Room"], "Cho
 sm.table("A", "Choirish").table("B", "Organ-ish")
 sm.p(oscB_level=0.5, oscB_wt_pos=0.4, env1_attack=0.3, env1_release=1.5, f1_type=FT["LP12"], f1_cutoff=5000.0)
 sm.fxchain("rotary", "reverb", reverb_mix=0.4, reverb_size=0.75, reverb_decay=3.5)
+sm.p(oscA_unison=4, oscA_detune=0.12, oscA_spread=0.8)
+sm.start(0.4, 0.0, 0.4, 0.3)
 sm.macro(1, ("f1_cutoff", 0.15), ("oscB_level", 0.25))
 sm.macro(2, ("rotary_fast", 1.0))
 sm.macro(3, ("oscA_level", 0.25))
@@ -330,6 +382,8 @@ gs.table("A", "Basic Shapes")
 gs.p(voice_mode=1, glide_time=0.12, glide_legato=1.0, oscA_wt_pos=0.0, sub_shape=0, sub_oct=0, sub_level=0.5,
      env2_attack=0.3, env2_sustain=1.0, env1_decay=1.2, env1_sustain=0.7, env1_release=0.3, bass_mono=150.0, f1_enable=0.0)
 gs.mod("env2", "voice_pitch", -12 * ST, label="drop")
+gs.punchy()
+gs.start(0.0, 0.2, 0.25, 0.3)
 gs.fxchain("distortion", dist_mode=0, dist_mix=0.1, dist_drive=6.0)
 gs.macro(1, (("depth", "drop"), -0.1))
 gs.macro(2, ("glide_time", 0.3))
@@ -342,6 +396,9 @@ lfb = Preset("Ladder Funk Bass", "Bass", ["Squelch", "Decay", "Drive", "Sub"], "
 lfb.table("A", "Saw Sweep")
 lfb.p(voice_mode=2, oscA_wt_pos=1.0, f1_type=FT["Ladder"], f1_cutoff=250.0, f1_reso=0.6, env2_decay=0.15, env2_sustain=0.0, bass_mono=120.0)
 lfb.mod("env2", "f1_cutoff", 0.5, aux="velocity")
+lfb.punchy()
+lfb.p(sub_level=0.3, sub_dest=3)
+lfb.start(0.2, 0.3, 0.25, 0.3)
 lfb.macro(1, ("f1_reso", 0.3))
 lfb.macro(2, ("env2_decay", 0.25))
 lfb.macro(3, ("f1_drive", 0.6))
@@ -352,8 +409,9 @@ bank.append(lfb)
 rh = Preset("Reese Haze", "Bass", ["Width", "Motion", "Grit", "Tone"], "Detuned saw reese with slow filter motion.", ["bass", "reese"])
 rh.table("A", "Saw Sweep").table("B", "Saw Sweep")
 rh.p(oscA_wt_pos=1.0, oscA_unison=2, oscA_detune=0.08, oscB_wt_pos=1.0, oscB_oct=-1, oscB_level=0.6,
-     f1_type=FT["LP24"], f1_cutoff=700.0, lfo1_rate=0.15, lfo1_mode=0, bass_mono=100.0)
+     f1_type=FT["LP24"], f1_cutoff=1200.0, lfo1_rate=0.15, lfo1_mode=0, bass_mono=100.0)
 rh.mod("lfo1", "f1_cutoff", 0.06, label="motion")
+rh.start(0.3, 0.4, 0.3, 0.3)
 rh.fxchain("chorus", "distortion", chorus_mix=0.35, dist_mode=0, dist_mix=0.15, dist_drive=8.0)
 rh.macro(1, ("oscA_detune", 0.25), ("chorus_mix", 0.3))
 rh.macro(2, (("depth", "motion"), 0.1))
@@ -367,6 +425,8 @@ bc.table("A", "Choirish")
 bc.p(oscA_unison=6, oscA_detune=0.2, noise_type=1, noise_level=0.08, f1_type=FT["Formant"], f1_reso=0.3,
      lfo1_rate=0.15, lfo1_mode=0, lfo1_polarity=0, env1_attack=0.5, env1_release=2.0)
 bc.mod("lfo1", "f1_vowel", 0.6)
+bc.wide()
+bc.start(0.3, 0.3, 0.35, 0.2)
 bc.fxchain("reverb", reverb_mix=0.5, reverb_size=0.8, reverb_decay=5.0)
 bc.macro(1, ("noise_level", 0.15))
 bc.macro(2, ("lfo1_rate", 0.25))
@@ -379,7 +439,9 @@ bs = Preset("Brass Swell", "Lead", ["Bloom", "Bite", "Width", "Room"], "Swelling
 bs.table("A", "Saw Sweep")
 bs.p(oscA_wt_pos=0.8, oscA_unison=3, oscA_detune=0.15, f1_type=FT["LP24"], f1_cutoff=500.0, env2_attack=0.3, env2_decay=0.8, env2_sustain=0.6,
      env1_attack=0.08, env1_release=0.35)
-bs.mod("env2", "f1_cutoff", 0.4, label="bloom")
+bs.mod("env2", "f1_cutoff", 0.4, label="bloom", aux="velocity")
+bs.p(oscA_spread=0.7)
+bs.start(0.3, 0.3, 0.3, 0.3)
 bs.fxchain("chorus", "reverb", chorus_mix=0.25, reverb_mix=0.25)
 bs.macro(1, (("depth", "bloom"), 0.2), ("env2_attack", 0.2))
 bs.macro(2, ("f1_reso", 0.3), ("f1_drive", 0.35))
@@ -396,6 +458,7 @@ ha.macro(1, ("arp_speed", 0.5))
 ha.macro(2, ("env1_decay", 0.3), ("arp_gate", 0.3))
 ha.macro(3, ("delay_mix", 0.35))
 ha.macro(4, ("reverb_mix", 0.4))
+ha.start(0.5, 0.3, 0.35, 0.35)
 bank.append(ha)
 
 # ---------------------------------------------------------------- Dream Arp
@@ -409,6 +472,8 @@ da.macro(1, ("arp_speed", 0.5))
 da.macro(2, ("reverb_shimmer", 0.4))
 da.macro(3, ("delay_mix", 0.3), ("delay_fb", 0.25))
 da.macro(4, ("arp_gate", -0.3))
+da.p(oscA_unison=3, oscA_detune=0.1, oscA_spread=0.8)
+da.start(0.5, 0.4, 0.3, 0.0)
 bank.append(da)
 
 # ---------------------------------------------------------------- Kalimba Drift
@@ -416,6 +481,8 @@ kd = Preset("Kalimba Drift", "Pluck", ["Tine", "Length", "Tape", "Space"], "FM t
 kd.table("A", "FM Bell")
 kd.p(oscA_wt_pos=0.5, env1_attack=0.001, env1_decay=0.35, env1_sustain=0.0, env1_release=0.35, drift=0.4, f1_type=FT["LP12"], f1_cutoff=7000.0)
 kd.mod("velocity", "oscA_wt_pos", 0.15, label="tine")
+kd.punchy()
+kd.start(0.2, 0.3, 0.35, 0.35)
 kd.fxchain("tape", "reverb", tape_wow_depth=0.3, tape_age=0.3, reverb_mix=0.25)
 kd.macro(1, ("oscA_wt_pos", 0.3))
 kd.macro(2, ("env1_decay", 0.3), ("env1_release", 0.2))
@@ -434,6 +501,9 @@ fd.macro(1, (("depth", "motion"), 0.2), ("lfo1_rate", 0.2))
 fd.macro(2, ("noise_level", 0.15), ("noise_tone", 0.3))
 fd.macro(3, ("f1_cutoff", -0.3))
 fd.macro(4, ("reverb_freeze", 1.0))
+fd.wide()
+fd.p(oscA_unison=4, oscA_detune=0.15)
+fd.start(0.4, 0.3, 0.0, 0.0)
 bank.append(fd)
 
 os.makedirs(OUT, exist_ok=True)

@@ -82,6 +82,68 @@ int main (int argc, char** argv)
         }
         return 0;
     }
+    if (cmd == "demo" && argc >= 3)
+    {
+        // Renders a short musical phrase per factory preset to WAV (for listening).
+        const auto dir = juce::File::getCurrentWorkingDirectory().getChildFile (argv[2]);
+        dir.createDirectory();
+        const double q = 60.0 / 92.0; // quarter note at 92 bpm
+        for (auto& [res, text] : PresetLibrary::factoryPresetSources())
+        {
+            PresetData d; juce::String err;
+            presetFromString (text, d, err);
+            const juce::String cat (d.category);
+            std::vector<Note> notes;
+            double len = 8.0;
+            HostTransport tr; tr.bpm = 92.0; tr.playing = true;
+            RenderOptions o;
+            if (d.name == "Testimony Chop Keys")
+            {
+                const int keys[] = { 60, 57, 53, 55, 60, 57, 53, 55 };
+                for (int i = 0; i < 8; ++i) notes.push_back ({ i * 2 * q * 0.5 + 0.0, q * 0.8, keys[i] - 12, 0.85f });
+            }
+            else if (cat == "Bass")
+            {
+                const int line[] = { 36, 36, 43, 46, 48, 46, 43, 41, 36, 36, 43, 46, 48, 51, 50, 46 };
+                for (int i = 0; i < 16; ++i) notes.push_back ({ i * q * 0.5, q * (i % 4 == 3 ? 0.9 : 0.42), line[i], i % 2 ? 0.7f : 0.95f });
+                len = 16 * q * 0.5 + 1.5;
+            }
+            else if (cat == "Lead")
+            {
+                const int mel[] = { 67, 70, 72, 74, 72, 70, 67, 65, 67 };
+                const double dur[] = { 1, 0.5, 0.5, 1.5, 0.5, 1, 0.5, 0.5, 2 };
+                double t = 0;
+                for (int i = 0; i < 9; ++i) { notes.push_back ({ t, dur[i] * q * 1.02, mel[i], 0.85f }); t += dur[i] * q; }
+                len = t + 2.0;
+            }
+            else if (cat == "Pluck")
+            {
+                const int arp[] = { 60, 64, 67, 71, 74, 71, 67, 64, 57, 60, 64, 67, 72, 67, 64, 60 };
+                for (int i = 0; i < 16; ++i) notes.push_back ({ i * q * 0.5, q * 0.4, arp[i], i % 4 == 0 ? 0.95f : 0.7f });
+                len = 16 * q * 0.5 + 2.0;
+            }
+            else if (cat == "Arp")
+            {
+                for (int n : { 60, 64, 67, 71 }) notes.push_back ({ 0.0, 6.0, n, 0.85f });
+                o.transport = &tr;
+                len = 8.0;
+            }
+            else
+            {
+                const int ch[4][5] = { { 48, 52, 55, 59, 62 }, { 45, 48, 52, 55, 59 }, { 41, 45, 48, 52, 55 }, { 43, 47, 50, 53, 57 } };
+                for (int c = 0; c < 4; ++c) for (int k = 0; k < 5; ++k) notes.push_back ({ c * 4 * q, 4 * q * 0.97, ch[c][k], 0.8f });
+                len = 16 * q + (cat == "Init" ? 1.0 : 3.0);
+            }
+            auto p = makeProcessor();
+            loadPresetNow (*p, d);
+            render (*p, {}, 0.05);
+            auto b = render (*p, notes, len, o);
+            const auto f = dir.getChildFile (juce::File::createLegalFileName (juce::String (d.name)) + ".wav");
+            writeWav (f, b, 48000.0);
+            std::printf ("%s\n", f.getFullPathName().toRawUTF8());
+        }
+        return 0;
+    }
     if (cmd == "loudness")
     {
         for (auto& [res, text] : PresetLibrary::factoryPresetSources())

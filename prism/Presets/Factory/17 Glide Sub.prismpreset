@@ -16,15 +16,15 @@
     },
     {
       "name": "Glide",
-      "value": 0.0
+      "value": 0.2
     },
     {
       "name": "Dirt",
-      "value": 0.0
+      "value": 0.25
     },
     {
       "name": "Length",
-      "value": 0.0
+      "value": 0.3
     }
   ],
   "params": {
@@ -42,6 +42,12 @@
     "env1_release": 0.3,
     "bass_mono": 150.0,
     "f1_enable": 0.0,
+    "oscA_rand_phase": 0.0,
+    "oscB_rand_phase": 0.0,
+    "macro1": 0.0,
+    "macro2": 0.2,
+    "macro3": 0.25,
+    "macro4": 0.3,
     "dist_mode": 0,
     "dist_mix": 0.1,
     "dist_drive": 6.0,
@@ -66,7 +72,7 @@
     "comp_on": 0.0,
     "mb_on": 0.0,
     "eq_on": 0.0,
-    "master_vol": -8.779999999999999
+    "master_vol": -10.550000000000001
   },
   "mod_routings": [
     {

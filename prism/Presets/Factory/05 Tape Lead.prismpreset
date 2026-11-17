@@ -12,15 +12,15 @@
   "macros": [
     {
       "name": "Wobble",
-      "value": 0.0
+      "value": 0.3
     },
     {
       "name": "Grit",
-      "value": 0.0
+      "value": 0.25
     },
     {
       "name": "Echo",
-      "value": 0.0
+      "value": 0.4
     },
     {
       "name": "Vibrato",
@@ -35,12 +35,19 @@
     "oscB_fine": 7,
     "oscB_level": 0.5,
     "f1_type": 10,
-    "f1_cutoff": 2500.0,
-    "f1_reso": 0.3,
+    "f1_cutoff": 4800.0,
+    "f1_reso": 0.25,
     "f1_drive": 6.0,
     "lfo2_rate": 5.5,
     "lfo2_delay": 0.4,
     "lfo2_fade": 0.6,
+    "oscA_unison": 2,
+    "oscA_detune": 0.08,
+    "oscA_spread": 0.5,
+    "macro1": 0.3,
+    "macro2": 0.25,
+    "macro3": 0.4,
+    "macro4": 0.0,
     "dist_mode": 3,
     "dist_mix": 0.2,
     "dist_drive": 8.0,
@@ -72,7 +79,7 @@
     "comp_on": 0.0,
     "mb_on": 0.0,
     "eq_on": 0.0,
-    "master_vol": -10.220000000000001
+    "master_vol": -12.779999999999999
   },
   "mod_routings": [
     {

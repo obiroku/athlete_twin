@@ -11,19 +11,19 @@
   "macros": [
     {
       "name": "Bloom",
-      "value": 0.0
+      "value": 0.3
     },
     {
       "name": "Bite",
-      "value": 0.0
+      "value": 0.3
     },
     {
       "name": "Width",
-      "value": 0.0
+      "value": 0.3
     },
     {
       "name": "Room",
-      "value": 0.0
+      "value": 0.3
     }
   ],
   "params": {
@@ -37,6 +37,11 @@
     "env2_sustain": 0.6,
     "env1_attack": 0.08,
     "env1_release": 0.35,
+    "oscA_spread": 0.7,
+    "macro1": 0.3,
+    "macro2": 0.3,
+    "macro3": 0.3,
+    "macro4": 0.3,
     "chorus_mix": 0.25,
     "reverb_mix": 0.25,
     "mod01_depth": 0.0,
@@ -61,7 +66,7 @@
     "comp_on": 0.0,
     "mb_on": 0.0,
     "eq_on": 0.0,
-    "master_vol": -7.99
+    "master_vol": -9.33
   },
   "mod_routings": [
     {
@@ -89,7 +94,7 @@
       "dest": "f1_cutoff",
       "depth": 0.4,
       "polarity": "native",
-      "aux": "none",
+      "aux": "velocity",
       "curve": 0.0,
       "bypass": false,
       "slot": 3

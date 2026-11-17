@@ -12,19 +12,19 @@
   "macros": [
     {
       "name": "Bark",
-      "value": 0.0
+      "value": 0.3
     },
     {
       "name": "Tremolo",
-      "value": 0.0
+      "value": 0.35
     },
     {
       "name": "Tape",
-      "value": 0.0
+      "value": 0.3
     },
     {
       "name": "Space",
-      "value": 0.0
+      "value": 0.35
     }
   ],
   "params": {
@@ -32,7 +32,7 @@
     "oscB_wt_pos": 0.0,
     "oscB_level": 0.6,
     "f1_type": 0,
-    "f1_cutoff": 4000.0,
+    "f1_cutoff": 2600.0,
     "f1_keytrack": 0.5,
     "env1_attack": 0.001,
     "env1_decay": 1.8,
@@ -42,6 +42,11 @@
     "lfo1_rate": 5.0,
     "lfo1_mode": 0,
     "lfo1_shape": 0,
+    "env2_attack": 0.0,
+    "env2_decay": 0.7,
+    "env2_sustain": 0.15,
+    "oscA_rand_phase": 0.0,
+    "oscB_rand_phase": 0.0,
     "tape_wow_depth": 0.12,
     "tape_flutter": 0.05,
     "tape_sat": 0.2,
@@ -51,19 +56,24 @@
     "reverb_mix": 0.2,
     "reverb_size": 0.5,
     "reverb_decay": 2.2,
+    "macro1": 0.3,
+    "macro2": 0.35,
+    "macro3": 0.3,
+    "macro4": 0.35,
     "mod01_depth": 0.0,
     "mod02_depth": 0.1,
     "mod03_depth": 0.3,
-    "mod04_depth": 0.0,
+    "mod04_depth": 0.18,
     "mod05_depth": 0.0,
-    "mod06_depth": 0.25,
-    "mod07_depth": 0.35,
+    "mod06_depth": 0.0,
+    "mod07_depth": 0.25,
     "mod08_depth": 0.35,
-    "mod09_depth": -0.35,
-    "mod10_depth": 0.6,
-    "mod11_depth": 0.5,
-    "mod12_depth": 0.45,
-    "mod13_depth": 0.3,
+    "mod09_depth": 0.35,
+    "mod10_depth": -0.35,
+    "mod11_depth": 0.6,
+    "mod12_depth": 0.5,
+    "mod13_depth": 0.45,
+    "mod14_depth": 0.3,
     "dist_on": 0.0,
     "tape_on": 1.0,
     "dim_on": 0.0,
@@ -76,7 +86,7 @@
     "comp_on": 0.0,
     "mb_on": 0.0,
     "eq_on": 0.0,
-    "master_vol": -10.970000000000001
+    "master_vol": -11.1
   },
   "mod_routings": [
     {
@@ -110,6 +120,16 @@
       "slot": 3
     },
     {
+      "source": "env2",
+      "dest": "f1_cutoff",
+      "depth": 0.18,
+      "polarity": "native",
+      "aux": "velocity",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 4
+    },
+    {
       "source": "lfo1",
       "dest": "oscA_pan",
       "depth": 0.0,
@@ -117,7 +137,7 @@
       "aux": "none",
       "curve": 0.0,
       "bypass": false,
-      "slot": 4
+      "slot": 5
     },
     {
       "source": "lfo1",
@@ -127,7 +147,7 @@
       "aux": "none",
       "curve": 0.0,
       "bypass": false,
-      "slot": 5
+      "slot": 6
     },
     {
       "source": "macro1",
@@ -137,21 +157,11 @@
       "aux": "none",
       "curve": 0.0,
       "bypass": false,
-      "slot": 6
+      "slot": 7
     },
     {
       "source": "macro1",
       "dest": "f1_drive",
-      "depth": 0.35,
-      "polarity": "native",
-      "aux": "none",
-      "curve": 0.0,
-      "bypass": false,
-      "slot": 7
-    },
-    {
-      "source": "macro2",
-      "dest": "mod04_depth",
       "depth": 0.35,
       "polarity": "native",
       "aux": "none",
@@ -162,12 +172,22 @@
     {
       "source": "macro2",
       "dest": "mod05_depth",
-      "depth": -0.35,
+      "depth": 0.35,
       "polarity": "native",
       "aux": "none",
       "curve": 0.0,
       "bypass": false,
       "slot": 9
+    },
+    {
+      "source": "macro2",
+      "dest": "mod06_depth",
+      "depth": -0.35,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 10
     },
     {
       "source": "macro3",
@@ -177,7 +197,7 @@
       "aux": "none",
       "curve": 0.0,
       "bypass": false,
-      "slot": 10
+      "slot": 11
     },
     {
       "source": "macro3",
@@ -187,7 +207,7 @@
       "aux": "none",
       "curve": 0.0,
       "bypass": false,
-      "slot": 11
+      "slot": 12
     },
     {
       "source": "macro4",
@@ -197,7 +217,7 @@
       "aux": "none",
       "curve": 0.0,
       "bypass": false,
-      "slot": 12
+      "slot": 13
     },
     {
       "source": "macro4",
@@ -207,7 +227,7 @@
       "aux": "none",
       "curve": 0.0,
       "bypass": false,
-      "slot": 13
+      "slot": 14
     }
   ],
   "fx_order": [

@@ -12,7 +12,10 @@ public:
     static constexpr int N = 2048;          // samples per frame
     static constexpr int MaxFrames = 256;
     static constexpr int MaxHarmonics = 512;
-    static constexpr int NumLevels = 10;    // level k keeps 512 / 2^k harmonics
+    // Mip levels every half octave (twice the SPEC's one-per-octave): level k keeps
+    // floor(512 / 2^(k/2)) harmonics, so a note always keeps at least ~71 % of the
+    // band up to Nyquist (brighter top end), at ~40 MB per 256-frame table.
+    static constexpr int NumLevels = 19;
     static constexpr int Guard = 4;         // stored layout: x[-1], x[0..N-1], x[N], x[N+1], x[N+2]
     static constexpr int Stride = N + Guard;
 
@@ -31,7 +34,13 @@ public:
     // Hygienic level-0 frame (N samples), used for display/export/embedding.
     const float* frame0 (int frame) const noexcept { return levelData (frame, 0) + 1; }
 
-    static int harmonicsInLevel (int level) noexcept { return MaxHarmonics >> level; }
+    static int harmonicsInLevel (int level) noexcept
+    {
+        static constexpr int h[NumLevels] = { 512, 362, 256, 181, 128, 90, 64, 45, 32, 22, 16, 11, 8, 5, 4, 2, 2, 1, 1 };
+        return h[level];
+    }
+    // 4-point Hermite while the level is less than 8x oversampled, linear above
+    static bool useHermite (int level) noexcept { return harmonicsInLevel (level) > 128; }
 
     // Debug/test helpers
     std::vector<std::vector<float>> levelZeroFrames() const;
