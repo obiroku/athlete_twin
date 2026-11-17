@@ -10,6 +10,7 @@ int main (int argc, char* argv[])
     tmp.createDirectory();
     setenv ("LENS_SETTINGS_FILE", tmp.getChildFile ("settings.json").getFullPathName().toRawUTF8(), 1);
     setenv ("LENS_PRESET_DIR", tmp.getChildFile ("Presets").getFullPathName().toRawUTF8(), 1);
+    setenv ("LENS_REFERENCE_DIR", tmp.getChildFile ("References").getFullPathName().toRawUTF8(), 1);
 
     juce::ScopedJuceInitialiser_GUI juceInit;
     const int result = Catch::Session().run (argc, argv);

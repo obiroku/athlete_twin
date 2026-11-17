@@ -221,6 +221,8 @@ void BandPanel::refresh()
     gain.setEnabled (dsp::usesGain (shape));
     q.setEnabled (! dsp::isCut (shape) && shape != dsp::Shape::Tilt);
     slopeBox.setEnabled (dsp::isCut (shape));
+    const bool linearPhase = ctx.proc.getApvts().getRawParameterValue ("phase_mode")->load() > 0.5f;
+    slopeBox.setItemEnabled (9, linearPhase); // Brickwall exists only in Linear Phase
     stereoBox.setEnabled (! ctx.proc.isMono());
     dynBtn.setEnabled (dynCapable);
 

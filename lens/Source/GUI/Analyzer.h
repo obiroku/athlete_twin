@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "DSP/Fifo.h"
+#include "Match/EqMatch.h"
 
 // Spectrum analyzer and peak finder (SPEC §6). The math is headless; the
 // AnalyzerThread drains the engine's FIFOs on its own thread.
@@ -68,6 +69,13 @@ public:
     double findPeak (Trace, double loHz, double hiHz, double& peakHz) const;
     std::vector<PeakMarker> peaks() const;
 
+    // EQ Match capture of one trace's long-term spectrum (any thread).
+    void startCapture (Trace);
+    void stopCapture();
+    bool isCapturing() const noexcept { return captureTrace.load() >= 0; }
+    double captureSeconds() const;
+    match::Spectrum captureResult (const juce::String& name) const;
+
     int fftSize() const noexcept { return windowSize; }
     double binHz() const noexcept { return fs / (2.0 * windowSize); }
     double secondsFed (Trace t) const noexcept { return (double) fedSamples[(size_t) t] / fs; }
@@ -112,6 +120,9 @@ private:
     std::vector<double> grid, gridDb, gridMed;
 
     mutable std::mutex lock; // analyzer thread ↔ GUI only, never audio
+    mutable std::mutex captureLock;
+    std::atomic<int> captureTrace { -1 };
+    match::LtasAccumulator capture;
     Snapshot published;
     std::atomic<int> snapshotVersion { 0 };
 };

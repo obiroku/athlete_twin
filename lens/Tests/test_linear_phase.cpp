@@ -3,6 +3,7 @@
 
 #include "DSP/FilterDesign.h"
 #include "DSP/LinearPhase.h"
+#include "DSP/Warm.h"
 #include "helpers/OfflineRender.h"
 #include "helpers/ProcHelpers.h"
 #include "helpers/Signals.h"
@@ -311,4 +312,55 @@ TEST_CASE ("Linear Phase: block size does not change the output", "[lp][blocksiz
         INFO ("pattern " << pattern.front() << ": " << d << " dB");
         REQUIRE (d < -100.0);
     }
+}
+
+// ---------------------------------------------------------------- Phase 7: brickwall, Warm
+
+TEST_CASE ("Brickwall cuts in Linear Phase: at least 60 dB one-sixth octave past the corner", "[lp][brickwall]")
+{
+    for (int shape : { 3, 4 }) // Low Cut, High Cut
+        for (float corner : { 200.0f, 1000.0f, 5000.0f })
+        {
+            lens::LensProcessor p;
+            setBand (p, 1, { shape, corner, 0.0f, 1.0f, 8 });
+            setParam (p, "phase_mode", 1.0f);
+            setParam (p, "auto_gain", 0.0f);
+            const int taps = 16384;
+            const auto out = impulseThrough (p, 48000.0, taps * 2);
+            std::vector<double> h ((size_t) taps);
+            const int skip = lens::dsp::LinearPhaseEngine::partitionSize (taps);
+            for (int i = 0; i < taps; ++i)
+                h[(size_t) i] = out.getSample (0, 100 + skip + i);
+            const double past = shape == 3 ? corner * std::pow (2.0, -1.0 / 6.0) : corner * std::pow (2.0, 1.0 / 6.0);
+            const double att = -lens::dsp::toDb (std::abs (dftAt (h, 48000.0, past)));
+            const double pass = lens::dsp::toDb (std::abs (dftAt (h, 48000.0, shape == 3 ? corner * 2.0 : corner / 2.0)));
+            INFO ((shape == 3 ? "low" : "high") << " cut at " << corner << ": " << att << " dB down 1/6 octave past, passband " << pass << " dB");
+            REQUIRE (att >= 60.0);
+            REQUIRE (std::abs (pass) < 0.1);
+        }
+}
+
+TEST_CASE ("Warm: level within 0.5 dB of Clean on pink noise at -18 dBFS; latency reported", "[warm]")
+{
+    const double fs = 48000.0;
+    const auto pink = makePink (2, (int) fs * 4, 41, -18.0);
+    auto run = [&] (bool warm)
+    {
+        lens::LensProcessor p;
+        setBand (p, 1, { 0, 1000.0f, 2.0f, 1.0f });
+        setParam (p, "character", warm ? 1.0f : 0.0f);
+        auto out = render (p, pink, opts());
+        return std::make_pair (out, p.getLatencySamples());
+    };
+    const auto [clean, latC] = run (false);
+    const auto [warm, latW] = run (true);
+    REQUIRE (latC == 0);
+    REQUIRE (latW > 0);
+    const double dc = rmsDb (clean, 0, (int) fs), dw = rmsDb (warm, 0, (int) fs);
+    INFO ("clean " << dc << " dB, warm " << dw << " dB, latency " << latW);
+    REQUIRE (std::abs (dw - dc) <= 0.5);
+    // It does change the sound: a loud sine gains harmonics.
+    REQUIRE (lens::dsp::WarmStage::shape (0.0f) == 0.0f);
+    REQUIRE (std::abs (lens::dsp::WarmStage::shape (0.01f) - 0.01f) < 1e-4f);
+    REQUIRE (lens::dsp::WarmStage::shape (0.9f) < 0.9f);
 }

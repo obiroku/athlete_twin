@@ -91,8 +91,37 @@ void SpectrumAnalyzer::buildBinRanges()
     }
 }
 
+void SpectrumAnalyzer::startCapture (Trace t)
+{
+    const std::lock_guard<std::mutex> g (captureLock);
+    capture.prepare (fs);
+    captureTrace = (int) t;
+}
+
+void SpectrumAnalyzer::stopCapture()
+{
+    captureTrace = -1;
+}
+
+double SpectrumAnalyzer::captureSeconds() const
+{
+    const std::lock_guard<std::mutex> g (captureLock);
+    return capture.seconds();
+}
+
+match::Spectrum SpectrumAnalyzer::captureResult (const juce::String& name) const
+{
+    const std::lock_guard<std::mutex> g (captureLock);
+    return capture.result (name);
+}
+
 void SpectrumAnalyzer::feed (Trace t, const float* x, int n)
 {
+    if (captureTrace.load() == (int) t)
+    {
+        const std::lock_guard<std::mutex> g (captureLock);
+        capture.add (x, n);
+    }
     auto& ts = traces[(size_t) t];
     if (ts.ring.empty())
         return;

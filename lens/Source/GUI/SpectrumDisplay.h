@@ -41,6 +41,7 @@ public:
         float freq, gain, q;
     };
     std::vector<Ghost> ghosts;
+    std::function<void()> onMatchClicked;
 
     // Coordinate helpers (public for tests and the Coach).
     float freqToX (double f) const;
@@ -91,6 +92,7 @@ private:
 
     // Controls row.
     juce::ToggleButton preBtn { "Pre" }, postBtn { "Post" }, scBtn { "SC" }, freezeBtn { "Freeze" };
+    juce::TextButton matchBtn { "EQ Match" };
     juce::ComboBox smoothBox, speedBox, tiltBox, rangeBox;
 
     // Interaction.

@@ -125,7 +125,7 @@ int LinearPhaseEngine::partitionSize (int taps) noexcept
 std::vector<float> LinearPhaseEngine::kernelFromMagnitude (const std::vector<double>& mag, int taps)
 {
     // Frequency sampling on a 2·taps grid → a circular even impulse,
-    // centred at taps/2, tapered with a Tukey window over the outer 1/8.
+    // centred at taps/2, tapered with a Tukey window over the outer quarter.
     const int fftLen = 2 * taps;
     juce::dsp::FFT f ((int) std::lround (std::log2 (fftLen)));
     std::vector<float> buf ((size_t) (2 * fftLen), 0.0f);
@@ -137,7 +137,7 @@ std::vector<float> LinearPhaseEngine::kernelFromMagnitude (const std::vector<dou
 
     std::vector<float> h ((size_t) taps, 0.0f);
     const int c = taps / 2;
-    const double taper = taps / 8.0;
+    const double taper = taps / 4.0;
     for (int k = 0; k < c; ++k)
     {
         // Average the two halves so the kernel is exactly symmetric.

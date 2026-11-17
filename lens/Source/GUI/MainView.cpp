@@ -340,5 +340,7 @@ void MainView::resized()
     spectrum.setBounds (r);
     if (overlayComponent != nullptr)
         overlayComponent->setBounds (getLocalBounds().withTrimmedTop (66));
+    if (matchComponent != nullptr)
+        matchComponent->setBounds (getLocalBounds().withTrimmedTop (66));
 }
 } // namespace lens::gui

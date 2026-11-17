@@ -61,6 +61,9 @@ SpectrumDisplay::SpectrumDisplay (EditorContext& c) : ctx (c)
         addAndMakeVisible (*b);
         b->onChange = [this] { syncControls(); };
     }
+    matchBtn.setTitle ("EQ Match");
+    matchBtn.onClick = [this] { if (onMatchClicked) onMatchClicked(); };
+    addAndMakeVisible (matchBtn);
     syncControls();
 }
 
@@ -106,6 +109,8 @@ void SpectrumDisplay::resized()
     row.removeFromLeft (4);
     freezeBtn.setBounds (row.removeFromLeft (58));
     rangeBox.setBounds (row.removeFromRight (74));
+    row.removeFromRight (6);
+    matchBtn.setBounds (row.removeFromRight (76));
 
     auto area = r.toFloat();
     pianoStrip = area.removeFromBottom (20.0f);

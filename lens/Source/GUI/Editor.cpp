@@ -2,6 +2,7 @@
 
 #include "CoachPanel.h"
 #include "EarTrainerView.h"
+#include "MatchPanel.h"
 #include "PresetBrowser.h"
 
 namespace lens::gui
@@ -32,6 +33,9 @@ LensEditor::LensEditor (LensProcessor& p)
     browser->setVisible (false);
     main->addChildComponent (*browser);
     main->overlayComponent = browser.get();
+    matchPanel = std::make_unique<MatchPanel> (ctx, *main);
+    main->addChildComponent (*matchPanel);
+    main->matchComponent = matchPanel.get();
     main->resized();
 
     analyzerThread.start (p.getSampleRate() > 0 ? p.getSampleRate() : 48000.0);
@@ -52,6 +56,7 @@ LensEditor::~LensEditor()
     proc.listenBand = -1;
     proc.earTrainer.on = false;
     browser.reset();
+    matchPanel.reset();
     ear.reset();
     coach.reset();
     main.reset();

@@ -33,6 +33,7 @@ public:
     std::function<void()> onPresetNameClicked, onPrevPreset, onNextPreset;
     juce::Component* coachComponent = nullptr;
     juce::Component* overlayComponent = nullptr;
+    juce::Component* matchComponent = nullptr;
 
 private:
     void updateTopBar();
