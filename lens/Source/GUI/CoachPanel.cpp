@@ -245,9 +245,11 @@ CoachPanel::CoachPanel (EditorContext& c, MainView& m) : ctx (c), main (m), cont
     {
         if (onEarTrainerToggled)
             onEarTrainerToggled (earBtn.getToggleState());
+        if (earTrainerView != nullptr)
+            earTrainerView->setVisible (earBtn.getToggleState());
+        resized();
     };
     addAndMakeVisible (earBtn);
-    earBtn.setVisible (false); // shown when the ear trainer exists (Phase 7)
 
     viewport.setViewedComponent (&list, false);
     viewport.setScrollBarsShown (true, false);

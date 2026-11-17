@@ -2,6 +2,7 @@
 
 #include "Coach/CoachContent.h"
 #include "Params/Parameters.h"
+#include "DSP/Spectral.h"
 #include "Util/Format.h"
 
 namespace lens::gui
@@ -407,6 +408,26 @@ void SpectrumDisplay::drawCurve (juce::Graphics& g)
         g.setColour (theme::accent.withAlpha (0.14f));
         g.fillPath (selected);
     }
+    // Spectral dynamics: frequencies being pulled down, as a darker region.
+    bool anySpectral = false;
+    for (const auto& b : bands)
+        anySpectral = anySpectral || b.p.isSpectral();
+    if (anySpectral)
+    {
+        auto& sp = ctx.proc.getEngine().spectral();
+        for (int i = 0; i < n; ++i)
+        {
+            const float x0 = plot.getX() + plot.getWidth() * (float) i / (float) n;
+            const float x1 = plot.getX() + plot.getWidth() * (float) (i + 1) / (float) n;
+            const float cut = sp.publishedCutDb (xToFreq (0.5f * (x0 + x1)));
+            if (cut > 0.5f)
+            {
+                g.setColour (theme::background.withAlpha (juce::jlimit (0.15f, 0.7f, cut / 24.0f + 0.15f)));
+                g.fillRect (juce::Rectangle<float> (x0, gainToY (0.0), x1 - x0, gainToY (-cut) - gainToY (0.0)));
+            }
+        }
+    }
+
     g.setColour (theme::accent);
     g.strokePath (total, juce::PathStrokeType (2.0f, juce::PathStrokeType::curved));
 

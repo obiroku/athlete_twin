@@ -697,3 +697,57 @@ TEST_CASE ("Stress: 1000 rapid preset switches during playback, no crash, no cli
     INFO ("worst step " << worst << ", steady max " << steady);
     REQUIRE (worst <= 1.5 * steady);
 }
+
+// ---------------------------------------------------------------- Phase 7: ear trainer
+
+#include "Coach/EarTrainer.h"
+#include "GUI/Editor.h"
+
+TEST_CASE ("Ear trainer: levels from LESSONS.md, scoring, level up", "[ear]")
+{
+    const auto f = juce::File::createTempFile (".json");
+    lens::coach::Settings s (f);
+    lens::coach::EarTrainer game (s, lens::coach::Content::get(), 7);
+    REQUIRE (lens::coach::EarTrainer::levels().size() == 5);
+    REQUIRE (lens::coach::EarTrainer::levels()[1].choices.size() == 8);
+    REQUIRE (lens::coach::EarTrainer::levels()[2].choices.size() == 10);
+    REQUIRE (lens::coach::EarTrainer::levels()[3].gainDb < 0.0f);
+    game.start();
+    REQUIRE (game.instructions() == "Toggle the hidden band on and off, then click where you think it is.");
+
+    // Ten right answers at level 1 → level 2.
+    lens::coach::EarTrainer::Result r;
+    for (int i = 0; i < 10; ++i)
+        r = game.guess (game.targetFreq() * 1.05);
+    REQUIRE (r.levelUp);
+    REQUIRE (r.message.endsWith ("Level 2 unlocked."));
+    REQUIRE (s.earLevel == 2);
+    REQUIRE (s.earBestStreak == 10);
+
+    // A wrong answer names both frequencies.
+    const double t = game.targetFreq();
+    const auto w = game.guess (t > 1000.0 ? 63.0 : 8000.0);
+    REQUIRE_FALSE (w.right);
+    REQUIRE (w.message.startsWith ("It was "));
+    REQUIRE (lens::coach::Settings (f).earLevel == 2); // saved
+    f.deleteFile();
+}
+
+TEST_CASE ("Ear trainer: never active after load, off when the editor closes, never in state", "[ear]")
+{
+    lens::LensProcessor p;
+    REQUIRE_FALSE (p.earTrainer.on.load());
+    const auto before = p.getStateJson();
+    {
+        std::unique_ptr<juce::AudioProcessorEditor> ed (p.createEditor());
+        p.earTrainer.on = true;
+        p.earTrainer.freq = 2000.0f;
+        p.earTrainer.gainDb = 12.0f;
+        REQUIRE (p.getStateJson() == before); // never written to state
+    }
+    REQUIRE_FALSE (p.earTrainer.on.load()); // off after the editor closed
+
+    lens::LensProcessor q;
+    q.setStateJson (before);
+    REQUIRE_FALSE (q.earTrainer.on.load());
+}

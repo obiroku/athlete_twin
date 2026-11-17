@@ -1,6 +1,7 @@
 #include "Editor.h"
 
 #include "CoachPanel.h"
+#include "EarTrainerView.h"
 #include "PresetBrowser.h"
 
 namespace lens::gui
@@ -17,6 +18,11 @@ LensEditor::LensEditor (LensProcessor& p)
     addAndMakeVisible (*main);
 
     auto coachPanel = std::make_unique<CoachPanel> (ctx, *main);
+    ear = std::make_unique<EarTrainerView> (ctx, main->display());
+    coachPanel->addChildComponent (*ear);
+    coachPanel->earTrainerView = ear.get();
+    auto* earView = static_cast<EarTrainerView*> (ear.get());
+    coachPanel->onEarTrainerToggled = [earView] (bool on) { earView->setActive (on); };
     const bool startVisible = coachPanel->shouldStartVisible();
     coach = std::move (coachPanel);
     main->addChildComponent (*coach);
@@ -46,6 +52,7 @@ LensEditor::~LensEditor()
     proc.listenBand = -1;
     proc.earTrainer.on = false;
     browser.reset();
+    ear.reset();
     coach.reset();
     main.reset();
     setLookAndFeel (nullptr);

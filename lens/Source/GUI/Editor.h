@@ -29,7 +29,7 @@ private:
     AnalyzerThread analyzerThread;
     EditorContext ctx;
     std::unique_ptr<MainView> main;
-    std::unique_ptr<juce::Component> coach, browser;
+    std::unique_ptr<juce::Component> coach, browser, ear;
     juce::TooltipWindow tooltips { this, 700 };
     juce::VBlankAttachment vblank;
     double lastFrameMs = 0.0;

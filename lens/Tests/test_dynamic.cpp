@@ -286,3 +286,75 @@ TEST_CASE ("Dynamic bands keep the output independent of block size", "[dyn][blo
     for (const auto& pattern : std::vector<std::vector<int>> { { 1 }, { 64 }, { 517 }, { 4096 }, variableBlockPattern() })
         REQUIRE (bitIdentical (run (pattern), reference));
 }
+
+// ---------------------------------------------------------------- Phase 7: spectral dynamics
+
+TEST_CASE ("Spectral: bins outside the span untouched; a resonance inside reduced by the amount; latency", "[spectral]")
+{
+    const double fs = 48000.0;
+    namespace pb = lens::params::band;
+    auto spectralBand = [] (lens::LensProcessor& p, float freq, float q, float amount)
+    {
+        setBand (p, 1, { 0, freq, 0.0f, q });
+        setBandParam (p, 1, pb::specThresh, 6.0f);
+        setBandParam (p, 1, pb::specAmount, amount);
+        setBandParam (p, 1, pb::dynAttack, 5.0f);
+        setBandParam (p, 1, pb::dynRelease, 50.0f);
+        setBandParam (p, 1, pb::specOn, 1.0f);
+        setParam (p, "auto_gain", 0.0f);
+    };
+
+    SECTION ("Outside the span: difference below -90 dB")
+    {
+        lens::LensProcessor p;
+        spectralBand (p, 4000.0f, 4.0f, 12.0f);
+        const auto in = makeSine (2, (int) fs * 2, fs, 200.0, 0.5f);
+        const auto out = render (p, in, opts());
+        REQUIRE (p.getLatencySamples() == 2048);
+        const double d = peakDifferenceDb (out, delayed (in, 2048));
+        INFO ("difference " << d << " dB");
+        REQUIRE (d < -90.0);
+    }
+
+    SECTION ("A resonance inside the span is reduced by the set amount within 1 dB")
+    {
+        for (float amount : { 6.0f, 12.0f })
+        {
+            lens::LensProcessor p;
+            spectralBand (p, 2000.0f, 1.0f, amount);
+            auto in = makeNoise (2, (int) fs * 3, 3, 0.002f);
+            const auto tone = makeSine (2, (int) fs * 3, fs, 2100.0, 0.3f);
+            for (int ch = 0; ch < 2; ++ch)
+                in.addFrom (ch, 0, tone, ch, 0, in.getNumSamples());
+            const auto out = render (p, in, opts());
+            const int lat = p.getLatencySamples();
+            const double a = sineAmplitude (out.getReadPointer (0), (int) fs + lat, (int) fs, fs, 2100.0);
+            const double reduction = 20.0 * std::log10 (0.3 / a);
+            INFO ("amount " << amount << ": reduced by " << reduction << " dB");
+            REQUIRE (std::abs (reduction - amount) <= 1.0);
+        }
+    }
+
+    SECTION ("Latency in both modes")
+    {
+        lens::LensProcessor zl;
+        spectralBand (zl, 1000.0f, 2.0f, 6.0f);
+        setParam (zl, "lookahead", 2.0f);
+        render (zl, makeNoise (2, 4800, 1), opts());
+        REQUIRE (zl.getLatencySamples() == 2048 + 96);
+
+        lens::LensProcessor lp;
+        spectralBand (lp, 1000.0f, 2.0f, 6.0f);
+        setParam (lp, "phase_mode", 1.0f);
+        juce::AudioBuffer<float> imp (2, 30000);
+        imp.clear();
+        imp.setSample (0, 100, 1.0f);
+        imp.setSample (1, 100, 1.0f);
+        const auto out = render (lp, imp, opts());
+        int peak = 0;
+        for (int i = 0; i < out.getNumSamples(); ++i)
+            if (std::abs (out.getSample (0, i)) > std::abs (out.getSample (0, peak)))
+                peak = i;
+        REQUIRE (peak - 100 == lp.getLatencySamples());
+    }
+}
