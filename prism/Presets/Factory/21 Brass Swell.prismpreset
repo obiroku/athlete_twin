@@ -44,6 +44,12 @@
     "macro4": 0.3,
     "chorus_mix": 0.25,
     "reverb_mix": 0.25,
+    "oscA_uni_mode": 1,
+    "oscA_warp2_mode": 16,
+    "oscA_warp2_amt": 0.2,
+    "lfo2_rate": 5.2,
+    "lfo2_delay": 0.3,
+    "lfo2_fade": 0.5,
     "mod01_depth": 0.0,
     "mod02_depth": 0.1,
     "mod03_depth": 0.4,
@@ -54,6 +60,7 @@
     "mod08_depth": 0.4,
     "mod09_depth": 0.15,
     "mod10_depth": 0.35,
+    "mod11_depth": 0.0025,
     "dist_on": 0.0,
     "tape_on": 0.0,
     "dim_on": 0.0,
@@ -66,7 +73,7 @@
     "comp_on": 0.0,
     "mb_on": 0.0,
     "eq_on": 0.0,
-    "master_vol": -9.33
+    "master_vol": -13.19
   },
   "mod_routings": [
     {
@@ -168,6 +175,16 @@
       "curve": 0.0,
       "bypass": false,
       "slot": 10
+    },
+    {
+      "source": "lfo2",
+      "dest": "voice_pitch",
+      "depth": 0.0025,
+      "polarity": "native",
+      "aux": "mod_wheel",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 11
     }
   ],
   "fx_order": [

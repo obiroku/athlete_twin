@@ -101,12 +101,14 @@ SynthPage::SynthPage (PrismProcessor& p) : Page (p)
     auto oscPanel = [this] (int o, ParamPanel*& out, WavetableView*& view, juce::ComboBox& table) {
         const std::string px = o == 0 ? "oscA_" : "oscB_";
         out = &panel (o == 0 ? "OSC A" : "OSC B");
-        out->cellW = 53; out->cellH = 58;
+        out->cellW = 45; out->cellH = 52;
         view = &make<WavetableView> (proc, o);
-        out->addCustom (view, 6, 1);
-        for (auto id : { "wt_pos", "level", "pan", "pitch", "warp_amt", "detune", "blend", "spread", "wt_spread", "phase", "rand_phase", "fine" })
+        out->addCustom (view, 7, 1);
+        for (auto id : { "wt_pos", "level", "pan", "pitch", "warp_amt", "warp2_amt", "fine",
+                         "detune", "blend", "spread", "wt_spread", "uni_range", "phase", "rand_phase" })
             out->add (px + id);
-        out->add (px + "warp_mode"); out->add (px + "unison"); out->add (px + "dest");
+        out->add (px + "warp_mode"); out->add (px + "warp2_mode"); out->add (px + "unison");
+        out->add (px + "uni_mode"); out->add (px + "uni_stack"); out->add (px + "dest");
         out->add (px + "oct"); out->add (px + "semi");
         fillTables (table, o);
         table.setTitle (o == 0 ? "Osc A wavetable" : "Osc B wavetable");

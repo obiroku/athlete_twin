@@ -58,6 +58,9 @@
     "delay_mix": 0.25,
     "delay_fb": 0.35,
     "reverb_mix": 0.2,
+    "oscA_uni_mode": 1,
+    "oscA_warp2_mode": 16,
+    "oscA_warp2_amt": 0.25,
     "mod01_depth": 0.0,
     "mod02_depth": 0.1,
     "mod03_depth": 0.003125,
@@ -79,7 +82,7 @@
     "comp_on": 0.0,
     "mb_on": 0.0,
     "eq_on": 0.0,
-    "master_vol": -12.779999999999999
+    "master_vol": -12.76
   },
   "mod_routings": [
     {

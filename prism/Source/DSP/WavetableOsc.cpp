@@ -56,12 +56,14 @@ void WavetableOsc::start (Rng& rng, float ph, float randPhase) noexcept
         p -= std::floor (p);
         phase[i] = p;
     }
+    for (int i = 0; i < MaxUnison; ++i) randLane[i] = rng.bipolar(); // "Random" unison spacing, new per note
+    if (uni.mode == (int) UniMode::Random) rebuild();
 }
 
 void WavetableOsc::setUnison (const Unison& u) noexcept
 {
     if (u.count == uni.count && u.detune == uni.detune && u.blend == uni.blend && u.spread == uni.spread
-        && u.wtSpread == uni.wtSpread && lanes == u.count)
+        && u.wtSpread == uni.wtSpread && u.mode == uni.mode && u.stack == uni.stack && u.range == uni.range && lanes == u.count)
         return;
     uni = u;
     rebuild();
@@ -78,11 +80,13 @@ void WavetableOsc::rebuild() noexcept
 {
     lanes = std::max (1, std::min (MaxUnison, uni.count));
     const int N = lanes;
-    // outer voices at +-100 * d^1.25 cents: 0.08 -> 4 ct (slow beating), 0.15 -> 9 ct, 0.25 -> 18 ct, 1.0 -> 100 ct
-    const float outerCents = 100.0f * std::pow (uni.detune, 1.25f);
+    // outer voices at +-range * 100 * d^1.25 cents (range 1 st: 0.15 -> 9 ct, 0.25 -> 18 ct, 1.0 -> 100 ct)
+    const float outerCents = uni.range * 100.0f * std::pow (uni.detune, 1.25f);
     const float gC = std::min (1.0f, 2.0f * (1.0f - uni.blend));
     const float gS = std::min (1.0f, 2.0f * uni.blend);
     const float norm = 1.0f / std::sqrt ((float) N);
+    // irregular "super" spacing (normalised offsets of a classic 7-voice supersaw)
+    static const float superCurve[7] = { -1.0f, -0.5716f, -0.1775f, 0.0f, 0.1810f, 0.5650f, 0.9767f };
     maxRatio = 1.0f;
     for (int i = 0; i < MaxUnison; ++i)
     {
@@ -93,12 +97,36 @@ void WavetableOsc::rebuild() noexcept
         }
         const float x = N > 1 ? 2.0f * (float) i / (float) (N - 1) - 1.0f : 0.0f;
         laneIndex[i] = x;
-        const float semis = outerCents * x / 100.0f + lanePitch * x;
+        float dx = x;
+        switch ((UniMode) uni.mode)
+        {
+            case UniMode::Super:
+            {
+                const float t = (x + 1.0f) * 3.0f;
+                const int k = std::min (5, (int) t);
+                dx = superCurve[k] + (superCurve[k + 1] - superCurve[k]) * (t - (float) k);
+                break;
+            }
+            case UniMode::Exp: dx = x * std::abs (x); break;
+            case UniMode::Inv: dx = (x < 0 ? -1.0f : 1.0f) * std::sqrt (std::abs (x)); break;
+            case UniMode::Random: dx = N > 1 ? randLane[i] : 0.0f; break;
+            default: break;
+        }
+        float stack = 0.0f;
+        const bool centre = N == 1 || std::abs (x) < 1e-6f || (N % 2 == 0 && std::abs (std::abs (x) - 1.0f / (float) (N - 1)) < 1e-6f);
+        switch ((UniStack) uni.stack)
+        {
+            case UniStack::Oct: stack = (i & 1) ? 12.0f : 0.0f; break;
+            case UniStack::OctFifth: stack = (i % 3 == 1) ? 12.0f : ((i % 3 == 2) ? 7.0f : 0.0f); break;
+            case UniStack::CenterMinus12: stack = centre ? -12.0f : 0.0f; break;
+            case UniStack::CenterMinus24: stack = centre ? -24.0f : 0.0f; break;
+            default: break;
+        }
+        const float semis = outerCents * dx / 100.0f + lanePitch * x + stack;
         ratio[i] = std::pow (2.0f, semis / 12.0f);
         maxRatio = std::max (maxRatio, ratio[i]);
         float l, r;
         panGains (clampf (uni.spread * x + lanePan * x, -1.0f, 1.0f), l, r);
-        bool centre = N == 1 || std::abs (x) < 1e-6f || (N % 2 == 0 && std::abs (std::abs (x) - 1.0f / (float) (N - 1)) < 1e-6f);
         const float g = N == 1 ? 1.0f : (centre ? gC : gS);
         gainM[i] = g * norm;
         // pan law normalised so a centred lane has unity gain per channel
@@ -141,10 +169,53 @@ inline float warpPhase (float p, const WarpState& s, float mod, const RemapCurve
         default: return p;
     }
 }
+
+inline bool isPhaseWarp (WarpMode m) noexcept
+{
+    return m != WarpMode::None && m != WarpMode::AM && m != WarpMode::RM && m != WarpMode::Drive
+        && m != WarpMode::Fold && m != WarpMode::Flip;
+}
+
+inline void setupWarp (WarpState& ws, WarpMode mode, float a, const RemapCurve& remap) noexcept
+{
+    ws.mode = mode;
+    ws.amt = a;
+    switch (mode)
+    {
+        case WarpMode::Sync: ws.syncRatio = 1.0f + 7.0f * a; ws.slope = ws.syncRatio; break;
+        case WarpMode::BendPlus: case WarpMode::BendMinus: case WarpMode::BendBoth:
+            ws.b = 7.0f * a; ws.slope = 1.0f + ws.b; break;
+        case WarpMode::PWM: ws.w = 1.0f - 0.98f * a; ws.slope = 1.0f / ws.w; break;
+        case WarpMode::Mirror: ws.slope = 1.0f + a; break;
+        case WarpMode::AsymPlus: ws.c = 0.5f - 0.49f * a; ws.slope = 0.5f / ws.c; break;
+        case WarpMode::AsymMinus: ws.c = 0.5f + 0.49f * a; ws.slope = 0.5f / (1.0f - ws.c); break;
+        case WarpMode::Quantize: ws.q = std::round (std::pow (2.0f, 1.0f + 7.0f * (1.0f - a))); ws.slope = a > 0.0f ? 1.6f : 1.0f; break; // whole steps per cycle
+        case WarpMode::Remap: ws.slope = 1.0f + a * (remap.maxSlope - 1.0f); break;
+        case WarpMode::FMOther: case WarpMode::FMSub: ws.fmIdx = 2.0f * a; ws.slope = 1.0f + 6.0f * a; break;
+        case WarpMode::Drive: ws.b = 1.0f + 9.0f * a; ws.w = 1.0f / tanhFast (ws.b); ws.slope = 1.0f + 2.0f * a; break;
+        case WarpMode::Fold: ws.b = 1.0f + 4.0f * a; ws.slope = 1.0f + 3.0f * a; break;
+        case WarpMode::Flip: ws.c = 1.0f - 0.98f * a; break;
+        default: break;
+    }
+}
+
+// output-domain warps (applied to the interpolated sample)
+inline float warpOutput (float y, const WarpState& s, float mod, float flipGain) noexcept
+{
+    switch (s.mode)
+    {
+        case WarpMode::AM: return y * (1.0f - s.amt * 0.5f + s.amt * 0.5f * mod);
+        case WarpMode::RM: return y * lerpf (1.0f, mod, s.amt);
+        case WarpMode::Drive: return s.amt > 0.0f ? tanhFast (y * s.b) * s.w : y;
+        case WarpMode::Fold: return s.amt > 0.0f ? sinCycle (y * s.b * 0.25f) : y;
+        case WarpMode::Flip: return y * flipGain;
+        default: return y;
+    }
+}
 } // namespace
 
 void WavetableOsc::render (const Wavetable* table, int n, const float* inc, const float* pos, const float* warp,
-                           WarpMode mode, const float* mod, const RemapCurve& remap,
+                           WarpMode mode, const float* warp2, WarpMode mode2, const float* mod, const RemapCurve& remap,
                            float* outL, float* outR, float* mono, int osFactor) noexcept
 {
     // Mip levels are chosen against the host-rate Nyquist even when oversampled:
@@ -153,7 +224,7 @@ void WavetableOsc::render (const Wavetable* table, int n, const float* inc, cons
     const float osMul = (float) std::max (1, osFactor);
     const bool hasTable = table != nullptr && table->numFrames() > 0;
     const int F = hasTable ? table->numFrames() : 1;
-    if (lanes == 1 && hasTable && mode == WarpMode::None)
+    if (lanes == 1 && hasTable && mode == WarpMode::None && mode2 == WarpMode::None)
     {
         renderSingle (*table, n, inc, pos, outL, outR, mono);
         return;
@@ -161,7 +232,13 @@ void WavetableOsc::render (const Wavetable* table, int n, const float* inc, cons
     const int groups = (lanes + 3) / 4;
     const V one = V::expand (1.0f);
 
-    alignas (16) float P0[4][4], P1[4][4], fr[4], ys[4], ys2[4], corr[4], win[4];
+    alignas (16) float P0[4][4], P1[4][4], fr[4], ys[4], ys2[4], corr[4], win[4], flipG[4];
+    const bool anySync = mode == WarpMode::Sync || mode2 == WarpMode::Sync;
+    const bool anyFlip = mode == WarpMode::Flip || mode2 == WarpMode::Flip;
+    // polyBLEP the quantize staircase when its steps sit on the master phase grid
+    const bool quantBlep = mode == WarpMode::Quantize || (mode2 == WarpMode::Quantize && ! isPhaseWarp (mode));
+    const bool outWarp = ! isPhaseWarp (mode) && mode != WarpMode::None;
+    const bool outWarp2 = ! isPhaseWarp (mode2) && mode2 != WarpMode::None;
     auto polyBlep = [] (float t, float dt) {
         if (t < dt) { t /= dt; return t + t - t * t - 1.0f; }
         if (t > 1.0f - dt) { t = (t - 1.0f) / dt; return t * t + t + t + 1.0f; }
@@ -170,26 +247,14 @@ void WavetableOsc::render (const Wavetable* table, int n, const float* inc, cons
 
     for (int i = 0; i < n; ++i)
     {
-        WarpState ws;
-        ws.mode = mode;
-        ws.amt = warp != nullptr ? clampf (warp[i], 0.0f, 1.0f) : 0.0f;
-        const float a = ws.amt;
-        switch (mode)
-        {
-            case WarpMode::Sync: ws.syncRatio = 1.0f + 7.0f * a; ws.slope = ws.syncRatio; break;
-            case WarpMode::BendPlus: case WarpMode::BendMinus: case WarpMode::BendBoth:
-                ws.b = 7.0f * a; ws.slope = 1.0f + ws.b; break;
-            case WarpMode::PWM: ws.w = 1.0f - 0.98f * a; ws.slope = 1.0f / ws.w; break;
-            case WarpMode::Mirror: ws.slope = 1.0f + a; break;
-            case WarpMode::AsymPlus: ws.c = 0.5f - 0.49f * a; ws.slope = 0.5f / ws.c; break;
-            case WarpMode::AsymMinus: ws.c = 0.5f + 0.49f * a; ws.slope = 0.5f / (1.0f - ws.c); break;
-            case WarpMode::Quantize: ws.q = std::round (std::pow (2.0f, 1.0f + 7.0f * (1.0f - a))); ws.slope = a > 0.0f ? 1.6f : 1.0f; break; // whole steps per cycle
-            case WarpMode::Remap: ws.slope = 1.0f + a * (remap.maxSlope - 1.0f); break;
-            case WarpMode::FMOther: case WarpMode::FMSub: ws.fmIdx = 2.0f * a; ws.slope = 1.0f + 6.0f * a; break;
-            default: break;
-        }
+        WarpState ws, ws2;
+        setupWarp (ws, mode, warp != nullptr ? clampf (warp[i], 0.0f, 1.0f) : 0.0f, remap);
+        setupWarp (ws2, mode2, warp2 != nullptr ? clampf (warp2[i], 0.0f, 1.0f) : 0.0f, remap);
+        const WarpState& wq = mode == WarpMode::Quantize ? ws : ws2;
+        const float syncA = mode == WarpMode::Sync ? ws.amt : (mode2 == WarpMode::Sync ? ws2.amt : 0.0f);
+        const WarpState& wf = mode == WarpMode::Flip ? ws : ws2;
         const float m = mod != nullptr ? mod[i] : 0.0f;
-        const MipChoice mc = hasTable ? chooseMip (inc[i] * maxRatio * ws.slope * osMul) : MipChoice {};
+        const MipChoice mc = hasTable ? chooseMip (inc[i] * maxRatio * ws.slope * ws2.slope * osMul) : MipChoice {};
         const int lvB = mc.level;
         const int lvD = std::min (Wavetable::NumLevels - 1, mc.level + 1);
         const bool darkSilent = mc.level + 1 >= Wavetable::NumLevels;
@@ -214,6 +279,7 @@ void WavetableOsc::render (const Wavetable* table, int n, const float* inc, cons
                 const int lane = 4 * g + j;
                 corr[j] = 0.0f;
                 win[j] = 1.0f;
+                flipG[j] = 1.0f;
                 if (lane >= lanes || ! hasTable || mc.silent)
                 {
                     for (int k = 0; k < 4; ++k) P0[k][j] = P1[k][j] = 0.0f;
@@ -221,14 +287,28 @@ void WavetableOsc::render (const Wavetable* table, int n, const float* inc, cons
                     if (lane < lanes && ! hasTable)
                     {
                         // sine fallback while the table is generating
-                        P0[1][j] = sinCycle (warpPhase (ph[j], ws, m, remap));
+                        P0[1][j] = sinCycle (warpPhase (warpPhase (ph[j], ws, m, remap), ws2, m, remap));
                     }
                     continue;
                 }
-                WarpState wsl = ws;
+                WarpState wsl = ws, wsl2 = ws2;
                 const float laneInc = inc[i] * ratio[lane];
-                if (mode == WarpMode::Quantize && ws.q * laneInc > 0.5f) wsl.amt = 0.0f; // steps finer than a sample: no staircase
-                const float wp = warpPhase (ph[j], wsl, m, remap);
+                // quantize steps finer than a sample: no staircase
+                if (mode == WarpMode::Quantize && ws.q * laneInc > 0.5f) wsl.amt = 0.0f;
+                if (mode2 == WarpMode::Quantize && ws2.q * laneInc > 0.5f) wsl2.amt = 0.0f;
+                const float wp = warpPhase (warpPhase (ph[j], wsl, m, remap), wsl2, m, remap);
+                const bool quantOn = quantBlep && (mode == WarpMode::Quantize ? wsl.amt : wsl2.amt) > 0.0f;
+                if (anyFlip && wf.amt > 0.001f)
+                {
+                    // polarity flip from the flip point to the end of the cycle, with short smooth transitions
+                    const float pm = ph[j];
+                    const float li = std::max (1e-9f, laneInc);
+                    const float e = (pm < 0.5f ? pm : pm - 1.0f) / li;   // samples from the wrap
+                    const float d1 = (pm - wf.c) / li;                    // samples from the flip point
+                    if (std::abs (e) < kSyncFade) flipG[j] = sinCycle (0.25f * clampf (e / kSyncFade, -1.0f, 1.0f));
+                    else if (std::abs (d1) < kSyncFade) flipG[j] = -sinCycle (0.25f * clampf (d1 / kSyncFade, -1.0f, 1.0f));
+                    else flipG[j] = pm >= wf.c ? -1.0f : 1.0f;
+                }
                 float idx = wp * (float) Wavetable::N;
                 int i0 = (int) idx;
                 float f = idx - (float) i0;
@@ -242,7 +322,7 @@ void WavetableOsc::render (const Wavetable* table, int n, const float* inc, cons
                 const float ff = fpos - (float) f0;
                 const int f1 = std::min (F - 1, f0 + 1);
 
-                if ((mode == WarpMode::Sync && a > 0.0f) || (mode == WarpMode::Quantize && wsl.amt > 0.0f))
+                if ((anySync && syncA > 0.0f) || quantOn)
                 {
                     // value of the bright level at an arbitrary phase (linear, frame-interpolated)
                     auto T = [&] (float phs) {
@@ -256,7 +336,7 @@ void WavetableOsc::render (const Wavetable* table, int n, const float* inc, cons
                         return v;
                     };
                     const float pm = ph[j];
-                    if (mode == WarpMode::Sync)
+                    if (anySync && syncA > 0.0f)
                     {
                         // a short raised-cosine dip (kSyncFade samples each side) around the
                         // master reset removes the value and slope discontinuities of hard sync
@@ -264,12 +344,12 @@ void WavetableOsc::render (const Wavetable* table, int n, const float* inc, cons
                         if (d < kSyncFade)
                             win[j] = 0.5f - 0.5f * std::cos (kPiF * d / kSyncFade);
                     }
-                    else
+                    if (quantOn)
                     {
-                        const float dt = laneInc * ws.q;
-                        const float u = pm * ws.q - std::floor (pm * ws.q);
-                        if (u < dt) corr[j] = 0.5f * (T (wp) - T (wp - 1.0f / ws.q)) * polyBlep (u, dt);
-                        else if (u > 1.0f - dt) corr[j] = 0.5f * (T (wp + 1.0f / ws.q) - T (wp)) * polyBlep (u, dt);
+                        const float dt = laneInc * wq.q;
+                        const float u = pm * wq.q - std::floor (pm * wq.q);
+                        if (u < dt) corr[j] = 0.5f * (T (wp) - T (wp - 1.0f / wq.q)) * polyBlep (u, dt);
+                        else if (u > 1.0f - dt) corr[j] = 0.5f * (T (wp + 1.0f / wq.q) - T (wp)) * polyBlep (u, dt);
                     }
                 }
 
@@ -332,17 +412,17 @@ void WavetableOsc::render (const Wavetable* table, int n, const float* inc, cons
                 y = y + (yd - y) * V::expand (wD);
             }
 
-            if (mode == WarpMode::Quantize) y = y + V::fromRawArray (corr);
-            if (mode == WarpMode::Sync) y = y * V::fromRawArray (win);
-            if (mode == WarpMode::AM || mode == WarpMode::RM)
+            if (quantBlep) y = y + V::fromRawArray (corr);
+            if (anySync) y = y * V::fromRawArray (win);
+            if (outWarp || outWarp2)
             {
                 y.copyToRawArray (ys);
                 for (int j = 0; j < 4; ++j)
                 {
-                    float s = ys[j];
-                    if (mode == WarpMode::AM) s *= 1.0f - a * 0.5f + a * 0.5f * m;
-                    else if (mode == WarpMode::RM) s *= lerpf (1.0f, m, a);
-                    ys2[j] = s;
+                    float v = ys[j];
+                    if (outWarp) v = warpOutput (v, ws, m, flipG[j]);
+                    if (outWarp2) v = warpOutput (v, ws2, m, flipG[j]);
+                    ys2[j] = v;
                 }
                 y = V::fromRawArray (ys2);
             }

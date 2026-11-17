@@ -16,7 +16,7 @@ juce::String shortName (const ParamDef& d)
         { "Unison WT Spread", "WT Spread" }, { "Stereo Spread", "Spread" }, { "Random Phase", "Rand Phase" },
         { "WT Position", "WT Pos" }, { "Warp Amount", "Warp" }, { "Velocity Curve", "Vel Curve" }, { "Fixed Velocity", "Fixed Vel" },
         { "Warp Mode", "Warp" }, { "Destination", "To" }, { "Mono Priority", "Priority" }, { "Glide Mode", "Glide" },
-        { "Voice Mode", "Mode" }, { "Filter Routing", "Routing" }, { "Strum Direction", "Direction" }, { "Polarity", "Pol" },
+        { "Voice Mode", "Mode" }, { "Warp 2 Mode", "Warp 2" }, { "Warp 2 Amount", "Warp 2" }, { "Unison Mode", "Uni" }, { "Unison Stack", "Stack" }, { "Unison Range", "Range" }, { "Filter Routing", "Routing" }, { "Strum Direction", "Direction" }, { "Polarity", "Pol" },
         { "Division", "Div" }, { "Unison", "Voices" }, { "Octave", "Oct" }, { "Semitone", "Semi" } };
     for (auto& [a, b] : shorter) if (n == a) return b;
     return n;

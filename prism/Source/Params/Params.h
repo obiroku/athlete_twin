@@ -64,6 +64,7 @@ namespace P
     {
         wt_pos, oct, semi, fine, pitch, level, pan, phase, rand_phase, warp_mode, warp_amt,
         unison, detune, blend, spread, wt_spread, dest,
+        warp2_mode, warp2_amt, uni_mode, uni_stack, uni_range,
         NumOscP
     };
     constexpr int OscBase = NumGlobal;
@@ -138,9 +139,11 @@ namespace P
 }
 
 // Choice enumerations (indices into the parameter's choice list)
-enum class WarpMode : int { None, Sync, BendPlus, BendMinus, BendBoth, PWM, Mirror, AsymPlus, AsymMinus, Quantize, Remap, FMOther, FMSub, AM, RM, Count };
+enum class WarpMode : int { None, Sync, BendPlus, BendMinus, BendBoth, PWM, Mirror, AsymPlus, AsymMinus, Quantize, Remap, FMOther, FMSub, AM, RM, Flip, Drive, Fold, Count };
+enum class UniMode : int { Linear, Super, Exp, Inv, Random };
+enum class UniStack : int { Off, Oct, OctFifth, CenterMinus12, CenterMinus24 };
 enum class Dest : int { F1, F2, Both, Direct };
-enum class FilterType : int { LP12, LP24, HP12, HP24, BP12, BP24, Notch, Peak, CombPlus, CombMinus, Ladder, Diode, Formant, Count };
+enum class FilterType : int { LP12, LP24, HP12, HP24, BP12, BP24, Notch, Peak, CombPlus, CombMinus, Ladder, Diode, Formant, LP6, DJ, Diffuser, Count };
 enum class VoiceMode : int { Poly, Mono, Legato };
 enum class Priority : int { Last, Low, High };
 enum class LfoShape : int { Sine, Triangle, SawUp, SawDown, Square, SampleHold, SmoothRandom, Noise, Custom };

@@ -53,6 +53,8 @@
     "comp_ratio": 4.0,
     "eq_ls_gain": 3.0,
     "eq_ls_freq": 100.0,
+    "oscA_warp_mode": 16,
+    "oscA_warp_amt": 0.3,
     "mod01_depth": 0.0,
     "mod02_depth": 0.1,
     "mod03_depth": 0.3,
@@ -64,6 +66,7 @@
     "mod09_depth": 0.6,
     "mod10_depth": 0.3,
     "mod11_depth": 0.3,
+    "mod12_depth": 0.15,
     "dist_on": 1.0,
     "tape_on": 0.0,
     "dim_on": 0.0,
@@ -76,7 +79,7 @@
     "comp_on": 1.0,
     "mb_on": 0.0,
     "eq_on": 1.0,
-    "master_vol": -4.27
+    "master_vol": -5.28
   },
   "mod_routings": [
     {
@@ -188,6 +191,16 @@
       "curve": 0.0,
       "bypass": false,
       "slot": 11
+    },
+    {
+      "source": "mod_wheel",
+      "dest": "f1_cutoff",
+      "depth": 0.15,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 12
     }
   ],
   "fx_order": [

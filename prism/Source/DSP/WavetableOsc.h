@@ -40,6 +40,8 @@ public:
     {
         int count = 1;
         float detune = 0.2f, blend = 0.7f, spread = 0.6f, wtSpread = 0.0f;
+        int mode = 0, stack = 0;   // UniMode, UniStack
+        float range = 1.0f;        // semitones covered by full detune
     };
 
     // Start a note: phases (fixed + random per lane)
@@ -60,7 +62,7 @@ public:
     //  mod      : modulator signal (FM/AM/RM), may be null
     //  outL/R   : stereo (pre level/pan), mono: sum pre-pan (for use as modulator)
     void render (const Wavetable* table, int n, const float* inc, const float* pos, const float* warp,
-                 WarpMode mode, const float* mod, const RemapCurve& remap,
+                 WarpMode mode, const float* warp2, WarpMode mode2, const float* mod, const RemapCurve& remap,
                  float* outL, float* outR, float* mono, int osFactor = 1) noexcept;
 
     // Live state for GUI
@@ -74,6 +76,7 @@ private:
     alignas (16) float gainM[MaxUnison] {};
     alignas (16) float wtOff[MaxUnison] {};
     float laneIndex[MaxUnison] {};
+    float randLane[MaxUnison] {};
     int lanes = 1;
     float maxRatio = 1.0f;
     Unison uni;

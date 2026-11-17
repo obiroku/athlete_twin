@@ -39,7 +39,7 @@
     "env2_sustain": 0.0,
     "bass_mono": 120.0,
     "oscA_warp_mode": 11,
-    "oscA_warp_amt": 0.0,
+    "oscA_warp_amt": 0.15,
     "oscA_rand_phase": 0.0,
     "oscB_rand_phase": 0.0,
     "macro1": 0.3,
@@ -51,6 +51,12 @@
     "dist_drive": 6.0,
     "comp_thresh": -18.0,
     "comp_ratio": 4.0,
+    "oscA_warp2_mode": 16,
+    "oscA_warp2_amt": 0.35,
+    "oscA_unison": 3,
+    "oscA_detune": 0.06,
+    "oscA_uni_stack": 3,
+    "oscA_spread": 0.3,
     "mod01_depth": 0.0,
     "mod02_depth": 0.1,
     "mod03_depth": 0.3,
@@ -60,6 +66,7 @@
     "mod07_depth": 0.4,
     "mod08_depth": 0.3,
     "mod09_depth": 0.2,
+    "mod10_depth": 0.4,
     "dist_on": 1.0,
     "tape_on": 0.0,
     "dim_on": 0.0,
@@ -72,7 +79,7 @@
     "comp_on": 1.0,
     "mb_on": 0.0,
     "eq_on": 0.0,
-    "master_vol": -1.6
+    "master_vol": 2.01
   },
   "mod_routings": [
     {
@@ -164,6 +171,16 @@
       "curve": 0.0,
       "bypass": false,
       "slot": 9
+    },
+    {
+      "source": "mod_wheel",
+      "dest": "oscA_warp_amt",
+      "depth": 0.4,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 10
     }
   ],
   "fx_order": [

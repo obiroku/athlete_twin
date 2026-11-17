@@ -24,6 +24,8 @@ int fastIndexForParam (int p)
     if (p == P::noise (P::noise_pan)) return FD_NoisePan;
     if (p == P::filt (0, P::f_cutoff)) return FD_Cut1;
     if (p == P::filt (1, P::f_cutoff)) return FD_Cut2;
+    if (p == P::osc (0, P::warp2_amt)) return FD_AWarp2;
+    if (p == P::osc (1, P::warp2_amt)) return FD_BWarp2;
     return -1;
 }
 
@@ -34,7 +36,7 @@ int paramForFastIndex (int fd)
         P::osc (0, P::wt_pos), P::osc (0, P::pitch), P::osc (0, P::level), P::osc (0, P::pan), P::osc (0, P::warp_amt),
         P::osc (1, P::wt_pos), P::osc (1, P::pitch), P::osc (1, P::level), P::osc (1, P::pan), P::osc (1, P::warp_amt),
         P::sub (P::sub_level), P::sub (P::sub_pan), P::noise (P::noise_level), P::noise (P::noise_pan),
-        P::filt (0, P::f_cutoff), P::filt (1, P::f_cutoff) };
+        P::filt (0, P::f_cutoff), P::filt (1, P::f_cutoff), P::osc (0, P::warp2_amt), P::osc (1, P::warp2_amt) };
     return map[fd];
 }
 
@@ -126,6 +128,8 @@ void Voice::start (const RenderContext& ctx, int pos, int n, float vel, int ch, 
     driftPitchU = rng.bipolar();
     driftCutU = rng.bipolar();
     const uint64_t seed = rng.next();
+    driftEnvU = rng.bipolar();
+    driftLevelU = rng.bipolar();
 
     const float* row = ctx.normRowAt (pos);
     const auto& defs = paramDefs();
@@ -270,6 +274,7 @@ void Voice::controlTick (const RenderContext& ctx, int pos) noexcept
         tv.oscSemis[o] = 12.0f * std::round (real (P::osc (o, P::oct))) + std::round (real (P::osc (o, P::semi)))
                        + std::round (real (P::osc (o, P::fine))) * 0.01f;
         tv.warpMode[o] = (int) iround (real (P::osc (o, P::warp_mode)));
+        tv.warpMode2[o] = (int) iround (real (P::osc (o, P::warp2_mode)));
         tv.dest[o] = (int) iround (real (P::osc (o, P::dest)));
         WavetableOsc::Unison u;
         u.count = (int) iround (real (P::osc (o, P::unison)));
@@ -277,12 +282,15 @@ void Voice::controlTick (const RenderContext& ctx, int pos) noexcept
         u.blend = real (P::osc (o, P::blend));
         u.spread = real (P::osc (o, P::spread));
         u.wtSpread = real (P::osc (o, P::wt_spread));
+        u.mode = iround (real (P::osc (o, P::uni_mode)));
+        u.stack = iround (real (P::osc (o, P::uni_stack)));
+        u.range = real (P::osc (o, P::uni_range));
         osc[o].setUnison (u);
     }
     for (int o = 0; o < 2; ++o)
     {
-        const int w = tv.warpMode[1 - o];
-        tv.modulator[o] = w == (int) WarpMode::FMOther || w == (int) WarpMode::AM || w == (int) WarpMode::RM;
+        auto usesOther = [] (int w) { return w == (int) WarpMode::FMOther || w == (int) WarpMode::AM || w == (int) WarpMode::RM; };
+        tv.modulator[o] = usesOther (tv.warpMode[1 - o]) || usesOther (tv.warpMode2[1 - o]);
     }
     // unison-index routings -> per-lane offsets
     {
@@ -338,6 +346,9 @@ void Voice::controlTick (const RenderContext& ctx, int pos) noexcept
         t.curveA = real (P::env (e, P::e_curve_a));
         t.curveD = real (P::env (e, P::e_curve_d));
         t.curveR = real (P::env (e, P::e_curve_r));
+        // analog-style per-note variation: envelope timing +-6 % at full drift
+        const float ts = 1.0f + driftEnvU * 0.06f * tv.drift;
+        t.attack *= ts; t.decay *= ts; t.release *= ts;
         const auto& o = lastTimes[e];
         if (! timesValid || t.delay != o.delay || t.attack != o.attack || t.hold != o.hold || t.decay != o.decay
             || t.sustain != o.sustain || t.release != o.release || t.curveA != o.curveA || t.curveD != o.curveD || t.curveR != o.curveR)
@@ -347,7 +358,7 @@ void Voice::controlTick (const RenderContext& ctx, int pos) noexcept
         }
     }
     timesValid = true;
-    velGain = 1.0f - real (P::env (0, P::e_vel_amt)) * (1.0f - velocity);
+    velGain = (1.0f - real (P::env (0, P::e_vel_amt)) * (1.0f - velocity)) * (1.0f + driftLevelU * 0.035f * tv.drift);
 
     for (int l = 0; l < 4; ++l)
     {
@@ -494,7 +505,7 @@ void Voice::renderChunk (const RenderContext& ctx, int pos, int len, float* outL
     }
 
     // ---- 4. oscillators
-    const bool warpOn = tv.warpMode[0] != 0 || tv.warpMode[1] != 0;
+    const bool warpOn = tv.warpMode[0] != 0 || tv.warpMode[1] != 0 || tv.warpMode2[0] != 0 || tv.warpMode2[1] != 0;
     const int os = warpOn ? std::max (1, ctx.osFactor) : 1;
     if (os != curOs)
     {
@@ -512,7 +523,8 @@ void Voice::renderChunk (const RenderContext& ctx, int pos, int len, float* outL
         oscOn[o] = mx > 0.0f || tv.modulator[o];
     }
     // FM-from-sub modulator at oscillator rate
-    const bool needSubFm = tv.warpMode[0] == (int) WarpMode::FMSub || tv.warpMode[1] == (int) WarpMode::FMSub;
+    const bool needSubFm = tv.warpMode[0] == (int) WarpMode::FMSub || tv.warpMode[1] == (int) WarpMode::FMSub
+                        || tv.warpMode2[0] == (int) WarpMode::FMSub || tv.warpMode2[1] == (int) WarpMode::FMSub;
     const float subRatio = tv.subOct == 2 ? 0.25f : 0.5f;
     if (needSubFm)
         for (int i = 0; i < len; ++i)
@@ -548,17 +560,21 @@ void Voice::renderChunk (const RenderContext& ctx, int pos, int len, float* outL
                 incBuf[o][i * os + j] = inc;
                 posBuf[o][i * os + j] = fast[b][i];
                 warpBuf[o][i * os + j] = fast[b + 4][i];
+                warp2Buf[o][i * os + j] = fast[o == 0 ? FD_AWarp2 : FD_BWarp2][i];
             }
         }
         const WarpMode wm = (WarpMode) tv.warpMode[o];
+        const WarpMode wm2 = (WarpMode) tv.warpMode2[o];
+        auto usesOther = [] (WarpMode w) { return w == WarpMode::FMOther || w == WarpMode::AM || w == WarpMode::RM; };
         const float* mod = nullptr;
-        if (wm == WarpMode::FMOther || wm == WarpMode::AM || wm == WarpMode::RM)
+        // one modulator input per oscillator: the other oscillator wins over the sub when both are asked for
+        if (usesOther (wm) || usesOther (wm2))
         {
             static const float zeros[WavetableOsc::MaxBlock] = {};
             mod = rendered[1 - o] ? oscMono[1 - o] : zeros;
         }
-        else if (wm == WarpMode::FMSub) mod = subFmBuf;
-        osc[o].render (ctx.table[o], n, incBuf[o], posBuf[o], warpBuf[o], wm, mod, *ctx.remap[o],
+        else if (wm == WarpMode::FMSub || wm2 == WarpMode::FMSub) mod = subFmBuf;
+        osc[o].render (ctx.table[o], n, incBuf[o], posBuf[o], warpBuf[o], wm, warp2Buf[o], wm2, mod, *ctx.remap[o],
                        oscBufL[o], oscBufR[o], oscMono[o], os);
         rendered[o] = true;
     }

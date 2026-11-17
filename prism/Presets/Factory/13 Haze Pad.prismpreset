@@ -51,6 +51,7 @@
     "chorus_mix": 0.4,
     "reverb_mix": 0.4,
     "reverb_decay": 4.0,
+    "oscA_uni_mode": 1,
     "mod01_depth": 0.0,
     "mod02_depth": 0.1,
     "mod03_depth": 0.35,
@@ -62,6 +63,7 @@
     "mod09_depth": 0.4,
     "mod10_depth": 0.4,
     "mod11_depth": 0.4,
+    "mod12_depth": 0.3,
     "dist_on": 0.0,
     "tape_on": 1.0,
     "dim_on": 0.0,
@@ -74,7 +76,7 @@
     "comp_on": 0.0,
     "mb_on": 0.0,
     "eq_on": 0.0,
-    "master_vol": -12.5
+    "master_vol": -13.31
   },
   "mod_routings": [
     {
@@ -186,6 +188,16 @@
       "curve": 0.0,
       "bypass": false,
       "slot": 11
+    },
+    {
+      "source": "mod_wheel",
+      "dest": "mod03_depth",
+      "depth": 0.3,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 12
     }
   ],
   "fx_order": [

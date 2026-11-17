@@ -88,6 +88,8 @@ void FilterCore::reset() noexcept
     s1 = {}; s2 = {};
     for (auto& f : fs) f = {};
     for (auto& a : lad) a[0] = a[1] = 0.0f;
+    for (auto& a : dif) a[0] = a[1] = 0.0f;
+    difLast[0] = difLast[1] = 0.0f;
     for (auto& a : dio) for (auto& v : a) v = 0.0;
     for (auto& c : comb) std::fill (c.begin(), c.end(), 0.0f);
     combW = 0;
@@ -138,6 +140,31 @@ void FilterCore::updateCoefs (float fc, float reso, float vowel) noexcept
             }
             break;
         }
+        case FilterType::LP6:
+        {
+            g = fastTan (kPiF * fc / (float) sr);
+            G = g / (1.0f + g);
+            break;
+        }
+        case FilterType::DJ:
+        {
+            // one knob: below the centre a low-pass closes, above it a high-pass opens
+            const float n = std::log (std::max (20.0f, fc) / 20.0f) / std::log (1000.0f);
+            djMode = n < 0.48f ? 1 : (n > 0.52f ? 2 : 0);
+            const float fcDj = djMode == 1 ? 20.0f * std::pow (1000.0f, n / 0.48f) : 20.0f * std::pow (1000.0f, (n - 0.52f) / 0.48f);
+            g = fastTan (kPiF * clampf (fcDj, 10.0f, nyq) / (float) sr);
+            k = 2.0f * (1.0f - 0.85f * clampf (reso, 0.0f, 1.0f));
+            a1 = 1.0f / (1.0f + g * (g + k)); a2 = g * a1; a3 = g * a2;
+            satStates = false;
+            break;
+        }
+        case FilterType::Diffuser:
+        {
+            const float t = fastTan (kPiF * fc / (float) sr);
+            difA = (t - 1.0f) / (t + 1.0f);
+            difFb = 0.85f * clampf (reso, 0.0f, 1.0f);
+            break;
+        }
         default:
         {
             g = fastTan (kPiF * fc / (float) sr);
@@ -175,6 +202,8 @@ void FilterCore::copyChannel0To1() noexcept
     s2.ic1[1] = s2.ic1[0]; s2.ic2[1] = s2.ic2[0];
     for (auto& f : fs) { f.ic1[1] = f.ic1[0]; f.ic2[1] = f.ic2[0]; }
     for (auto& a : lad) a[1] = a[0];
+    for (auto& a : dif) a[1] = a[0];
+    difLast[1] = difLast[0];
     for (int i = 0; i < 4; ++i) dio[1][i] = dio[0][i];
     if (type == FilterType::CombPlus || type == FilterType::CombMinus) comb[1] = comb[0]; // same size: no allocation
 }
@@ -332,6 +361,34 @@ inline void FilterCore::tick (float* io) noexcept
                     sum += fgain[i] * bp * fk[i];
                 }
                 y = sum * 1.6f;
+                break;
+            }
+            case FilterType::LP6:
+            {
+                const float v = (x - lad[0][ch]) * G;
+                y = v + lad[0][ch];
+                lad[0][ch] = y + v;
+                break;
+            }
+            case FilterType::DJ:
+            {
+                if (djMode == 0) { y = x; break; }
+                float bp, hp;
+                const float lp = svfTick (s1, ch, x, a1, a2, a3, bp, hp, k);
+                y = djMode == 1 ? lp : hp;
+                break;
+            }
+            case FilterType::Diffuser:
+            {
+                float v = x + difFb * difLast[ch];
+                for (int st = 0; st < 8; ++st)
+                {
+                    const float o = difA * v + dif[st][ch];
+                    dif[st][ch] = v - difA * o;
+                    v = o;
+                }
+                difLast[ch] = tanhFast (v);
+                y = v * (1.0f - 0.5f * difFb);
                 break;
             }
             default: break;

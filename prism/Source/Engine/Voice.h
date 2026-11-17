@@ -22,6 +22,7 @@ enum FastDest : int
     FD_BPos, FD_BPitch, FD_BLevel, FD_BPan, FD_BWarp,
     FD_SubLevel, FD_SubPan, FD_NoiseLevel, FD_NoisePan,
     FD_Cut1, FD_Cut2,
+    FD_AWarp2, FD_BWarp2,
     NumFast
 };
 int fastIndexForParam (int param); // -1 if not fast
@@ -116,7 +117,7 @@ private:
     uint64_t order = 0;
     float velocity = 1, relVelocity = 0.5f, velGain = 1;
     float randomNote = 0, alternate = 1, polyAT = 0, slide = 0, noteBend = 0;
-    float driftPitchU = 0, driftCutU = 0;
+    float driftPitchU = 0, driftCutU = 0, driftEnvU = 0, driftLevelU = 0;
 
     // pitch / glide (semitones)
     float pitchNow = 60, pitchTarget = 60, glideRate = 0;
@@ -145,7 +146,7 @@ private:
     struct TickVals
     {
         float drift = 0, glideTime = 0; int glideMode = 0;
-        float oscSemis[2] {}; int warpMode[2] {}; int dest[2] {}; bool modulator[2] {};
+        float oscSemis[2] {}; int warpMode[2] {}; int warpMode2[2] {}; int dest[2] {}; bool modulator[2] {};
         int subShape = 0, subOct = 1, subDest = 0;
         int noiseType = 0, noiseDest = 0; bool noiseStereo = true; float noiseTone = 0.5f, ntLow = 1, ntHigh = 0.1f;
         bool fOn[2] {}; float reso[2] {}, drive[2] {}, keytrack[2] {}, vowel[2] {}, fmix[2] {};
@@ -158,7 +159,7 @@ private:
     float src[NumSrc][kTick] {};
     float fast[NumFast][kTick] {};
     float oscBufL[2][dsp::WavetableOsc::MaxBlock] {}, oscBufR[2][dsp::WavetableOsc::MaxBlock] {}, oscMono[2][dsp::WavetableOsc::MaxBlock] {};
-    float incBuf[2][dsp::WavetableOsc::MaxBlock] {}, posBuf[2][dsp::WavetableOsc::MaxBlock] {}, warpBuf[2][dsp::WavetableOsc::MaxBlock] {};
+    float incBuf[2][dsp::WavetableOsc::MaxBlock] {}, posBuf[2][dsp::WavetableOsc::MaxBlock] {}, warpBuf[2][dsp::WavetableOsc::MaxBlock] {}, warp2Buf[2][dsp::WavetableOsc::MaxBlock] {};
     float subFmBuf[dsp::WavetableOsc::MaxBlock] {};
     float pitchBuf[kTick] {};
     float lastFast[NumFast] {};

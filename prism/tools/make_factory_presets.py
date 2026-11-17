@@ -20,6 +20,9 @@ LFO = dict(Sine=0, Tri=1, SawUp=2, SawDown=3, Square=4, SH=5, Smooth=6, Noise=7,
 FX_ALL = ["distortion", "tape", "dimension", "chorus", "phaser", "flanger", "rotary", "delay", "reverb", "compressor", "multiband", "eq"]
 FX_ON = dict(distortion="dist_on", tape="tape_on", dimension="dim_on", chorus="chorus_on", phaser="phaser_on", flanger="flanger_on",
              rotary="rotary_on", delay="delay_on", reverb="reverb_on", compressor="comp_on", multiband="mb_on", eq="eq_on")
+UNI = dict(Linear=0, Super=1, Exp=2, Inv=3, Random=4)
+STACK = dict(Off=0, Oct=1, OctFifth=2, C12=3, C24=4)
+WARP = dict(Flip=15, Drive=16, Fold=17, FMOther=11, BendPlus=2)
 ST = 1.0 / 48.0   # one semitone of voice_pitch / osc pitch in normalized depth
 OCT = 0.1         # one octave of cutoff in normalized depth
 
@@ -505,6 +508,39 @@ fd.wide()
 fd.p(oscA_unison=4, oscA_detune=0.15)
 fd.start(0.4, 0.3, 0.0, 0.0)
 bank.append(fd)
+
+
+# ---------------------------------------------------------------- sound pass 2: new engine features + playability
+# every preset answers to the mod wheel; unison modes, stacks and dual warps where they help the sound
+nsk.mod("mod_wheel", ("depth", "tremA"), 0.3).mod("mod_wheel", ("depth", "tremB"), -0.3)
+gp.p(oscA_uni_mode=UNI["Super"]).mod("mod_wheel", "f1_cutoff", 0.15)
+fg.p(oscA_uni_mode=UNI["Super"]).mod("mod_wheel", "reverb_shimmer", 0.35)
+us.mod("mod_wheel", "f1_cutoff", 0.15)
+tl.p(oscA_uni_mode=UNI["Super"], oscA_warp2_mode=WARP["Drive"], oscA_warp2_amt=0.25)
+cs.mod("mod_wheel", "noise_level", 0.12)
+dsb.p(oscA_warp_mode=WARP["Drive"], oscA_warp_amt=0.3).mod("mod_wheel", "f1_cutoff", 0.15)
+ss.p(oscA_uni_mode=UNI["Super"], oscA_uni_stack=STACK["Oct"]).mod("mod_wheel", "reverb_shimmer", 0.3)
+nw.p(oscA_uni_mode=UNI["Inv"]).mod("mod_wheel", "noise_level", 0.15)
+vk.mod("mod_wheel", "dist_bits", -0.3)
+tp.mod("mod_wheel", "env1_decay", 0.25)
+hp.p(oscA_uni_mode=UNI["Super"]).mod("mod_wheel", ("depth", "motion"), 0.3)
+bsb.p(oscA_warp_mode=WARP["FMOther"], oscA_warp_amt=0.15, oscA_warp2_mode=WARP["Drive"], oscA_warp2_amt=0.35,
+      oscA_unison=3, oscA_detune=0.06, oscA_uni_stack=STACK["C12"], oscA_spread=0.3)
+bsb.mod("mod_wheel", "oscA_warp_amt", 0.4)
+tck.mod("mod_wheel", "f1_cutoff", -0.15)
+sm.mod("mod_wheel", "f1_cutoff", 0.12)
+gs.p(oscA_warp_mode=WARP["Drive"], oscA_warp_amt=0.25).mod("mod_wheel", "dist_mix", 0.5)
+lfb.mod("mod_wheel", "f1_reso", 0.3)
+rh.p(oscA_unison=4, oscA_detune=0.1, oscA_uni_mode=UNI["Super"]).mod("mod_wheel", ("depth", "motion"), 0.15)
+bc.mod("mod_wheel", "lfo1_rate", 0.25)
+bs.p(oscA_uni_mode=UNI["Super"], oscA_warp2_mode=WARP["Drive"], oscA_warp2_amt=0.2, lfo2_rate=5.2, lfo2_delay=0.3, lfo2_fade=0.5)
+bs.mod("lfo2", "voice_pitch", 0.12 * ST, aux="mod_wheel")
+ha.mod("mod_wheel", "f1_cutoff", 0.2)
+da.mod("mod_wheel", "reverb_shimmer", 0.3)
+kd.mod("mod_wheel", "oscA_wt_pos", 0.3)
+fd.p(oscA_uni_mode=UNI["Random"]).mod("mod_wheel", "f1_cutoff", 0.2)
+po.p(rotary_mw=1.0)
+init_mw = None
 
 os.makedirs(OUT, exist_ok=True)
 for f in os.listdir(OUT):

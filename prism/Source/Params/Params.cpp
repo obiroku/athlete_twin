@@ -272,7 +272,7 @@ std::vector<ParamDef> buildDefs()
 
     // ---- Oscillators
     const std::vector<std::string> warpChoices { "None", "Sync", "Bend+", "Bend-", "Bend+/-", "PWM", "Mirror", "Asym+", "Asym-",
-                                                 "Quantize", "Remap", "FM (Other)", "FM (Sub)", "AM", "RM" };
+                                                 "Quantize", "Remap", "FM (Other)", "FM (Sub)", "AM", "RM", "Flip", "Drive", "Fold" };
     for (int o = 0; o < 2; ++o)
     {
         const std::string p = o == 0 ? "oscA_" : "oscB_";
@@ -295,6 +295,12 @@ std::vector<ParamDef> buildDefs()
         B.f (p + "spread", n + "Stereo Spread", 0.0f, 1.0f, 0.6f, Unit::Percent);
         B.f (p + "wt_spread", n + "Unison WT Spread", 0.0f, 1.0f, 0.0f, Unit::Percent);
         B.c (p + "dest", n + "Destination", destChoices, 0);
+        // second warp (applied after the first), unison engine
+        B.c (p + "warp2_mode", n + "Warp 2 Mode", warpChoices, 0);
+        B.f (p + "warp2_amt", n + "Warp 2 Amount", 0.0f, 1.0f, 0.0f, Unit::Percent).fast = true;
+        B.c (p + "uni_mode", n + "Unison Mode", { "Linear", "Super", "Exp", "Inv", "Random" }, 0);
+        B.c (p + "uni_stack", n + "Unison Stack", { "Off", "+12", "+12/+7", "Center -12", "Center -24" }, 0);
+        B.fs (p + "uni_range", n + "Unison Range", 0.1f, 24.0f, 1.0f, 2.0f, Unit::Semitones);
     }
     assert ((int) B.defs.size() == P::SubBase);
 
@@ -315,7 +321,7 @@ std::vector<ParamDef> buildDefs()
     assert ((int) B.defs.size() == P::FiltBase);
 
     const std::vector<std::string> filterChoices { "LP12", "LP24", "HP12", "HP24", "BP12", "BP24", "Notch", "Peak",
-                                                   "Comb+", "Comb-", "Ladder", "Diode", "Formant" };
+                                                   "Comb+", "Comb-", "Ladder", "Diode", "Formant", "LP6", "DJ", "Diffuser" };
     for (int f = 0; f < 2; ++f)
     {
         const std::string p = f == 0 ? "f1_" : "f2_";

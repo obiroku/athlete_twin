@@ -39,7 +39,7 @@ static double nonHarmonicDb (const float* x, int n, double sr, double f0)
 
 TEST_CASE ("Warp aliasing at Eco / High / Ultra (report)", "[phase3][warp]")
 {
-    const char* names[] = { "None", "Sync", "Bend+", "Bend-", "Bend+/-", "PWM", "Mirror", "Asym+", "Asym-", "Quantize", "Remap", "FM (Other)", "FM (Sub)", "AM", "RM" };
+    const char* names[] = { "None", "Sync", "Bend+", "Bend-", "Bend+/-", "PWM", "Mirror", "Asym+", "Asym-", "Quantize", "Remap", "FM (Other)", "FM (Sub)", "AM", "RM", "Flip", "Drive", "Fold" };
     const int note = 84; // C6 in Logic naming (1046.5 Hz)
     std::printf ("\n  Warp aliasing below 20 kHz, saw (Saw Sweep pos 1), MIDI %d, warp 50%%, 48 kHz\n  %-11s %8s %8s %8s\n", note, "Mode", "Eco", "High", "Ultra");
     int highFails = 0, ultraFails = 0;

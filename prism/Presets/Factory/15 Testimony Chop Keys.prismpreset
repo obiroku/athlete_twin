@@ -63,6 +63,7 @@
     "mod06_depth": 0.4,
     "mod07_depth": 0.3,
     "mod08_depth": 0.35,
+    "mod09_depth": -0.15,
     "dist_on": 1.0,
     "tape_on": 0.0,
     "dim_on": 0.0,
@@ -75,7 +76,7 @@
     "comp_on": 0.0,
     "mb_on": 0.0,
     "eq_on": 0.0,
-    "master_vol": -7.03
+    "master_vol": -6.78
   },
   "mod_routings": [
     {
@@ -157,6 +158,16 @@
       "curve": 0.0,
       "bypass": false,
       "slot": 8
+    },
+    {
+      "source": "mod_wheel",
+      "dest": "f1_cutoff",
+      "depth": -0.15,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 9
     }
   ],
   "fx_order": [

@@ -42,6 +42,8 @@ private:
     Svf s1, s2;
     // ladder / diode
     float lad[4][2] {};
+    float dif[8][2] {}, difLast[2] {}, difA = 0, difFb = 0;
+    int djMode = 0;
     float G = 0, ladK = 0;
     double dio[2][4] {};
     double dioG = 0, dioK = 0;

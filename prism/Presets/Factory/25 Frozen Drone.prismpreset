@@ -50,6 +50,7 @@
     "macro2": 0.3,
     "macro3": 0.0,
     "macro4": 0.0,
+    "oscA_uni_mode": 4,
     "mod01_depth": 0.0,
     "mod02_depth": 0.1,
     "mod03_depth": 0.8,
@@ -59,6 +60,7 @@
     "mod07_depth": 0.3,
     "mod08_depth": -0.3,
     "mod09_depth": 1.0,
+    "mod10_depth": 0.2,
     "dist_on": 0.0,
     "tape_on": 0.0,
     "dim_on": 0.0,
@@ -71,7 +73,7 @@
     "comp_on": 0.0,
     "mb_on": 0.0,
     "eq_on": 0.0,
-    "master_vol": -1.64
+    "master_vol": -1.4
   },
   "mod_routings": [
     {
@@ -163,6 +165,16 @@
       "curve": 0.0,
       "bypass": false,
       "slot": 9
+    },
+    {
+      "source": "mod_wheel",
+      "dest": "f1_cutoff",
+      "depth": 0.2,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 10
     }
   ],
   "fx_order": [

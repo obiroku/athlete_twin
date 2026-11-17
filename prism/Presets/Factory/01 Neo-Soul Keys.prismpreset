@@ -74,6 +74,8 @@
     "mod12_depth": 0.5,
     "mod13_depth": 0.45,
     "mod14_depth": 0.3,
+    "mod15_depth": 0.3,
+    "mod16_depth": -0.3,
     "dist_on": 0.0,
     "tape_on": 1.0,
     "dim_on": 0.0,
@@ -86,7 +88,7 @@
     "comp_on": 0.0,
     "mb_on": 0.0,
     "eq_on": 0.0,
-    "master_vol": -11.1
+    "master_vol": -11.06
   },
   "mod_routings": [
     {
@@ -228,6 +230,26 @@
       "curve": 0.0,
       "bypass": false,
       "slot": 14
+    },
+    {
+      "source": "mod_wheel",
+      "dest": "mod05_depth",
+      "depth": 0.3,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 15
+    },
+    {
+      "source": "mod_wheel",
+      "dest": "mod06_depth",
+      "depth": -0.3,
+      "polarity": "native",
+      "aux": "none",
+      "curve": 0.0,
+      "bypass": false,
+      "slot": 16
     }
   ],
   "fx_order": [
