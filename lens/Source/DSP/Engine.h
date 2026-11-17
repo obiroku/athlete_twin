@@ -117,7 +117,7 @@ private:
     void updateAutoGain() noexcept;
     void processPiece (float* const* io, const float* const* sc, int numSc, int offset, int len) noexcept;
     void frontChunk (int offset, int len) noexcept;
-    void outputStage (float* const* io, int offset, int len) noexcept;
+    void outputStage (float* const* io, int offset, int off, int n) noexcept;
     void closeBuckets() noexcept;
     void publishStats() noexcept;
 

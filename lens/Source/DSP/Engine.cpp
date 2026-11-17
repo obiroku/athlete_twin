@@ -369,6 +369,12 @@ void Engine::processPiece (float* const* io, const float* const* sc, int numSc, 
         }
     }
 
+    // Linear Phase convolves the whole piece up front; everything else
+    // runs chunk by chunk on the 8-sample tick grid, so per-tick updates
+    // (auto-gain, solo filter) land on the same sample at any block size.
+    if (activeConfig.linearPhase)
+        lp->convolve (inL.data(), inR.data(), len);
+
     int pos = 0;
     while (pos < len)
     {
@@ -377,20 +383,20 @@ void Engine::processPiece (float* const* io, const float* const* sc, int numSc, 
         if (counter % tickInterval == 0)
             onTick();
         frontChunk (pos, n);
+
+        double* wl = wetL.data() + pos;
+        double* wr = wetR.data() + pos;
+        if (activeConfig.linearPhase)
+            lp->combine (wl, wr, pos, n, dynGain.data(), params);
+        if (earBand.isActive())
+            earBand.process (wl, wr, n, nullptr);
+        if (activeConfig.spectral)
+            spec->process (wl, wr, n, params);
+        outputStage (io, offset, pos, n);
+
         pos += n;
         counter += n;
     }
-
-    if (activeConfig.linearPhase)
-        lp->process (inL.data(), inR.data(), wetL.data(), wetR.data(), len, dynGain.data(), params);
-
-    if (earBand.isActive())
-        earBand.process (wetL.data(), wetR.data(), len, nullptr);
-
-    if (activeConfig.spectral)
-        spec->process (wetL.data(), wetR.data(), len, params);
-
-    outputStage (io, offset, len);
 }
 
 void Engine::frontChunk (int off, int n) noexcept
@@ -465,11 +471,11 @@ void Engine::frontChunk (int off, int n) noexcept
     }
 }
 
-void Engine::outputStage (float* const* io, int offset, int len) noexcept
+void Engine::outputStage (float* const* io, int offset, int off, int n) noexcept
 {
     const bool stereo = channels > 1;
 
-    for (int i = 0; i < len; ++i)
+    for (int i = off; i < off + n; ++i)
     {
         double wl = wetL[(size_t) i], wr = wetR[(size_t) i];
 
@@ -506,12 +512,12 @@ void Engine::outputStage (float* const* io, int offset, int len) noexcept
     }
 
     if (activeConfig.warm)
-        warm->process (wetL.data(), wetR.data(), len);
+        warm->process (wetL.data() + off, wetR.data() + off, n);
 
-    float post[512];
+    float post[tickInterval];
     int postCount = 0;
 
-    for (int i = 0; i < len; ++i)
+    for (int i = off; i < off + n; ++i)
     {
         const double b = bypassMix.next();
         const double s = swapMix.next();
@@ -551,14 +557,8 @@ void Engine::outputStage (float* const* io, int offset, int len) noexcept
         blockOutPeak = std::max (blockOutPeak, (float) std::max (std::abs (yl), stereo ? std::abs (yr) : 0.0));
 
         post[postCount++] = (float) (stereo ? 0.5 * (yl + yr) : yl);
-        if (postCount == 512)
-        {
-            postFifo.push (post, postCount);
-            postCount = 0;
-        }
     }
-    if (postCount > 0)
-        postFifo.push (post, postCount);
+    postFifo.push (post, postCount);
 }
 
 void Engine::publishStats() noexcept
