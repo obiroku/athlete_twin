@@ -189,6 +189,7 @@ void LensProcessor::process (juce::AudioBuffer<float>& buffer, bool forceBypass)
     if (forceBypass)
         blockParams.global.bypass = true;
 
+    engine.setNonRealtime (isNonRealtime());
     engine.setSoloBand (soloBand.load (std::memory_order_relaxed));
     engine.setListenBand (listenBand.load (std::memory_order_relaxed));
     engine.setEarBand (earTrainer.on.load(), earTrainer.freq.load(), earTrainer.gainDb.load(), earTrainer.q.load());

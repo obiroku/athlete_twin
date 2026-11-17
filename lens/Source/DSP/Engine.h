@@ -57,6 +57,9 @@ public:
     // Block start: latest parameters. The first call after prepare snaps.
     void setParams (const EngineParams&) noexcept;
 
+    // The host renders offline (faster than real time).
+    void setNonRealtime (bool b) noexcept { nonRealtime = b; }
+
     // UI state (not parameters): -1 for none.
     void setSoloBand (int band) noexcept { soloRequest = band; }
     void setListenBand (int band) noexcept { listenRequest = band; }
@@ -125,6 +128,7 @@ private:
     int channels = 2;
     int maxBlock = 512;
     bool prepared = false;
+    bool nonRealtime = false;
     bool snapNext = true;
     long long counter = 0;
 
@@ -173,6 +177,8 @@ private:
     LatencyState latState = LatRunning;
     Ramp latencyGain;
     int activeLookahead = 0;
+    bool lpWaiting = false;
+    int lpWaitSamples = 0;
 
     DelayLineD lookaheadDelay[2];
     DelayLine dryDelay[2];

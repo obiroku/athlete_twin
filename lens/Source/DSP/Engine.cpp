@@ -81,7 +81,7 @@ void Engine::prepare (double sampleRate, int maxBlockSize, int numChannels, int 
     warm->prepare (fs, maxBlock, channels);
 
     const int maxLookahead = (int) std::lround (0.010 * fs);
-    const int maxLatency = linearPhaseTaps (LpResolution::High, fs) / 2 + spectralFrameSize() + 64 + maxLookahead;
+    const int maxLatency = LinearPhaseEngine::latencyFor (linearPhaseTaps (LpResolution::High, fs)) + spectralFrameSize() + 64 + maxLookahead;
     for (auto& d : lookaheadDelay)
         d.prepare (maxLookahead + 1);
     for (auto& d : dryDelay)
@@ -98,8 +98,11 @@ void Engine::prepare (double sampleRate, int maxBlockSize, int numChannels, int 
     snapNext = true;
     prepared = true;
 
-    // Settle on the current parameters right away so latency is known.
+    // Settle on the current parameters right away so latency is known,
+    // and have Linear Phase kernels active for the very first block.
     setParams (params);
+    lp->prepareKernels (params);
+    lpWaiting = false;
 }
 
 Engine::LatencyConfig Engine::configFor (const EngineParams& p) const noexcept
@@ -117,7 +120,7 @@ Engine::LatencyConfig Engine::configFor (const EngineParams& p) const noexcept
 
 int Engine::latencyOf (const LatencyConfig& c) const noexcept
 {
-    int l = c.linearPhase ? linearPhaseTaps (c.resolution, fs) / 2 : c.lookahead;
+    int l = c.linearPhase ? LinearPhaseEngine::latencyFor (linearPhaseTaps (c.resolution, fs)) : c.lookahead;
     if (c.spectral)
         l += spectralFrameSize();
     if (c.warm)
@@ -139,6 +142,8 @@ void Engine::applyLatencyConfig (const LatencyConfig& c) noexcept
         d.clear();
     for (auto& d : dryDelay)
         d.clear();
+    lp->setResolution (c.resolution);
+    lp->setLookahead (c.lookahead);
     lp->reset();
     spec->reset();
     warm->reset();
@@ -218,7 +223,7 @@ void Engine::setParams (const EngineParams& p) noexcept
     earBand.setParams (earParams, snapNext);
 
     if (want.linearPhase)
-        lp->pushParams (p);
+        lp->pushParams (p, nonRealtime);
 
     const auto& g = p.global;
     if (snapNext)
@@ -351,7 +356,20 @@ void Engine::processPiece (float* const* io, const float* const* sc, int numSc, 
     {
         applyLatencyConfig (wantedConfig);
         latState = LatFadeIn;
-        latencyGain.setTarget (1.0, fadeLen20);
+        // Linear Phase: stay silent until its kernels are live (max 1 s).
+        lpWaiting = activeConfig.linearPhase;
+        lpWaitSamples = 0;
+        if (! lpWaiting)
+            latencyGain.setTarget (1.0, fadeLen20);
+    }
+    if (lpWaiting)
+    {
+        lpWaitSamples += len;
+        if (lp->ready() || lpWaitSamples > (int) fs)
+        {
+            lpWaiting = false;
+            latencyGain.setTarget (1.0, fadeLen20);
+        }
     }
 
     for (int i = 0; i < len; ++i)
@@ -534,7 +552,7 @@ void Engine::outputStage (float* const* io, int offset, int off, int n) noexcept
         const double wetAmount = (1.0 - b) * (1.0 - s);
         const double dl = dryL[(size_t) i], dr = dryR[(size_t) i];
         const double lg = latencyGain.next();
-        if (latState == LatFadeIn && ! latencyGain.isMoving())
+        if (latState == LatFadeIn && ! lpWaiting && ! latencyGain.isMoving())
             latState = LatRunning;
 
         double yl = wetL[(size_t) i], yr = wetR[(size_t) i];

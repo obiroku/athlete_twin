@@ -311,11 +311,10 @@ BandDesign designBand (Shape shape, double freq, double gainDb, double q, int sl
         case Shape::Bell:
         case Shape::LowShelf:
         case Shape::HighShelf:
-            if (std::abs (gainDb) > 1.0e-9)
-            {
-                d.numSvf = 1;
-                d.svf[0] = gainSection (shape, fc, q, A, fs);
-            }
+            // Always one section, even at 0 dB (where it is an exact
+            // identity): a dynamic band modulates this section.
+            d.numSvf = 1;
+            d.svf[0] = gainSection (shape, fc, q, A, fs);
             break;
 
         case Shape::Notch:

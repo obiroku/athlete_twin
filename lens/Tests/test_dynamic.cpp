@@ -62,6 +62,26 @@ TEST_CASE ("Gain computer: steady tones give the SPEC formula's gain within 0.5 
     }
 }
 
+TEST_CASE ("Dynamic bands with 0 dB static gain still move (factory presets rely on this)", "[dyn][gain]")
+{
+    const double fs = 48000.0;
+    for (int shape : { 0, 1, 2 })
+    {
+        const double amp = std::pow (10.0, -10.0 / 20.0) * std::sqrt (2.0);
+        const float f = shape == 1 ? 60.0f : (shape == 2 ? 8000.0f : 1000.0f);
+        const auto tone = makeSine (2, (int) fs, fs, shape == 1 ? 40.0 : (shape == 2 ? 12000.0 : 1000.0), (float) amp);
+        lens::LensProcessor proc;
+        setBand (proc, 1, { shape, f, 0.0f, 1.0f });
+        setDyn (proc, 1, { 0, -6.0f, -30.0f, 3.0f, 5.0f, 50.0f });
+        setParam (proc, "auto_gain", 0.0f);
+        const auto out = render (proc, tone, opts());
+        const double freq = shape == 1 ? 40.0 : (shape == 2 ? 12000.0 : 1000.0);
+        const double applied = 20.0 * std::log10 (sineAmplitude (out.getReadPointer (0), (int) fs / 2, (int) fs / 2, fs, freq) / amp);
+        INFO ("shape " << shape << ": applied " << applied << " dB");
+        REQUIRE (applied < -4.0);
+    }
+}
+
 TEST_CASE ("Timing: a level step reaches 63% of its gain change within 10% of attack and release", "[dyn][timing]")
 {
     const double fs = 48000.0;

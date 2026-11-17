@@ -84,25 +84,29 @@ int main (int argc, char* argv[])
     {
         lens::LensProcessor proc;
         sc.setup (proc);
-        RenderOptions opts;
-        opts.sampleRate = sampleRate;
-        opts.blockPattern = { blockSize };
-        // Let any background kernel build finish before timing.
-        opts.beforeBlock = [&proc] (juce::int64 pos)
+        proc.setPlayConfigDetails (2, 2, sampleRate, blockSize);
+        proc.prepareToPlay (sampleRate, blockSize);
+        juce::AudioBuffer<float> block (4, blockSize);
+        juce::MidiBuffer midi;
+        auto runAll = [&]
         {
-            if (pos == 0)
-                juce::Thread::sleep (300);
+            for (int pos = 0; pos + blockSize <= numSamples; pos += blockSize)
+            {
+                block.clear();
+                block.copyFrom (0, 0, input, 0, pos, blockSize);
+                block.copyFrom (1, 0, input, 1, pos, blockSize);
+                proc.processBlock (block, midi);
+            }
         };
-
-        (void) render (proc, input, opts); // warm-up
-        opts.beforeBlock = {};
+        runAll(); // warm-up (and let Linear Phase kernels settle)
+        juce::Thread::sleep (200);
 
         const auto t0 = std::chrono::steady_clock::now();
-        const auto out = render (proc, input, opts);
+        runAll();
         const auto t1 = std::chrono::steady_clock::now();
-
+        const int processed = (numSamples / blockSize) * blockSize;
         const double elapsed = std::chrono::duration<double> (t1 - t0).count();
-        const double audio = (double) out.getNumSamples() / sampleRate;
+        const double audio = (double) processed / sampleRate;
         const double pct = 100.0 * elapsed / audio;
         const bool ok = sc.budgetPercent <= 0.0 || pct < sc.budgetPercent;
         allPass = allPass && ok;
@@ -135,6 +139,6 @@ int main (int argc, char* argv[])
     }
 #endif
 
-    std::printf ("\nTimings include the test harness's buffer copies. %s\n", allPass ? "All budgets met." : "Some budgets missed.");
+    std::printf ("\nTimings cover processBlock only (plus a buffer copy per block). %s\n", allPass ? "All budgets met." : "Some budgets missed.");
     return 0;
 }
