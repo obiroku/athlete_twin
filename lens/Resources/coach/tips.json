@@ -1,0 +1,107 @@
+[
+ {
+  "id": "tip_big_boost",
+  "when": "any static boost > +8 dB",
+  "text": "That's a big boost. Big boosts usually mean something else is covering this sound. Try +2 to +4 dB, or cut the competing track instead."
+ },
+ {
+  "id": "tip_narrow_boost",
+  "when": "a Bell boost with Q > 6",
+  "text": "Narrow boosts tend to whistle. Rule of thumb: cut narrow to fix problems, boost wide to shape tone."
+ },
+ {
+  "id": "tip_louder_trap",
+  "when": "auto-gain off and output short-term loudness differs from input by more than 1.5 LU for 3 s",
+  "text": "LENS is making this {louder|quieter} by {x} dB. Louder almost always sounds better to our ears, which fools us. Turn on auto-gain to judge honestly."
+ },
+ {
+  "id": "tip_solo_long",
+  "when": "any band solo or detector Listen on for more than 15 s",
+  "text": "Solo is for finding a problem. Judge the fix with solo off, with the whole mix playing."
+ },
+ {
+  "id": "tip_dyn_never",
+  "when": "a dynamic band at 0% activity for 10 s while input is above −50 dBFS",
+  "text": "Band {n} isn't moving. The threshold is above anything it hears. Lower the threshold, or press Learn while the track plays."
+ },
+ {
+  "id": "tip_dyn_always",
+  "when": "a dynamic band above 90% activity for 10 s",
+  "text": "Band {n} is moving almost all the time, so it's acting like a normal EQ. Raise the threshold so it only catches the loud moments, or make it a static band."
+ },
+ {
+  "id": "tip_lowcut_bass",
+  "when": "track type Bass or Kick & Drums, and a Low Cut above 45 Hz",
+  "text": "That low cut is removing real bass. On bass and kick, cut only below the lowest note. A low E on bass is about 41 Hz; a five-string's low B is about 31 Hz."
+ },
+ {
+  "id": "tip_lowcut_master",
+  "when": "track type Master, and a Low Cut above 35 Hz or steeper than 24 dB/oct",
+  "text": "On the master, low cuts above about 30 Hz thin out the whole song. Keep master cuts low and gentle."
+ },
+ {
+  "id": "tip_master_big",
+  "when": "track type Master, and any static band beyond ±3 dB",
+  "text": "Mastering moves are usually small: 0.5 to 2 dB. If you need more, the fix probably belongs in the mix."
+ },
+ {
+  "id": "tip_clip",
+  "when": "output peak above 0 dBFS",
+  "text": "The output is clipping. Turn output gain down, or turn on auto-gain."
+ },
+ {
+  "id": "tip_lp_punch",
+  "when": "Linear Phase on with track type Bass or Kick & Drums",
+  "text": "Linear Phase can soften punch with pre-ringing: a faint swell just before each hit. Zero Latency usually sounds punchier on bass and drums."
+ },
+ {
+  "id": "tip_lp_latency",
+  "when": "the first time Linear Phase is switched on in a session",
+  "text": "Linear Phase delays the audio by {ms} ms. Logic lines it up during playback, but don't record through it. If timing seems off, stop and restart playback."
+ },
+ {
+  "id": "tip_low_release",
+  "when": "a dynamic band below 150 Hz with release under 50 ms",
+  "text": "A fast release on low frequencies can flutter or distort, because one bass wave lasts longer than that. Try 80–200 ms."
+ },
+ {
+  "id": "tip_sc_missing",
+  "when": "a band uses External detection and no side-chain signal arrives for 5 s while playing",
+  "text": "This band listens to a side-chain, but nothing is arriving. In Logic, pick a track in the Side Chain menu at the top of the plugin window."
+ },
+ {
+  "id": "tip_many_bands",
+  "when": "more than 10 bands on",
+  "text": "That's a lot of bands. Try bypassing each one. If you can't hear the difference in the mix, delete it."
+ },
+ {
+  "id": "tip_stacked",
+  "when": "two boosting bands within 1/3 octave of each other",
+  "text": "Two bands are boosting the same area. One band can do the job."
+ },
+ {
+  "id": "tip_sibilance_attack",
+  "when": "track type Vocal or Choir & Vocal Bus, a dynamic band between 4 and 10 kHz with attack over 10 ms",
+  "text": "S sounds are over in a few milliseconds. For de-essing, an attack of 0.5–3 ms catches them."
+ },
+ {
+  "id": "tip_mono_side",
+  "when": "a Side band on, and side level more than 40 dB below mid for 5 s",
+  "text": "This track is basically mono, so Side bands have nothing to work on."
+ },
+ {
+  "id": "tip_shelf_q",
+  "when": "a boosting shelf with Q above 1.5",
+  "text": "A high-Q shelf adds a bump near its corner. For smooth air or warmth, keep shelf Q around 0.5–0.8."
+ },
+ {
+  "id": "tip_try_delta",
+  "when": "the first dynamic band of a session",
+  "text": "Try Delta: you'll hear only what LENS is taking out. If you hear the music itself instead of the problem, you're cutting too much."
+ },
+ {
+  "id": "tip_master_order",
+  "when": "track type Master, the first time in a session",
+  "text": "LENS goes before your limiter on the master. EQ first, then limit."
+ }
+]

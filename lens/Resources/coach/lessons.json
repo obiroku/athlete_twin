@@ -1,0 +1,134 @@
+[
+ {
+  "id": "les_band",
+  "title": "What an EQ band does",
+  "text": "An EQ band turns up or down one part of the sound. Frequency is where: low numbers are deep (bass), high numbers are bright (cymbals, S's). Gain is how much, in decibels: +3 dB is a clear change, +1 dB is subtle. Q is how wide: low Q is a gentle hill over a big area, high Q is a needle. Most good EQ is a few small moves, not many big ones.",
+  "tryIt": "adds a Bell at 1 kHz."
+ },
+ {
+  "id": "les_zones",
+  "title": "Where sounds live",
+  "text": "Every sound spreads across many frequencies, but each area has a character. Lows give weight, low mids can get muddy when many instruments pile up there, upper mids carry clarity and harshness, and the very top is air. The zone strip under the display labels these for your track type. They're rough guides: always confirm with your ears.",
+  "tryIt": ""
+ },
+ {
+  "id": "les_cut_boost",
+  "title": "Cut narrow, boost wide",
+  "text": "Problems are usually narrow: one ringing frequency, one boomy note. Fix those with narrower cuts. Tone is broad: warmth, presence, air. Shape it with wide, gentle boosts. Cutting what's in the way often works better than boosting what you want: cut mud on the guitars before you boost the vocal.",
+  "tryIt": ""
+ },
+ {
+  "id": "les_sweep",
+  "title": "Finding a problem by sweeping",
+  "text": "Boost a narrow band a lot (+10 dB), sweep it slowly, and the problem frequency will jump out. Then turn the boost into a cut. One warning: almost everything sounds bad with a huge narrow boost, so don't cut every spot that sounds bad while sweeping. Only cut what bothered you before you started sweeping. Peak markers can save you the sweep.",
+  "tryIt": "adds a +10 dB narrow Bell to sweep."
+ },
+ {
+  "id": "les_static_dynamic",
+  "title": "Static or dynamic?",
+  "text": "A static band does the same thing all the time. Use it when a problem is always there, like constant mud. A dynamic band only moves when the sound crosses a threshold. Use it when a problem comes and goes: one note that booms, a singer who gets harsh only when belting, S's. A dynamic band leaves the good moments alone, which is why it sounds more natural.",
+  "tryIt": ""
+ },
+ {
+  "id": "les_four_moves",
+  "title": "The four dynamic moves",
+  "text": "Dynamic bands can do four things:\n1. Cut when loud: tames harshness, boomy notes, S's. The most useful.\n2. Boost when loud: adds snap to hits that are already strong.\n3. Boost when quiet: lifts detail when a part gets soft.\n4. Cut when quiet: cleans up mud or noise between notes.\nMode picks loud (Above) or quiet (Below). Range picks cut (negative) or boost (positive).",
+  "tryIt": ""
+ },
+ {
+  "id": "les_threshold",
+  "title": "Threshold and Learn",
+  "text": "The threshold is the level where the band starts moving. Too high and it never moves; too low and it moves all the time, like a normal EQ. Press Learn while the track plays and LENS sets it to act about 20% of the time. Then watch activity: 10–40% usually means it's catching the problem moments and leaving the rest alone.",
+  "tryIt": ""
+ },
+ {
+  "id": "les_timing",
+  "title": "Attack and release",
+  "text": "Attack is how fast the band reacts; release is how fast it lets go. Fast sounds need fast attack; low frequencies need slower release. Starting points:\n- S's and T's: attack 0.5–3 ms, release 30–80 ms\n- Harsh hits at 2–5 kHz: attack 2–10 ms, release 50–150 ms\n- Vocal chest boom: attack 5–15 ms, release 80–150 ms\n- Boomy bass notes: attack 5–20 ms, release 80–250 ms\n- Kick ducking the bass: attack 0.5–3 ms, release 80–150 ms\n- Vocal ducking guitars or keys: attack 5–20 ms, release 150–300 ms\n- Master low end: attack 10–30 ms, release 100–300 ms\nIf it pumps or flutters, slow the release.",
+  "tryIt": ""
+ },
+ {
+  "id": "les_detector",
+  "title": "What the band listens to",
+  "text": "The detector decides when a dynamic band moves. By default it listens to the same area the band changes. With Custom, you can make it listen somewhere else: for example, cut at 7 kHz but only listen to 5–10 kHz, so a loud low note doesn't set it off. Press Listen to hear exactly what the detector hears. If Listen sounds like the problem, you've aimed it right.",
+  "tryIt": ""
+ },
+ {
+  "id": "les_sidechain",
+  "title": "One track controls another",
+  "text": "With the detector set to External, a band reacts to a different track: the one you pick in Logic's Side Chain menu. Two classics: the kick dips the bass's low end on each hit, so they stop fighting; the vocal dips the guitars' 2–3 kHz while the singer sings, so the words read clearly. Small ranges (−2 to −5 dB) sound natural; big ones sound like ducking.",
+  "tryIt": ""
+ },
+ {
+  "id": "les_lowcut",
+  "title": "Low cuts: when and how much",
+  "text": "Many tracks carry rumble below the music: handling noise, room noise, low hum. A low cut clears it and frees headroom. Set it just below the lowest note you want: vocals around 80–120 Hz, guitars around 80–120 Hz, keys depend on the part. Bass and kick need their lows, so cut only below the lowest note. On the master, stay at 20–30 Hz. Always check in the full mix: a track can sound thin alone and right in context.",
+  "tryIt": ""
+ },
+ {
+  "id": "les_louder",
+  "title": "Louder isn't better (but it sounds like it)",
+  "text": "Our ears hear a slightly louder version as better, every time. So any boost seems like an improvement, even when it isn't. Auto-gain keeps the level steady so you hear only the tone change. Keep it on while deciding, and check the loudness difference in CHECK. A/B lets you compare two whole setups.",
+  "tryIt": ""
+ },
+ {
+  "id": "les_midside",
+  "title": "Mid and Side",
+  "text": "Mid is what's in the center: usually vocal, kick, bass, snare. Side is what's different between left and right: width, room, wide guitars, reverb. EQing them separately lets you, for example, cut low end only from the sides so bass stays centered and solid, or add air only to the sides for width without making the vocal sharper.",
+  "tryIt": ""
+ },
+ {
+  "id": "les_phase_modes",
+  "title": "Zero Latency or Linear Phase?",
+  "text": "Every normal EQ slightly shifts the timing of the frequencies it changes. Usually you can't hear it. Zero Latency is the normal kind: no delay, punchy, right for recording and most mixing. Linear Phase keeps all frequencies in time, but delays the audio and can add pre-ringing: a soft swell just before sharp hits. It's best for mastering and for big moves on full mixes or buses.",
+  "tryIt": ""
+ },
+ {
+  "id": "les_master",
+  "title": "EQ on the master",
+  "text": "Mastering EQ is about balance, not fixing single instruments. Moves are small (0.5–2 dB) and broad. If you need big moves, go back to the mix. Put LENS before the limiter. Compare to a song you love in the same style at matched loudness. Most streaming services turn loud songs down to around −14 to −16 LUFS, so crushing a master louder won't make it sound louder there. Check on several systems before you call it done.",
+  "tryIt": ""
+ },
+ {
+  "id": "les_order",
+  "title": "A mixing order that works",
+  "text": "1. Set fader levels and panning first, with no EQ.\n2. Clean each track: low cuts, obvious mud and ringing.\n3. Control: dynamic bands on problems that come and go.\n4. Make room: cut the things fighting each other, or side-chain them.\n5. Shape: gentle boosts for tone.\n6. Check everything in the full mix, at a moderate volume, with breaks. Tired ears love treble.",
+  "tryIt": ""
+ },
+ {
+  "id": "les_bass",
+  "title": "Upright and electric bass",
+  "text": "Upright bass booms on certain notes, often from the room or the body (around 100–200 Hz). A dynamic cut there evens it out without thinning the instrument. The wood and finger sound lives around 600 Hz–1.5 kHz; a little boost helps it speak in a mix. Electric bass growl is often around 700 Hz–1 kHz and clank around 1.5–3 kHz. Notes that jump out are the classic dynamic-EQ job. Keep the lows: cut only below the lowest note.",
+  "tryIt": ""
+ },
+ {
+  "id": "les_vocals",
+  "title": "Gospel vocals and choirs",
+  "text": "Gospel singers move from soft to full-voice belting. Harshness often appears only on the belts (around 2–4 kHz), so a dynamic cut fixes the loud moments and leaves the soft ones warm. Chest boom (100–250 Hz) comes and goes with distance from the mic. S's live around 5–9 kHz. Stacked choirs pile up mud (200–500 Hz) and harshness: low-cut each voice a little higher than you would a lead, and control the stack with gentle dynamic bands.",
+  "tryIt": ""
+ },
+ {
+  "id": "les_keys",
+  "title": "Neo-soul keys",
+  "text": "Electric piano barks when played hard (roughly 1–3 kHz). That's part of the sound, but a dynamic cut keeps hard hits from poking out. Body lives around 150–300 Hz; mud builds right above it, especially with bass playing. A gentle shelf above about 4 kHz adds shimmer.",
+  "tryIt": ""
+ },
+ {
+  "id": "les_guitars",
+  "title": "Folk-gaze and shoegaze guitars",
+  "text": "Big guitar walls fill everything. The usual moves: a low cut so they stay out of the bass, a cut at 200–400 Hz for mud, control fizz at 4–8 kHz, and a vocal pocket at 2–3 kHz, side-chained to the vocal so the wall stays big when no one is singing. Acoustic guitars often boom at 100–200 Hz and get boxy around 300–600 Hz.",
+  "tryIt": ""
+ },
+ {
+  "id": "les_reference",
+  "title": "Using a reference",
+  "text": "A reference is a finished song you love in a similar style. Match its loudness to yours, then compare the overall balance: is yours darker, thinner, muddier? EQ Match shows the difference as a curve and suggests broad bands. Take them as hints, not orders: a different arrangement should sound different.",
+  "tryIt": ""
+ },
+ {
+  "id": "les_ear",
+  "title": "Training your ears",
+  "text": "The fastest way to get good at EQ is to name frequencies by ear. The ear trainer boosts or cuts a hidden band on your own music and you guess where it is. A few minutes a day for a few weeks makes a real difference. ---",
+  "tryIt": ""
+ }
+]

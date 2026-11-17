@@ -1,0 +1,40 @@
+{
+ "levels": [
+  {
+   "level": 1,
+   "band": "Bell +12 dB, Q 1.5",
+   "choices": "125 Hz, 500 Hz, 2 kHz, 8 kHz",
+   "pass": "8 of 10"
+  },
+  {
+   "level": 2,
+   "band": "Bell +9 dB, Q 1.5",
+   "choices": "octaves 63 Hz–8 kHz (8 choices)",
+   "pass": "8 of 10"
+  },
+  {
+   "level": 3,
+   "band": "Bell +6 dB, Q 2",
+   "choices": "octaves 31 Hz–16 kHz (10 choices)",
+   "pass": "8 of 10"
+  },
+  {
+   "level": 4,
+   "band": "Bell −9 dB, Q 2",
+   "choices": "octaves 63 Hz–8 kHz (cuts)",
+   "pass": "8 of 10"
+  },
+  {
+   "level": 5,
+   "band": "Bell +6 dB, Q 4",
+   "choices": "third-octaves 63 Hz–10 kHz",
+   "pass": "within 1/3 octave, 7 of 10"
+  }
+ ],
+ "messages": {
+  "instructions": "Toggle the hidden band on and off, then click where you think it is.",
+  "right": "Right: {freq}.",
+  "wrong": "It was {freq}. You picked {guess}. Toggle again and listen for the difference.",
+  "level_up": "Level {n} unlocked."
+ }
+}

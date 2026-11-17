@@ -11,7 +11,8 @@
 namespace lens
 {
 class LensProcessor final : public juce::AudioProcessor,
-                            private juce::Timer
+                            private juce::Timer,
+                            private juce::AudioProcessorParameter::Listener
 {
 public:
     LensProcessor();
@@ -74,6 +75,14 @@ public:
     bool redo();
     state::EditHistory& history() noexcept { return editHistory; }
 
+    // ---- Band helpers (message thread, undoable).
+    int findFreeBand() const;
+    // Turns on a free slot with these values; returns its index or -1.
+    int addBand (const dsp::BandParams&, const juce::String& undoName = "Add band");
+    void removeBands (const juce::Array<int>& bands);
+    void setBandValue (int band, const char* suffix, float value);
+    float bandValue (int band, const char* suffix) const;
+
     // ---- A/B (message thread).
     void copyActiveToOther();
     void copyOtherToActive();
@@ -107,6 +116,8 @@ public:
 
 private:
     void timerCallback() override { serviceMessageThread(); }
+    void parameterValueChanged (int, float) override {}
+    void parameterGestureChanged (int index, bool starting) override;
     void process (juce::AudioBuffer<float>&, bool forceBypass) noexcept;
     int activeSlot() const;
     void requestSwap (const juce::var& bands, const juce::var& globals, const juce::String& undoName = {});

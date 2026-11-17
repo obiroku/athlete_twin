@@ -1,0 +1,6 @@
+{
+ "step_clean": "CLEAN: take out what doesn't belong. Rumble below the music, muddy buildup, ringing frequencies. Peak markers show likely problems. Cut, don't boost, in this step.",
+ "step_control": "CONTROL: fix things that only happen sometimes. A boomy note, a harsh hit, sharp S's. Make the band dynamic and press Learn.",
+ "step_shape": "SHAPE: now add tone. Broad, gentle boosts (Q under 1.5, +1 to +3 dB). If a boost needs more than +4 dB, something else is probably in the way.",
+ "step_check": "CHECK: keep auto-gain on, then flip bypass and A/B. Listen with the whole mix playing. If you can't hear a band doing anything useful, delete it."
+}

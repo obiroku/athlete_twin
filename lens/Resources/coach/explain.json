@@ -1,0 +1,50 @@
+{
+ "width": [
+  {
+   "min": 0,
+   "max": 0.7,
+   "text": "Very broad: a tone move."
+  },
+  {
+   "min": 0.7,
+   "max": 2,
+   "text": "Broad: musical shaping."
+  },
+  {
+   "min": 2,
+   "max": 6,
+   "text": "Focused."
+  },
+  {
+   "min": 6,
+   "max": 1000000000.0,
+   "text": "Very narrow: surgical, for one ringing frequency."
+  }
+ ],
+ "templates": {
+  "bell_boost": "Boosts {gain} around {freq} ({zone}). {width}",
+  "bell_cut": "Cuts {gain} around {freq} ({zone}). {width}",
+  "bell_zero": "Sits at 0 dB around {freq} ({zone}). Drag it up or down to hear what lives here.",
+  "lowshelf": "{Raises|Lowers} everything below about {freq} by {gain}.",
+  "highshelf": "{Raises|Lowers} everything above about {freq} by {gain}.",
+  "lowcut": "Removes everything below {freq}, at {slope} dB per octave.",
+  "highcut": "Removes everything above {freq}, at {slope} dB per octave.",
+  "notch": "Removes a thin slice at {freq}. Use it for hum or one ringing note.",
+  "bandpass": "Keeps only the region around {freq}. Mostly for effects or listening.",
+  "tilt": "Tilts the whole sound {brighter|darker} around {freq}: highs {up|down} {half} dB, lows {down|up} {half} dB.",
+  "allpass": "Shifts phase around {freq} without changing the level. An advanced tool; you usually won't need it.",
+  "dyn_above_cut": "Cuts up to {range} around {freq} ({zone}) when {detector} gets louder than {thresh} dB. Moving {activity}% of the time.",
+  "dyn_above_boost": "Boosts up to {range} around {freq} ({zone}) when {detector} gets louder than {thresh} dB. Moving {activity}% of the time.",
+  "dyn_below_boost": "Boosts up to {range} around {freq} ({zone}) when {detector} drops below {thresh} dB. Moving {activity}% of the time.",
+  "dyn_below_cut": "Cuts up to {range} around {freq} ({zone}) when {detector} drops below {thresh} dB. Moving {activity}% of the time.",
+  "stereo_suffix": " Only on the {Mid (center)|Side (edges)|Left|Right} channel.",
+  "detector_internal": "this frequency area",
+  "detector_custom": "{hp}–{lp} on this track",
+  "detector_external": "the side-chain track",
+  "shelf_dynamic_replace": "around {freq}",
+  "shelf_dynamic_low": "below {freq}",
+  "shelf_dynamic_high": "above {freq}",
+  "activity_none": " Not moving yet: the threshold may be too high.",
+  "activity_always": " Almost always moving: it's acting like a normal EQ."
+ }
+}

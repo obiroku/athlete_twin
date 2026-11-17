@@ -1,5 +1,6 @@
 #include "PluginProcessor.h"
 
+#include "GUI/Editor.h"
 #include "Params/Parameters.h"
 #include "State/StateIO.h"
 
@@ -16,6 +17,12 @@ LensProcessor::LensProcessor()
 {
     bypassParam = apvts.getParameter (params::id::bypass);
     jassert (bypassParam != nullptr);
+
+    // Gestures on band parameters (knobs, display drags, Learn) become
+    // undo steps.
+    for (int b = 1; b <= dsp::kNumBands; ++b)
+        for (const auto& suffix : params::bandSuffixes())
+            apvts.getParameter (params::bandParamId (b, suffix))->addListener (this);
     if (juce::MessageManager::getInstanceWithoutCreating() != nullptr)
         startTimerHz (30);
 }
@@ -23,6 +30,83 @@ LensProcessor::LensProcessor()
 LensProcessor::~LensProcessor()
 {
     stopTimer();
+    for (int b = 1; b <= dsp::kNumBands; ++b)
+        for (const auto& suffix : params::bandSuffixes())
+            apvts.getParameter (params::bandParamId (b, suffix))->removeListener (this);
+}
+
+void LensProcessor::parameterGestureChanged (int, bool starting)
+{
+    if (juce::MessageManager::getInstanceWithoutCreating() == nullptr || ! juce::MessageManager::existsAndIsCurrentThread())
+        return;
+    if (starting)
+        beginEdit();
+    else
+        endEdit ("Edit band");
+}
+
+int LensProcessor::findFreeBand() const
+{
+    for (int b = 1; b <= dsp::kNumBands; ++b)
+        if (apvts.getRawParameterValue (params::bandParamId (b, params::band::on))->load() < 0.5f)
+            return b - 1;
+    return -1;
+}
+
+void LensProcessor::setBandValue (int band, const char* suffix, float value)
+{
+    auto* p = apvts.getParameter (params::bandParamId (band + 1, suffix));
+    p->setValueNotifyingHost (p->convertTo0to1 (value));
+}
+
+float LensProcessor::bandValue (int band, const char* suffix) const
+{
+    return apvts.getRawParameterValue (params::bandParamId (band + 1, suffix))->load();
+}
+
+int LensProcessor::addBand (const dsp::BandParams& bp, const juce::String& undoName)
+{
+    const int b = findFreeBand();
+    if (b < 0)
+        return -1;
+    const auto before = getBands();
+    namespace pb = params::band;
+    // Reset the slot to defaults first, then apply.
+    for (const auto& suffix : params::bandSuffixes())
+    {
+        auto* p = apvts.getParameter (params::bandParamId (b + 1, suffix));
+        p->setValueNotifyingHost (p->getDefaultValue());
+    }
+    setBandValue (b, pb::shape, (float) (int) bp.shape);
+    setBandValue (b, pb::freq, bp.freq);
+    setBandValue (b, pb::gain, bp.gain);
+    setBandValue (b, pb::q, bp.q);
+    setBandValue (b, pb::slope, (float) bp.slope);
+    setBandValue (b, pb::stereo, (float) (int) bp.stereo);
+    if (bp.dynOn)
+    {
+        setBandValue (b, pb::dynMode, (float) (int) bp.dynMode);
+        setBandValue (b, pb::dynRange, bp.dynRange);
+        setBandValue (b, pb::dynThresh, bp.dynThresh);
+        setBandValue (b, pb::dynRatio, bp.dynRatio);
+        setBandValue (b, pb::dynAttack, bp.dynAttack);
+        setBandValue (b, pb::dynRelease, bp.dynRelease);
+        setBandValue (b, pb::dynOn, 1.0f);
+    }
+    setBandValue (b, pb::on, 1.0f);
+    editHistory.push (before, getBands(), undoName);
+    return b;
+}
+
+void LensProcessor::removeBands (const juce::Array<int>& bands)
+{
+    if (bands.isEmpty())
+        return;
+    const auto before = getBands();
+    for (int b : bands)
+        if (b >= 0 && b < dsp::kNumBands)
+            setBandValue (b, params::band::on, 0.0f);
+    editHistory.push (before, getBands(), "Delete band");
 }
 
 void LensProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
@@ -145,7 +229,7 @@ void LensProcessor::process (juce::AudioBuffer<float>& buffer, bool forceBypass)
 
 juce::AudioProcessorEditor* LensProcessor::createEditor()
 {
-    return new juce::GenericAudioProcessorEditor (*this);
+    return new gui::LensEditor (*this);
 }
 
 int LensProcessor::activeSlot() const
@@ -458,8 +542,7 @@ void LensProcessor::serviceLearn()
             auto* p = apvts.getParameter (params::bandParamId (b + 1, params::band::dynThresh));
             p->beginChangeGesture();
             p->setValueNotifyingHost (p->convertTo0to1 ((float) thresh));
-            p->endChangeGesture();
-            editHistory.push (learnBefore[(size_t) b], getBands(), "Learn");
+            p->endChangeGesture(); // the gesture records the undo step
         }
         det.learnState.store (dsp::Detector::LearnIdle);
         if (onLearnFinished)

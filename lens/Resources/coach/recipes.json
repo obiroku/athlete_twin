@@ -1,0 +1,326 @@
+[
+ {
+  "id": "rec_first_eq",
+  "title": "Your first EQ move",
+  "trackTypes": [
+   "all"
+  ],
+  "steps": [
+   {
+    "highlight": "",
+    "text": "Play the track. Double-click anywhere on the display to add a band.",
+    "check": "a band exists"
+   },
+   {
+    "highlight": "",
+    "text": "Drag the dot up. You're boosting that frequency. Drag it left and right while you listen: hear how the sound changes?",
+    "check": "the band's gain or frequency changed"
+   },
+   {
+    "highlight": "",
+    "text": "Scroll on the dot to change Q, the width. Narrow is focused, wide is gentle.",
+    "check": "Q changed"
+   },
+   {
+    "highlight": "bypass",
+    "text": "Click Bypass a few times to compare with and without.",
+    "check": "bypass toggled twice"
+   },
+   {
+    "highlight": "auto-gain",
+    "text": "Leave auto-gain on. It keeps the level the same, so you hear the tone change and not just a volume change.",
+    "check": "auto-gain on"
+   },
+   {
+    "highlight": "",
+    "text": "Done. Remember: small moves, judged in the full mix. Next, try a recipe for this track type.",
+    "check": ""
+   }
+  ]
+ },
+ {
+  "id": "rec_boomy_notes",
+  "title": "Even out boomy bass notes",
+  "trackTypes": [
+   "Bass"
+  ],
+  "steps": [
+   {
+    "highlight": "track type",
+    "text": "Set the track type to Bass.",
+    "check": "track type is Bass"
+   },
+   {
+    "highlight": "",
+    "text": "Play a part where some notes boom louder than others. Watch for a peak marker between 60 and 300 Hz.",
+    "check": "playing for 5 s"
+   },
+   {
+    "highlight": "",
+    "text": "Click the marker. No marker? Double-click near the boomy area to add a band, then drag it up a lot and sweep left and right until the boom jumps out. Then bring it back to 0.",
+    "check": "a band exists between 60 and 300 Hz"
+   },
+   {
+    "highlight": "dynamic",
+    "text": "Right-click the band and choose Make Dynamic. Set range to about −5 dB.",
+    "check": "that band is dynamic with negative range"
+   },
+   {
+    "highlight": "learn",
+    "text": "Press Learn and keep playing for 8 seconds.",
+    "check": "Learn finished"
+   },
+   {
+    "highlight": "attack/release",
+    "text": "Set attack around 10 ms and release around 120 ms. Low notes need slower times.",
+    "check": "attack 3–30 ms and release 60–300 ms"
+   },
+   {
+    "highlight": "",
+    "text": "Watch the activity number. Between 10 and 40% means it's catching only the boomy notes.",
+    "check": "activity between 10 and 40% for 5 s"
+   },
+   {
+    "highlight": "delta",
+    "text": "Turn on Delta for a moment. You should hear just the boom, not the whole bass. Turn it off.",
+    "check": "delta toggled on then off"
+   },
+   {
+    "highlight": "",
+    "text": "Now listen with the full mix and flip bypass. The bass should feel steadier, not thinner.",
+    "check": ""
+   }
+  ]
+ },
+ {
+  "id": "rec_deess",
+  "title": "Soften sharp S sounds",
+  "trackTypes": [
+   "Vocal",
+   "Choir & Vocal Bus"
+  ],
+  "steps": [
+   {
+    "highlight": "track type",
+    "text": "Set the track type to Vocal.",
+    "check": "track type is Vocal or Choir & Vocal Bus"
+   },
+   {
+    "highlight": "",
+    "text": "Add a band around 6 to 7 kHz. Make it dynamic, Q around 3, range −6 dB.",
+    "check": "a dynamic band between 4 and 10 kHz"
+   },
+   {
+    "highlight": "custom detector",
+    "text": "Turn on Custom detector and set it to 5 kHz–10 kHz, so it listens only to the S range.",
+    "check": "Custom on, HP 4–6 kHz, LP 8–12 kHz"
+   },
+   {
+    "highlight": "listen",
+    "text": "Press Listen. You'll hear what the detector hears: mostly S's. Move the band's frequency until the S's sound sharpest, then turn Listen off.",
+    "check": "Listen toggled on then off"
+   },
+   {
+    "highlight": "learn",
+    "text": "Press Learn while the singer sings.",
+    "check": "Learn finished"
+   },
+   {
+    "highlight": "attack/release",
+    "text": "Set attack 1 ms, release about 50 ms. S's are fast.",
+    "check": "attack ≤ 3 ms, release 30–100 ms"
+   },
+   {
+    "highlight": "delta",
+    "text": "Check with Delta: you should hear only S's and T's. If you hear words, reduce the range.",
+    "check": "delta toggled on then off"
+   },
+   {
+    "highlight": "",
+    "text": "Listen in the mix. The vocal should still sound clear, just less sharp. If it sounds lispy, you went too far.",
+    "check": ""
+   }
+  ]
+ },
+ {
+  "id": "rec_kick_bass",
+  "title": "Make room for the kick",
+  "trackTypes": [
+   "Bass"
+  ],
+  "steps": [
+   {
+    "highlight": "",
+    "text": "Put LENS on the bass track. In Logic, set the Side Chain menu at the top of the plugin window to the kick track.",
+    "check": "side-chain signal present"
+   },
+   {
+    "highlight": "",
+    "text": "Add a band where the kick thumps, around 50 to 80 Hz. Make it dynamic, Q about 1.5, range −5 dB.",
+    "check": "a dynamic band between 40 and 120 Hz"
+   },
+   {
+    "highlight": "detector source",
+    "text": "Set the detector to External. Now the kick controls this band.",
+    "check": "det source External"
+   },
+   {
+    "highlight": "custom detector",
+    "text": "Turn on Custom and set it to 40–120 Hz, so only the kick's thump triggers it.",
+    "check": "Custom on"
+   },
+   {
+    "highlight": "learn",
+    "text": "Press Learn while the song plays.",
+    "check": "Learn finished"
+   },
+   {
+    "highlight": "attack/release",
+    "text": "Attack 1 ms, release about 100–150 ms. Longer release for slower songs.",
+    "check": "attack ≤ 3 ms, release 60–250 ms"
+   },
+   {
+    "highlight": "",
+    "text": "Listen to kick and bass together and flip bypass. The kick should punch through without the bass getting smaller.",
+    "check": ""
+   }
+  ]
+ },
+ {
+  "id": "rec_vocal_pocket",
+  "title": "Clear a pocket for the vocal",
+  "trackTypes": [
+   "Guitar",
+   "Keys",
+   "Synth & Pad",
+   "Bus"
+  ],
+  "steps": [
+   {
+    "highlight": "",
+    "text": "Put LENS on the guitars, keys, or their bus. Set the Side Chain menu to the lead vocal.",
+    "check": "side-chain signal present"
+   },
+   {
+    "highlight": "",
+    "text": "Add a broad band around 2 to 3 kHz, where vocals are clearest. Make it dynamic, Q about 1, range −3 dB.",
+    "check": "a dynamic band between 1.5 and 4 kHz"
+   },
+   {
+    "highlight": "detector source",
+    "text": "Set the detector to External.",
+    "check": "det source External"
+   },
+   {
+    "highlight": "learn",
+    "text": "Press Learn while the vocal sings.",
+    "check": "Learn finished"
+   },
+   {
+    "highlight": "attack/release",
+    "text": "Attack around 10 ms, release around 200 ms, so it moves smoothly with phrases.",
+    "check": "release 120–400 ms"
+   },
+   {
+    "highlight": "",
+    "text": "Listen: when the singer comes in, the vocal should read clearer while the guitars still sound full. If you notice the guitars ducking, reduce the range.",
+    "check": ""
+   }
+  ]
+ },
+ {
+  "id": "rec_harsh_hits",
+  "title": "Tame harsh hits",
+  "trackTypes": [
+   "Keys",
+   "Guitar",
+   "Vocal"
+  ],
+  "steps": [
+   {
+    "highlight": "",
+    "text": "Play a loud section. Harshness usually lives between 2 and 5 kHz.",
+    "check": "playing for 5 s"
+   },
+   {
+    "highlight": "",
+    "text": "Add a band, drag it up about 10 dB with a narrow Q, and sweep left and right. Stop where it sounds most painful.",
+    "check": "a band between 1.5 and 6 kHz with gain > +6 dB"
+   },
+   {
+    "highlight": "",
+    "text": "Now flip it: drag the gain to −4 dB and widen the Q to about 2.",
+    "check": "that band's gain < 0, Q 1–4"
+   },
+   {
+    "highlight": "dynamic",
+    "text": "Make it dynamic so it only cuts when the harshness happens.",
+    "check": "that band is dynamic"
+   },
+   {
+    "highlight": "learn",
+    "text": "Press Learn during a loud part.",
+    "check": "Learn finished"
+   },
+   {
+    "highlight": "",
+    "text": "Attack 2–5 ms, release 60–100 ms. Check activity: 10–40% is the sweet spot.",
+    "check": "activity between 10 and 40% for 5 s"
+   },
+   {
+    "highlight": "",
+    "text": "Flip bypass in the mix. Hard hits should feel less painful while soft parts sound the same.",
+    "check": ""
+   }
+  ]
+ },
+ {
+  "id": "rec_master_pass",
+  "title": "A master EQ pass",
+  "trackTypes": [
+   "Master"
+  ],
+  "steps": [
+   {
+    "highlight": "track type",
+    "text": "Put LENS on the stereo output, before the limiter. Set the track type to Master.",
+    "check": "track type is Master"
+   },
+   {
+    "highlight": "",
+    "text": "Optional: switch to Linear Phase. For mastering it keeps everything in time across frequencies.",
+    "check": "none"
+   },
+   {
+    "highlight": "",
+    "text": "Add a low cut at 20–25 Hz, 12 dB/oct, to clear sub rumble.",
+    "check": "a Low Cut between 15 and 35 Hz"
+   },
+   {
+    "highlight": "",
+    "text": "If the low end swells on some notes, add a dynamic low shelf at about 120 Hz, range −2 dB, and press Learn.",
+    "check": "none"
+   },
+   {
+    "highlight": "",
+    "text": "For more air, add a high shelf at 10–12 kHz, +1 to +1.5 dB, Q 0.7. Then add a dynamic bell at 3–5 kHz, range −2 dB, to catch harshness the air might bring out.",
+    "check": "none"
+   },
+   {
+    "highlight": "auto-gain",
+    "text": "Keep auto-gain on. Check the loudness difference: it should be near 0.",
+    "check": "auto-gain on"
+   },
+   {
+    "highlight": "",
+    "text": "A/B against bypass, then play a song you love that's similar. Does yours sit in the same neighborhood?",
+    "check": ""
+   },
+   {
+    "highlight": "",
+    "text": "Finally, listen on something else: earbuds, a car, a phone. If a move only sounds good on one system, make it smaller.",
+    "check": ""
+   }
+  ]
+ }
+]

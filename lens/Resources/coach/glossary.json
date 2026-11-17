@@ -1,0 +1,154 @@
+[
+ {
+  "term": "Frequency",
+  "definition": "How low or high a sound is, in hertz (Hz). 1 kHz = 1,000 Hz. Humans hear about 20 Hz to 20 kHz."
+ },
+ {
+  "term": "Fundamental",
+  "definition": "The lowest frequency of a note, which sets its pitch. A low E on bass is about 41 Hz."
+ },
+ {
+  "term": "Harmonics",
+  "definition": "Higher frequencies above the fundamental that give a sound its character."
+ },
+ {
+  "term": "Gain",
+  "definition": "How much a band turns up (+) or down (−), in decibels."
+ },
+ {
+  "term": "Decibel (dB)",
+  "definition": "A unit of loudness change. About 1 dB is the smallest change most people notice; 6 dB is a big one."
+ },
+ {
+  "term": "Q",
+  "definition": "How wide a band is. Low Q is broad, high Q is narrow."
+ },
+ {
+  "term": "Bell",
+  "definition": "A band shaped like a hill or valley around one frequency."
+ },
+ {
+  "term": "Shelf",
+  "definition": "Raises or lowers everything above (high shelf) or below (low shelf) a frequency."
+ },
+ {
+  "term": "Low cut / High cut",
+  "definition": "Removes everything below or above a frequency. Also called high-pass / low-pass."
+ },
+ {
+  "term": "Slope",
+  "definition": "How steeply a cut falls off, in dB per octave. 12 is gentle, 48 is steep."
+ },
+ {
+  "term": "Octave",
+  "definition": "A doubling of frequency: 100 Hz to 200 Hz is one octave."
+ },
+ {
+  "term": "Notch",
+  "definition": "A very narrow, deep cut for one frequency."
+ },
+ {
+  "term": "Tilt",
+  "definition": "Brightens or darkens the whole sound around one point."
+ },
+ {
+  "term": "Resonance",
+  "definition": "A frequency that rings louder than its neighbors."
+ },
+ {
+  "term": "Mud",
+  "definition": "Too much energy in the low mids (about 200–500 Hz), making a mix cloudy."
+ },
+ {
+  "term": "Sibilance",
+  "definition": "Sharp S, T, and SH sounds in a voice, around 5–9 kHz."
+ },
+ {
+  "term": "Dynamic EQ",
+  "definition": "An EQ band that only moves when the sound crosses a threshold."
+ },
+ {
+  "term": "Threshold",
+  "definition": "The level where a dynamic band starts acting."
+ },
+ {
+  "term": "Range",
+  "definition": "The most a dynamic band can cut (−) or boost (+)."
+ },
+ {
+  "term": "Ratio",
+  "definition": "How quickly a dynamic band reaches its range once past threshold."
+ },
+ {
+  "term": "Knee",
+  "definition": "How gently the band starts moving near the threshold."
+ },
+ {
+  "term": "Attack",
+  "definition": "How fast a dynamic band reacts."
+ },
+ {
+  "term": "Release",
+  "definition": "How fast a dynamic band lets go."
+ },
+ {
+  "term": "Activity",
+  "definition": "The share of the last 10 seconds a dynamic band spent moving."
+ },
+ {
+  "term": "Detector",
+  "definition": "The part of a dynamic band that listens and decides when to move."
+ },
+ {
+  "term": "Side-chain",
+  "definition": "Letting another track control this one. Set it in Logic's Side Chain menu."
+ },
+ {
+  "term": "Lookahead",
+  "definition": "Lets dynamic bands react a moment early, by delaying the audio slightly."
+ },
+ {
+  "term": "Mid / Side",
+  "definition": "Mid is the center of a stereo sound; Side is the difference between left and right."
+ },
+ {
+  "term": "Phase",
+  "definition": "The timing of a wave. EQs shift it slightly near the frequencies they change."
+ },
+ {
+  "term": "Linear phase",
+  "definition": "An EQ mode that keeps all frequencies in time, at the cost of delay."
+ },
+ {
+  "term": "Pre-ringing",
+  "definition": "A faint swell before sharp hits, caused by linear-phase EQ."
+ },
+ {
+  "term": "Latency",
+  "definition": "Delay added by processing. Logic compensates for it during playback."
+ },
+ {
+  "term": "LUFS",
+  "definition": "A loudness measurement close to how loud people hear a song."
+ },
+ {
+  "term": "Auto-gain",
+  "definition": "Keeps the output level matched to the input so EQ changes are judged fairly."
+ },
+ {
+  "term": "Delta",
+  "definition": "Plays only what the EQ is adding or removing."
+ },
+ {
+  "term": "Headroom",
+  "definition": "The space between your loudest peak and 0 dBFS, where clipping starts."
+ },
+ {
+  "term": "Spectrum analyzer",
+  "definition": "The moving graph that shows how much energy is at each frequency."
+ },
+ {
+  "term": "Reference",
+  "definition": "A finished song you compare your mix against."
+ }
+]

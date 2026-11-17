@@ -1,0 +1,357 @@
+{
+ "Default": [
+  {
+   "name": "Sub",
+   "lo": 20.0,
+   "hi": 60.0
+  },
+  {
+   "name": "Bass",
+   "lo": 60.0,
+   "hi": 200.0
+  },
+  {
+   "name": "Mud",
+   "lo": 200.0,
+   "hi": 500.0
+  },
+  {
+   "name": "Body & honk",
+   "lo": 500.0,
+   "hi": 1500.0
+  },
+  {
+   "name": "Presence",
+   "lo": 1500.0,
+   "hi": 4000.0
+  },
+  {
+   "name": "Edge",
+   "lo": 4000.0,
+   "hi": 8000.0
+  },
+  {
+   "name": "Air",
+   "lo": 8000.0,
+   "hi": null
+  }
+ ],
+ "Bus": [
+  {
+   "name": "Sub",
+   "lo": 20.0,
+   "hi": 60.0
+  },
+  {
+   "name": "Bass",
+   "lo": 60.0,
+   "hi": 200.0
+  },
+  {
+   "name": "Mud",
+   "lo": 200.0,
+   "hi": 500.0
+  },
+  {
+   "name": "Body & honk",
+   "lo": 500.0,
+   "hi": 1500.0
+  },
+  {
+   "name": "Presence",
+   "lo": 1500.0,
+   "hi": 4000.0
+  },
+  {
+   "name": "Edge",
+   "lo": 4000.0,
+   "hi": 8000.0
+  },
+  {
+   "name": "Air",
+   "lo": 8000.0,
+   "hi": null
+  }
+ ],
+ "Synth & Pad": [
+  {
+   "name": "Sub",
+   "lo": 20.0,
+   "hi": 60.0
+  },
+  {
+   "name": "Bass",
+   "lo": 60.0,
+   "hi": 200.0
+  },
+  {
+   "name": "Mud",
+   "lo": 200.0,
+   "hi": 500.0
+  },
+  {
+   "name": "Body & honk",
+   "lo": 500.0,
+   "hi": 1500.0
+  },
+  {
+   "name": "Presence",
+   "lo": 1500.0,
+   "hi": 4000.0
+  },
+  {
+   "name": "Edge",
+   "lo": 4000.0,
+   "hi": 8000.0
+  },
+  {
+   "name": "Air",
+   "lo": 8000.0,
+   "hi": null
+  }
+ ],
+ "Bass": [
+  {
+   "name": "Sub",
+   "lo": 30.0,
+   "hi": 60.0
+  },
+  {
+   "name": "Weight",
+   "lo": 60.0,
+   "hi": 120.0
+  },
+  {
+   "name": "Boom",
+   "lo": 120.0,
+   "hi": 300.0
+  },
+  {
+   "name": "Growl & wood",
+   "lo": 300.0,
+   "hi": 1000.0
+  },
+  {
+   "name": "Attack & fingers",
+   "lo": 1000.0,
+   "hi": 3000.0
+  },
+  {
+   "name": "String noise",
+   "lo": 3000.0,
+   "hi": null
+  }
+ ],
+ "Kick & Drums": [
+  {
+   "name": "Thump",
+   "lo": 40.0,
+   "hi": 80.0
+  },
+  {
+   "name": "Boom",
+   "lo": 80.0,
+   "hi": 200.0
+  },
+  {
+   "name": "Box",
+   "lo": 200.0,
+   "hi": 500.0
+  },
+  {
+   "name": "Body",
+   "lo": 500.0,
+   "hi": 2000.0
+  },
+  {
+   "name": "Click",
+   "lo": 2000.0,
+   "hi": 5000.0
+  },
+  {
+   "name": "Cymbals & air",
+   "lo": 5000.0,
+   "hi": null
+  }
+ ],
+ "Vocal": [
+  {
+   "name": "Rumble",
+   "lo": 20.0,
+   "hi": 100.0
+  },
+  {
+   "name": "Chest",
+   "lo": 100.0,
+   "hi": 250.0
+  },
+  {
+   "name": "Mud",
+   "lo": 250.0,
+   "hi": 500.0
+  },
+  {
+   "name": "Nasal",
+   "lo": 500.0,
+   "hi": 1500.0
+  },
+  {
+   "name": "Clarity",
+   "lo": 1500.0,
+   "hi": 4000.0
+  },
+  {
+   "name": "Sibilance & edge",
+   "lo": 4000.0,
+   "hi": 9000.0
+  },
+  {
+   "name": "Air",
+   "lo": 9000.0,
+   "hi": null
+  }
+ ],
+ "Choir & Vocal Bus": [
+  {
+   "name": "Rumble",
+   "lo": 20.0,
+   "hi": 120.0
+  },
+  {
+   "name": "Warmth",
+   "lo": 120.0,
+   "hi": 250.0
+  },
+  {
+   "name": "Mud",
+   "lo": 250.0,
+   "hi": 500.0
+  },
+  {
+   "name": "Honk",
+   "lo": 500.0,
+   "hi": 1500.0
+  },
+  {
+   "name": "Clarity",
+   "lo": 1500.0,
+   "hi": 4000.0
+  },
+  {
+   "name": "Sibilance",
+   "lo": 4000.0,
+   "hi": 9000.0
+  },
+  {
+   "name": "Air",
+   "lo": 9000.0,
+   "hi": null
+  }
+ ],
+ "Keys": [
+  {
+   "name": "Rumble",
+   "lo": 20.0,
+   "hi": 60.0
+  },
+  {
+   "name": "Body",
+   "lo": 60.0,
+   "hi": 200.0
+  },
+  {
+   "name": "Mud",
+   "lo": 200.0,
+   "hi": 500.0
+  },
+  {
+   "name": "Honk",
+   "lo": 500.0,
+   "hi": 1500.0
+  },
+  {
+   "name": "Bark & presence",
+   "lo": 1500.0,
+   "hi": 4000.0
+  },
+  {
+   "name": "Shimmer",
+   "lo": 4000.0,
+   "hi": null
+  }
+ ],
+ "Guitar": [
+  {
+   "name": "Rumble",
+   "lo": 20.0,
+   "hi": 80.0
+  },
+  {
+   "name": "Body",
+   "lo": 80.0,
+   "hi": 200.0
+  },
+  {
+   "name": "Mud",
+   "lo": 200.0,
+   "hi": 500.0
+  },
+  {
+   "name": "Boxy",
+   "lo": 500.0,
+   "hi": 1500.0
+  },
+  {
+   "name": "Bite",
+   "lo": 1500.0,
+   "hi": 4000.0
+  },
+  {
+   "name": "Fizz",
+   "lo": 4000.0,
+   "hi": 8000.0
+  },
+  {
+   "name": "Air",
+   "lo": 8000.0,
+   "hi": null
+  }
+ ],
+ "Master": [
+  {
+   "name": "Sub",
+   "lo": 20.0,
+   "hi": 60.0
+  },
+  {
+   "name": "Low end",
+   "lo": 60.0,
+   "hi": 200.0
+  },
+  {
+   "name": "Low mids",
+   "lo": 200.0,
+   "hi": 600.0
+  },
+  {
+   "name": "Mids",
+   "lo": 600.0,
+   "hi": 2000.0
+  },
+  {
+   "name": "Upper mids",
+   "lo": 2000.0,
+   "hi": 5000.0
+  },
+  {
+   "name": "Presence",
+   "lo": 5000.0,
+   "hi": 10000.0
+  },
+  {
+   "name": "Air",
+   "lo": 10000.0,
+   "hi": null
+  }
+ ]
+}

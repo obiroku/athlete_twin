@@ -40,6 +40,13 @@ target_sources(LENS PRIVATE ${LENS_SOURCES})
 
 target_include_directories(LENS PRIVATE Source)
 
+file(GLOB LENS_RESOURCES CONFIGURE_DEPENDS
+    ${CMAKE_CURRENT_SOURCE_DIR}/Resources/fonts/*.ttf
+    ${CMAKE_CURRENT_SOURCE_DIR}/Resources/coach/*.json
+    ${CMAKE_CURRENT_SOURCE_DIR}/Presets/Factory/*.lenspreset)
+juce_add_binary_data(LensData SOURCES ${LENS_RESOURCES})
+set_target_properties(LensData PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
 target_compile_definitions(LENS PUBLIC
     JUCE_WEB_BROWSER=0
     JUCE_USE_CURL=0
@@ -48,6 +55,7 @@ target_compile_definitions(LENS PUBLIC
 
 target_link_libraries(LENS
     PRIVATE
+        LensData
         juce::juce_audio_utils
         juce::juce_dsp
     PUBLIC
@@ -71,7 +79,9 @@ if(LENS_BUILD_TESTS)
             $<TARGET_PROPERTY:LENS,COMPILE_DEFINITIONS>)
         target_include_directories(${target} PRIVATE
             $<TARGET_PROPERTY:LENS,INCLUDE_DIRECTORIES>
+            $<TARGET_PROPERTY:LensData,INTERFACE_INCLUDE_DIRECTORIES>
             ${CMAKE_CURRENT_SOURCE_DIR}/Tests)
+        target_compile_definitions(${target} PRIVATE LENS_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
     endfunction()
 
     add_library(lens_test_helpers STATIC Tests/helpers/OfflineRender.cpp Tests/helpers/Signals.cpp)
@@ -85,6 +95,10 @@ if(LENS_BUILD_TESTS)
     add_executable(lens_bench Tests/bench/main.cpp)
     lens_use_plugin_code(lens_bench)
     target_link_libraries(lens_bench PRIVATE lens_test_helpers)
+
+    add_executable(lens_snapshot Tests/tools/snapshot.cpp)
+    lens_use_plugin_code(lens_snapshot)
+    target_link_libraries(lens_snapshot PRIVATE lens_test_helpers)
 
     enable_testing()
     add_test(NAME lens_tests COMMAND lens_tests)
