@@ -1,0 +1,36 @@
+{
+ "format_version": 1,
+ "name": "Sibilance Cut",
+ "category": "Vocal",
+ "track_type": "Vocal",
+ "note": "Softens harsh S and T sounds. Play the track and press Learn.",
+ "description": "",
+ "bands": [
+  {
+   "slot": 1,
+   "on": true,
+   "shape": "Bell",
+   "freq": 6500.0,
+   "gain": 0.0,
+   "q": 3.0,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": true,
+    "mode": "Above",
+    "range": -8.0,
+    "thresh": -24.0,
+    "ratio": 3.0,
+    "attack": 1.0,
+    "release": 40.0
+   },
+   "det": {
+    "source": "Internal",
+    "custom": true,
+    "hp": 5000.0,
+    "lp": 10000.0
+   }
+  }
+ ],
+ "globals": {}
+}

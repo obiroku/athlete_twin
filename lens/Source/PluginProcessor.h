@@ -2,6 +2,9 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 
+#include "Coach/Recipes.h"
+#include "Coach/Settings.h"
+#include "Coach/Tips.h"
 #include "DSP/Engine.h"
 #include "DSP/Fifo.h"
 #include "Params/ParamReader.h"
@@ -64,8 +67,12 @@ public:
     void setSession (const state::SessionState&);
 
     // ---- Band setups, undo/redo (message thread).
-    juce::var getBands() const; // all 24 slots
+    juce::var getBands() const; // all 24 slots, as preset JSON
     void applyBands (const juce::var& bands);
+    // Exact snapshots for undo: raw normalised values of every band
+    // parameter, restored bit for bit.
+    juce::var captureBands() const;
+    void restoreBands (const juce::var& snapshot);
     // Wrap an edit: the setup before beginEdit and after endEdit becomes
     // one undo step.
     void beginEdit();
@@ -100,6 +107,12 @@ public:
         std::atomic<bool> on { false };
         std::atomic<float> freq { 1000.0f }, gainDb { 0.0f }, q { 1.0f };
     } earTrainer;
+
+    // ---- Coach session (message thread). Lives as long as the plugin, so
+    // dismissed tips and recipe progress survive closing the editor.
+    coach::Settings& coachSettings() noexcept { return *settings; }
+    coach::TipEngine& tipEngine() noexcept { return tips; }
+    coach::RecipeRunner& recipeRunner() noexcept { return recipes; }
 
     dsp::Engine& getEngine() noexcept { return engine; }
     dsp::EngineStats& stats() noexcept { return engine.stats(); }
@@ -146,6 +159,9 @@ private:
     state::SessionState session;
 
     state::EditHistory editHistory;
+    std::unique_ptr<coach::Settings> settings;
+    coach::TipEngine tips;
+    coach::RecipeRunner recipes;
     juce::var editBefore;
     int editDepth = 0;
 

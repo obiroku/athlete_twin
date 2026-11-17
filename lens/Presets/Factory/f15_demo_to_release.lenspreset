@@ -1,0 +1,108 @@
+{
+ "format_version": 1,
+ "name": "Demo to Release",
+ "category": "Master",
+ "track_type": "Master",
+ "note": "A gentle all-round master EQ for home mixes. Play the track and press Learn.",
+ "description": "",
+ "bands": [
+  {
+   "slot": 1,
+   "on": true,
+   "shape": "LowCut",
+   "freq": 25.0,
+   "gain": 0.0,
+   "q": 1.0,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": false
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  },
+  {
+   "slot": 2,
+   "on": true,
+   "shape": "LowShelf",
+   "freq": 120.0,
+   "gain": 0.0,
+   "q": 0.7,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": true,
+    "mode": "Above",
+    "range": -2.0,
+    "thresh": -24.0,
+    "ratio": 3.0,
+    "attack": 20.0,
+    "release": 200.0
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  },
+  {
+   "slot": 3,
+   "on": true,
+   "shape": "Bell",
+   "freq": 300.0,
+   "gain": -1.0,
+   "q": 1.0,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": false
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  },
+  {
+   "slot": 4,
+   "on": true,
+   "shape": "Bell",
+   "freq": 3000.0,
+   "gain": 0.0,
+   "q": 1.5,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": true,
+    "mode": "Above",
+    "range": -2.0,
+    "thresh": -24.0,
+    "ratio": 3.0,
+    "attack": 5.0,
+    "release": 100.0
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  },
+  {
+   "slot": 5,
+   "on": true,
+   "shape": "HighShelf",
+   "freq": 10000.0,
+   "gain": 1.0,
+   "q": 0.7,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": false
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  }
+ ],
+ "globals": {}
+}

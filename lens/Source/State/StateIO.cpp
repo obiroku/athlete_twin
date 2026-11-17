@@ -67,34 +67,49 @@ juce::var paramToVar (const juce::RangedAudioParameter& p, bool roundFloats)
 void setNormalised (juce::RangedAudioParameter& p, float n)
 {
     n = juce::jlimit (0.0f, 1.0f, n);
-    if (! juce::exactlyEqual (p.getValue(), n))
+    // Values that only differ by float rounding through a log range are
+    // left alone, so re-applying a setup (undo, A/B) restores it exactly.
+    if (std::abs (p.getValue() - n) > 1.0e-6f)
         p.setValueNotifyingHost (n);
+}
+
+// The normalised value a JSON value asks for, or false if it is unusable.
+bool normalisedFor (const juce::RangedAudioParameter& p, const juce::var& v, float& n)
+{
+    if (auto* c = dynamic_cast<const juce::AudioParameterChoice*> (&p))
+    {
+        if (! v.isString())
+            return false;
+        const int idx = params::choiceIndexForToken (*c, v.toString());
+        if (idx < 0)
+            return false;
+        n = p.convertTo0to1 ((float) idx);
+        return true;
+    }
+    if (dynamic_cast<const juce::AudioParameterBool*> (&p) != nullptr)
+    {
+        if (! v.isBool())
+            return false;
+        n = (bool) v ? 1.0f : 0.0f;
+        return true;
+    }
+    if (v.isDouble() || v.isInt() || v.isInt64())
+    {
+        const auto d = (double) v;
+        if (! std::isfinite (d))
+            return false;
+        const auto& r = p.getNormalisableRange();
+        n = p.convertTo0to1 (juce::jlimit (r.start, r.end, (float) d));
+        return true;
+    }
+    return false;
 }
 
 void varToParam (juce::RangedAudioParameter& p, const juce::var& v)
 {
-    if (auto* c = dynamic_cast<juce::AudioParameterChoice*> (&p))
-    {
-        if (! v.isString())
-            return;
-        const int idx = params::choiceIndexForToken (*c, v.toString());
-        if (idx >= 0)
-            setNormalised (p, p.convertTo0to1 ((float) idx));
-    }
-    else if (dynamic_cast<juce::AudioParameterBool*> (&p) != nullptr)
-    {
-        if (v.isBool())
-            setNormalised (p, (bool) v ? 1.0f : 0.0f);
-    }
-    else if (v.isDouble() || v.isInt() || v.isInt64())
-    {
-        const auto d = (double) v;
-        if (std::isfinite (d))
-        {
-            const auto& r = p.getNormalisableRange();
-            setNormalised (p, p.convertTo0to1 (juce::jlimit (r.start, r.end, (float) d)));
-        }
-    }
+    float n;
+    if (normalisedFor (p, v, n))
+        setNormalised (p, n);
 }
 
 void resetToDefault (juce::RangedAudioParameter& p)
@@ -141,30 +156,34 @@ juce::var bandsToVar (const APVTS& apvts, bool onlyEnabled)
 
 void applyBands (APVTS& apvts, const juce::var& bandsArray)
 {
+    // The entry for each slot (later entries win).
+    std::array<juce::var, params::numBands + 1> entries;
+    if (const auto* arr = bandsArray.getArray())
+        for (const auto& entry : *arr)
+        {
+            if (! entry.isObject() || ! (entry["slot"].isInt() || entry["slot"].isInt64() || entry["slot"].isDouble()))
+                continue;
+            const int b = (int) entry["slot"];
+            if (b >= 1 && b <= params::numBands)
+                entries[(size_t) b] = entry;
+        }
+
+    // Each parameter is set once, straight to its final value (listed
+    // value, else default), so nothing drifts through a reset.
     for (int b = 1; b <= params::numBands; ++b)
-        for (const auto& suffix : params::bandSuffixes())
-            resetToDefault (*apvts.getParameter (params::bandParamId (b, suffix)));
-
-    const auto* arr = bandsArray.getArray();
-    if (arr == nullptr)
-        return;
-
-    for (const auto& entry : *arr)
     {
-        if (! entry.isObject() || ! (entry["slot"].isInt() || entry["slot"].isInt64() || entry["slot"].isDouble()))
-            continue;
-        const int b = (int) entry["slot"];
-        if (b < 1 || b > params::numBands)
-            continue;
-
+        const auto& entry = entries[(size_t) b];
         for (const auto& k : bandKeys)
         {
             auto* p = apvts.getParameter (params::bandParamId (b, k.suffix));
             const auto& src = k.group[0] == 0 ? entry : entry[k.group];
-            if (src.isObject() && src.hasProperty (k.key))
-                varToParam (*p, src[k.key]);
-            else if (juce::String (k.suffix) == pb::on)
+            float n;
+            if (entry.isObject() && src.isObject() && src.hasProperty (k.key) && normalisedFor (*p, src[k.key], n))
+                setNormalised (*p, n);
+            else if (entry.isObject() && juce::String (k.suffix) == pb::on)
                 setNormalised (*p, 1.0f); // a listed band is on unless it says otherwise
+            else
+                setNormalised (*p, p->getDefaultValue());
         }
     }
 }

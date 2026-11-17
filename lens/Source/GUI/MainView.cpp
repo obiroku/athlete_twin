@@ -116,7 +116,13 @@ MainView::MainView (EditorContext& c) : ctx (c), spectrum (c), bandPanel (c)
     undoBtn.onClick = [this] { ctx.proc.undo(); };
     redoBtn.onClick = [this] { ctx.proc.redo(); };
     coachBtn.setClickingTogglesState (true);
-    coachBtn.onClick = [this] { setCoachVisible (coachBtn.getToggleState()); };
+    coachBtn.onClick = [this]
+    {
+        setCoachVisible (coachBtn.getToggleState());
+        auto& st = ctx.proc.coachSettings();
+        st.coachVisible = coachBtn.getToggleState();
+        st.save();
+    };
 
     // ---- Output section.
     outGain.setSliderStyle (juce::Slider::LinearBar);
@@ -328,9 +334,9 @@ void MainView::resized()
     latency.setBounds (row2.removeFromLeft (64));
     cpu.setBounds (row2);
 
+    bandPanel.setBounds (r.removeFromBottom (150));
     if (coachVisible && coachComponent != nullptr)
         coachComponent->setBounds (r.removeFromRight (280));
-    bandPanel.setBounds (r.removeFromBottom (150));
     spectrum.setBounds (r);
     if (overlayComponent != nullptr)
         overlayComponent->setBounds (getLocalBounds().withTrimmedTop (66));

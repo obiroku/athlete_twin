@@ -1,0 +1,68 @@
+{
+ "format_version": 1,
+ "name": "Boomy Room Fix",
+ "category": "Bus",
+ "track_type": "Bus",
+ "note": "Tames room boom and low-mid buildup. Play the track and press Learn.",
+ "description": "",
+ "bands": [
+  {
+   "slot": 1,
+   "on": true,
+   "shape": "LowCut",
+   "freq": 40.0,
+   "gain": 0.0,
+   "q": 1.0,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": false
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  },
+  {
+   "slot": 2,
+   "on": true,
+   "shape": "Bell",
+   "freq": 150.0,
+   "gain": 0.0,
+   "q": 2.0,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": true,
+    "mode": "Above",
+    "range": -6.0,
+    "thresh": -24.0,
+    "ratio": 3.0,
+    "attack": 10.0,
+    "release": 150.0
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  },
+  {
+   "slot": 3,
+   "on": true,
+   "shape": "Bell",
+   "freq": 300.0,
+   "gain": -2.0,
+   "q": 1.4,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": false
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  }
+ ],
+ "globals": {}
+}

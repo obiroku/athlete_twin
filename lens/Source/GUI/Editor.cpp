@@ -1,11 +1,7 @@
 #include "Editor.h"
 
-#if __has_include("CoachPanel.h")
- #include "CoachPanel.h"
-#endif
-#if __has_include("PresetBrowser.h")
- #include "PresetBrowser.h"
-#endif
+#include "CoachPanel.h"
+#include "PresetBrowser.h"
 
 namespace lens::gui
 {
@@ -20,20 +16,17 @@ LensEditor::LensEditor (LensProcessor& p)
     main = std::make_unique<MainView> (ctx);
     addAndMakeVisible (*main);
 
-#if __has_include("CoachPanel.h")
     auto coachPanel = std::make_unique<CoachPanel> (ctx, *main);
     const bool startVisible = coachPanel->shouldStartVisible();
     coach = std::move (coachPanel);
     main->addChildComponent (*coach);
     main->coachComponent = coach.get();
     main->setCoachVisible (startVisible);
-#endif
-#if __has_include("PresetBrowser.h")
     browser = std::make_unique<PresetBrowser> (ctx, *main);
     browser->setVisible (false);
     main->addChildComponent (*browser);
     main->overlayComponent = browser.get();
-#endif
+    main->resized();
 
     analyzerThread.start (p.getSampleRate() > 0 ? p.getSampleRate() : 48000.0);
 

@@ -1,0 +1,102 @@
+{
+ "format_version": 1,
+ "name": "Electric Bass Tame",
+ "category": "Bass",
+ "track_type": "Bass",
+ "note": "Holds back notes that jump out and adds definition. Play the track and press Learn.",
+ "description": "",
+ "bands": [
+  {
+   "slot": 1,
+   "on": true,
+   "shape": "LowCut",
+   "freq": 30.0,
+   "gain": 0.0,
+   "q": 1.0,
+   "slope": "24",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": false
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  },
+  {
+   "slot": 2,
+   "on": true,
+   "shape": "Bell",
+   "freq": 110.0,
+   "gain": 0.0,
+   "q": 3.0,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": true,
+    "mode": "Above",
+    "range": -6.0,
+    "thresh": -24.0,
+    "ratio": 3.0,
+    "attack": 8.0,
+    "release": 150.0
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  },
+  {
+   "slot": 3,
+   "on": true,
+   "shape": "Bell",
+   "freq": 250.0,
+   "gain": -2.0,
+   "q": 1.5,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": false
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  },
+  {
+   "slot": 4,
+   "on": true,
+   "shape": "Bell",
+   "freq": 900.0,
+   "gain": 2.0,
+   "q": 1.0,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": false
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  },
+  {
+   "slot": 5,
+   "on": true,
+   "shape": "HighCut",
+   "freq": 9000.0,
+   "gain": 0.0,
+   "q": 1.0,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": false
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  }
+ ],
+ "globals": {}
+}

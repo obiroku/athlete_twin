@@ -1,0 +1,51 @@
+{
+ "format_version": 1,
+ "name": "Mastering Air Lift",
+ "category": "Master",
+ "track_type": "Master",
+ "note": "Opens the top of a mix without harshness. Play the track and press Learn.",
+ "description": "",
+ "bands": [
+  {
+   "slot": 1,
+   "on": true,
+   "shape": "HighShelf",
+   "freq": 12000.0,
+   "gain": 1.5,
+   "q": 0.7,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": false
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  },
+  {
+   "slot": 2,
+   "on": true,
+   "shape": "Bell",
+   "freq": 4500.0,
+   "gain": 0.0,
+   "q": 2.0,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": true,
+    "mode": "Above",
+    "range": -2.0,
+    "thresh": -24.0,
+    "ratio": 3.0,
+    "attack": 5.0,
+    "release": 100.0
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  }
+ ],
+ "globals": {}
+}

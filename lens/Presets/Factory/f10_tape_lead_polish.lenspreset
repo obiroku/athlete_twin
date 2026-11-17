@@ -1,0 +1,85 @@
+{
+ "format_version": 1,
+ "name": "Tape Lead Polish",
+ "category": "Synth",
+ "track_type": "Synth & Pad",
+ "note": "Lets a lead sit on top without poking out. Play the track and press Learn.",
+ "description": "",
+ "bands": [
+  {
+   "slot": 1,
+   "on": true,
+   "shape": "LowCut",
+   "freq": 150.0,
+   "gain": 0.0,
+   "q": 1.0,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": false
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  },
+  {
+   "slot": 2,
+   "on": true,
+   "shape": "Bell",
+   "freq": 1200.0,
+   "gain": -2.0,
+   "q": 1.5,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": false
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  },
+  {
+   "slot": 3,
+   "on": true,
+   "shape": "Bell",
+   "freq": 3500.0,
+   "gain": 0.0,
+   "q": 2.0,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": true,
+    "mode": "Above",
+    "range": -3.0,
+    "thresh": -24.0,
+    "ratio": 3.0,
+    "attack": 3.0,
+    "release": 80.0
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  },
+  {
+   "slot": 4,
+   "on": true,
+   "shape": "HighShelf",
+   "freq": 9000.0,
+   "gain": 1.5,
+   "q": 0.7,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": false
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  }
+ ],
+ "globals": {}
+}

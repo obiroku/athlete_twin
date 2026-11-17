@@ -1,0 +1,36 @@
+{
+ "format_version": 1,
+ "name": "Kick and Bass Split",
+ "category": "Bass",
+ "track_type": "Bass",
+ "note": "Dips the bass's low end only when the kick hits. Set Side Chain to the kick. Play the track and press Learn.",
+ "description": "",
+ "bands": [
+  {
+   "slot": 1,
+   "on": true,
+   "shape": "Bell",
+   "freq": 60.0,
+   "gain": 0.0,
+   "q": 1.5,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": true,
+    "mode": "Above",
+    "range": -5.0,
+    "thresh": -24.0,
+    "ratio": 3.0,
+    "attack": 1.0,
+    "release": 120.0
+   },
+   "det": {
+    "source": "External",
+    "custom": true,
+    "hp": 40.0,
+    "lp": 120.0
+   }
+  }
+ ],
+ "globals": {}
+}

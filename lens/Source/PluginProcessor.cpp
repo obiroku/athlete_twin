@@ -13,8 +13,11 @@ LensProcessor::LensProcessor()
                           .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                           .withInput ("Sidechain", juce::AudioChannelSet::stereo(), true)),
       apvts (*this, nullptr, "LENS", params::createLayout()),
-      reader (apvts)
+      reader (apvts),
+      settings (std::make_unique<coach::Settings>())
 {
+    tips.setNeverShow (settings->tipsNever);
+    tips.setQuiet (settings->quiet);
     bypassParam = apvts.getParameter (params::id::bypass);
     jassert (bypassParam != nullptr);
 
@@ -69,7 +72,7 @@ int LensProcessor::addBand (const dsp::BandParams& bp, const juce::String& undoN
     const int b = findFreeBand();
     if (b < 0)
         return -1;
-    const auto before = getBands();
+    const auto before = captureBands();
     namespace pb = params::band;
     // Reset the slot to defaults first, then apply.
     for (const auto& suffix : params::bandSuffixes())
@@ -94,7 +97,7 @@ int LensProcessor::addBand (const dsp::BandParams& bp, const juce::String& undoN
         setBandValue (b, pb::dynOn, 1.0f);
     }
     setBandValue (b, pb::on, 1.0f);
-    editHistory.push (before, getBands(), undoName);
+    editHistory.push (before, captureBands(), undoName);
     return b;
 }
 
@@ -102,11 +105,11 @@ void LensProcessor::removeBands (const juce::Array<int>& bands)
 {
     if (bands.isEmpty())
         return;
-    const auto before = getBands();
+    const auto before = captureBands();
     for (int b : bands)
         if (b >= 0 && b < dsp::kNumBands)
             setBandValue (b, params::band::on, 0.0f);
-    editHistory.push (before, getBands(), "Delete band");
+    editHistory.push (before, captureBands(), "Delete band");
 }
 
 void LensProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
@@ -372,10 +375,37 @@ void LensProcessor::applyBands (const juce::var& bands)
     state::applyBands (apvts, bands);
 }
 
+juce::var LensProcessor::captureBands() const
+{
+    juce::Array<juce::var> values;
+    for (int b = 1; b <= dsp::kNumBands; ++b)
+        for (const auto& suffix : params::bandSuffixes())
+            values.add ((double) apvts.getParameter (params::bandParamId (b, suffix))->getValue());
+    return values;
+}
+
+void LensProcessor::restoreBands (const juce::var& snapshot)
+{
+    const auto* arr = snapshot.getArray();
+    if (arr == nullptr)
+        return;
+    int i = 0;
+    for (int b = 1; b <= dsp::kNumBands; ++b)
+        for (const auto& suffix : params::bandSuffixes())
+        {
+            if (i >= arr->size())
+                return;
+            auto* p = apvts.getParameter (params::bandParamId (b, suffix));
+            const float v = (float) (double) (*arr)[i++];
+            if (! juce::exactlyEqual (p->getValue(), v))
+                p->setValueNotifyingHost (v);
+        }
+}
+
 void LensProcessor::beginEdit()
 {
     if (editDepth++ == 0)
-        editBefore = getBands();
+        editBefore = captureBands();
 }
 
 void LensProcessor::endEdit (const juce::String& name)
@@ -383,13 +413,14 @@ void LensProcessor::endEdit (const juce::String& name)
     if (editDepth <= 0)
         return;
     if (--editDepth == 0)
-        editHistory.push (editBefore, getBands(), name);
+        editHistory.push (editBefore, captureBands(), name);
 }
 
 void LensProcessor::pushUndo (const juce::var& before, const juce::String& name)
 {
-    // Records before → current. Used for one-shot actions.
-    editHistory.push (before, getBands(), name);
+    // Records before → current. Used for one-shot actions. `before`
+    // comes from captureBands().
+    editHistory.push (before, captureBands(), name);
 }
 
 bool LensProcessor::undo()
@@ -397,7 +428,7 @@ bool LensProcessor::undo()
     const auto v = editHistory.undo();
     if (v.isVoid())
         return false;
-    applyBands (v);
+    restoreBands (v);
     return true;
 }
 
@@ -406,7 +437,7 @@ bool LensProcessor::redo()
     const auto v = editHistory.redo();
     if (v.isVoid())
         return false;
-    applyBands (v);
+    restoreBands (v);
     return true;
 }
 
@@ -432,7 +463,7 @@ void LensProcessor::requestSwap (const juce::var& bands, const juce::var& global
     if (undoName.isNotEmpty() && ! pendingSwap.recordUndo)
     {
         pendingSwap.recordUndo = true;
-        pendingSwap.undoBefore = getBands();
+        pendingSwap.undoBefore = captureBands();
         pendingSwap.undoName = undoName;
     }
     pendingSwap.active = true;
@@ -462,7 +493,7 @@ void LensProcessor::serviceSwap()
         state::applyGlobals (apvts, pendingSwap.globals, true);
     state::applyBands (apvts, pendingSwap.bands);
     if (pendingSwap.recordUndo)
-        editHistory.push (pendingSwap.undoBefore, getBands(), pendingSwap.undoName);
+        editHistory.push (pendingSwap.undoBefore, captureBands(), pendingSwap.undoName);
     pendingSwap = {};
     commands.push (Command::EndSwap);
 }
@@ -491,7 +522,7 @@ void LensProcessor::toggleLearn (int b)
     const int st = det.learnState.load();
     if (st == dsp::Detector::LearnIdle || st == dsp::Detector::LearnDone)
     {
-        learnBefore[(size_t) b] = getBands();
+        learnBefore[(size_t) b] = captureBands();
         learnPending[(size_t) b] = true;
         det.learnState.store (dsp::Detector::LearnRequested);
     }
@@ -545,6 +576,7 @@ void LensProcessor::serviceLearn()
             p->endChangeGesture(); // the gesture records the undo step
         }
         det.learnState.store (dsp::Detector::LearnIdle);
+        recipes.event ("learn finished");
         if (onLearnFinished)
             onLearnFinished (b);
     }

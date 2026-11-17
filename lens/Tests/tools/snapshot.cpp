@@ -3,6 +3,7 @@
 #include <juce_events/juce_events.h>
 #include <juce_gui_basics/juce_gui_basics.h>
 
+#include "GUI/CoachPanel.h"
 #include "GUI/Editor.h"
 #include "helpers/ProcHelpers.h"
 #include "helpers/Signals.h"
@@ -35,8 +36,10 @@ int main (int argc, char* argv[])
     auto* editor = dynamic_cast<lens::gui::LensEditor*> (ed.get());
     editor->setSize ((int) (1000 * scale), (int) (650 * scale));
     editor->context().selection.selectOnly (1);
-    if (setup == "coach")
+    if (setup == "coach" || setup == "recipes" || setup == "glossary")
         editor->view().setCoachVisible (true);
+    if (setup == "browser" && editor->view().onPresetNameClicked)
+        editor->view().onPresetNameClicked();
 
     // Pink noise with a resonance, 4 s, in real-time-ish chunks.
     auto pink = makePink (2, 48000 * 4, 3, -20.0);
@@ -71,6 +74,13 @@ int main (int argc, char* argv[])
             juce::Thread::sleep (2);
     }
     juce::Thread::sleep (300);
+    if (auto* coach = dynamic_cast<lens::gui::CoachPanel*> (editor->view().coachComponent))
+    {
+        if (setup == "recipes")
+            coach->showTab (1);
+        if (setup == "glossary")
+            coach->showGlossaryTerm ("Threshold");
+    }
     editor->view().refresh (juce::Time::getMillisecondCounterHiRes());
     editor->view().refresh (juce::Time::getMillisecondCounterHiRes() + 200);
 

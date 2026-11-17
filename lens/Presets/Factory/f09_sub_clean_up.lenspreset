@@ -1,0 +1,51 @@
+{
+ "format_version": 1,
+ "name": "Sub Clean-Up",
+ "category": "Bus",
+ "track_type": "Bus",
+ "note": "Removes rumble below the music that eats headroom. Play the track and press Learn.",
+ "description": "",
+ "bands": [
+  {
+   "slot": 1,
+   "on": true,
+   "shape": "LowCut",
+   "freq": 30.0,
+   "gain": 0.0,
+   "q": 1.0,
+   "slope": "24",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": false
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  },
+  {
+   "slot": 2,
+   "on": true,
+   "shape": "LowShelf",
+   "freq": 60.0,
+   "gain": 0.0,
+   "q": 0.7,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": true,
+    "mode": "Above",
+    "range": -4.0,
+    "thresh": -24.0,
+    "ratio": 3.0,
+    "attack": 20.0,
+    "release": 200.0
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  }
+ ],
+ "globals": {}
+}

@@ -1,0 +1,93 @@
+{
+ "format_version": 1,
+ "name": "Neo-Soul Vocal Air",
+ "category": "Vocal",
+ "track_type": "Vocal",
+ "note": "Air on top without sharp S's or chest boom. Play the track and press Learn.",
+ "description": "",
+ "bands": [
+  {
+   "slot": 1,
+   "on": true,
+   "shape": "LowCut",
+   "freq": 90.0,
+   "gain": 0.0,
+   "q": 1.0,
+   "slope": "18",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": false
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  },
+  {
+   "slot": 2,
+   "on": true,
+   "shape": "Bell",
+   "freq": 250.0,
+   "gain": 0.0,
+   "q": 1.5,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": true,
+    "mode": "Above",
+    "range": -3.0,
+    "thresh": -24.0,
+    "ratio": 3.0,
+    "attack": 10.0,
+    "release": 120.0
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  },
+  {
+   "slot": 3,
+   "on": true,
+   "shape": "Bell",
+   "freq": 7000.0,
+   "gain": 0.0,
+   "q": 4.0,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": true,
+    "mode": "Above",
+    "range": -3.0,
+    "thresh": -24.0,
+    "ratio": 3.0,
+    "attack": 1.0,
+    "release": 50.0
+   },
+   "det": {
+    "source": "Internal",
+    "custom": true,
+    "hp": 5000.0,
+    "lp": 10000.0
+   }
+  },
+  {
+   "slot": 4,
+   "on": true,
+   "shape": "HighShelf",
+   "freq": 12000.0,
+   "gain": 3.0,
+   "q": 0.7,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": false
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  }
+ ],
+ "globals": {}
+}

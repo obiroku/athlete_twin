@@ -1,0 +1,45 @@
+{
+ "format_version": 1,
+ "name": "Mastering Gentle Tilt",
+ "category": "Master",
+ "track_type": "Master",
+ "note": "A small brightness/warmth balance for a whole mix.",
+ "description": "",
+ "bands": [
+  {
+   "slot": 1,
+   "on": true,
+   "shape": "LowCut",
+   "freq": 20.0,
+   "gain": 0.0,
+   "q": 1.0,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": false
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  },
+  {
+   "slot": 2,
+   "on": true,
+   "shape": "Tilt",
+   "freq": 1000.0,
+   "gain": 1.0,
+   "q": 1.0,
+   "slope": "12",
+   "stereo": "Stereo",
+   "dyn": {
+    "on": false
+   },
+   "det": {
+    "source": "Internal",
+    "custom": false
+   }
+  }
+ ],
+ "globals": {}
+}
